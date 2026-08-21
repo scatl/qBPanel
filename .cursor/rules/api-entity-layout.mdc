@@ -1,0 +1,26 @@
+---
+description: API 请求/响应实体目录约定
+globs: lib/api/**/*.dart,lib/http/**/*.dart,lib/home/**/*.dart
+alwaysApply: false
+---
+
+# API 实体类目录
+
+与 HTTP 接口对应的数据模型放在 `lib/api/entity/`，按方向拆分：
+
+| 类型 | 目录 |
+|---|---|
+| 请求体 / query / 表单字段 | `lib/api/entity/request/` |
+| 响应 JSON 解析模型 | `lib/api/entity/response/` |
+
+- 命名：文件与类用接口语义，如 `maindata_response.dart` → `MaindataResponse`；请求如 `add_torrents_request.dart`
+- 只放 **API 边界** 模型（`fromJson` / `toJson` / query map）；页面 `*UiState`、Drift 表不要放这里
+- 路径常量仍在 `lib/api/api_path.dart`；网络调用仍在 `ApiClient`
+
+```text
+// ✅ lib/api/entity/response/maindata_response.dart
+// ✅ lib/api/entity/request/add_torrents_request.dart
+// ❌ lib/home/maindata_response.dart
+// ❌ lib/api/maindata.dart（不区分 request/response）
+// ❌ 把 UiState / DB 行模型塞进 entity/
+```

@@ -1,0 +1,50 @@
+---
+description: qBittorrent 5.0 sync/maindata 增量同步
+globs: lib/home/**/*.dart,lib/api/**/*.dart,lib/http/**/*.dart
+alwaysApply: false
+---
+
+# Get main data（qB 5.0）
+
+官方全文（本地）：[`docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md`](docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md) → 章节 `Get main data`  
+在线：[Wiki](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-5.0)#get-main-data)（优先读本地，勿重复全量拉取）
+
+- **Method / Name:** `GET` · `maindata`
+- **Path:** `/api/v2/sync/maindata` → `ApiPath.sync.mainData`
+- **实体：** `MaindataResponse`（`lib/api/entity/response/maindata_response.dart`）
+- **Auth:** `Authorization: Bearer <API_KEY>`
+- **HTTP:** 始终 `200`；body 为 JSON **对象**
+
+## Query
+
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| `rid` | int | 上次响应的 Response ID；省略或 `0` = 全量 |
+
+## 响应常用字段
+
+| 字段 | 说明 |
+|---|---|
+| `rid` | 本次 ID，下次请求原样带回 |
+| `full_update` | `true` = 全量，本地应整表替换 |
+| `torrents` | object：key = hash，value = 与 `torrents/info` 单项相同（增量时可能只有变化字段；含 Wiki 未列的 `total_wasted` 等 serialize 键） |
+| `torrents_removed` | 自上次以来删除的 hash 列表 |
+| `categories` / `categories_removed` | 分类增删 |
+| `tags` / `tags_removed` | 标签增删 |
+| `server_state` | 全局传输信息（上下行速度等） |
+
+## 客户端约定
+
+1. 首次：`rid` 省略或 `0` → 全量，缓存 `torrents` + `server_state`，记下 `rid`
+2. 之后轮询带上次 `rid`；`full_update == true` 则整表替换，否则按 hash **merge**，并处理 `*_removed`
+3. 切换服务器 / 登出 / 长时间失败：把 `rid` 置 `0` 并清空缓存后再拉
+
+```dart
+// ✅
+api.get(
+  ApiPath.sync.mainData,
+  queryParameters: {'rid': rid},
+  parser: jsonParser(MaindataResponse.fromJson),
+).onSuccess((data) { ... }).onFail((e) { ... });
+// ❌ 定时刷新反复打 torrents/info 全量；❌ 忽略 rid / full_update；❌ 自己判断 statusCode
+```

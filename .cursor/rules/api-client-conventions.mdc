@@ -1,0 +1,48 @@
+---
+description: ApiClient / ApiPath 与 qBittorrent 鉴权约定
+globs: lib/http/**/*.dart,lib/api/**/*.dart,lib/home/**/*.dart
+alwaysApply: false
+---
+
+# API 调用
+
+- 客户端：`ApiClient` + `apiClientProvider`（`lib/http/api_client.dart`）
+- 路径常量：`ApiPath`（`lib/api/api_path.dart`），相对路径如 `/api/v2/...`
+- 请求/响应实体：见规则 **`api-entity-layout`**（`lib/api/entity/request|response/`）
+- 鉴权：`Authorization: Bearer <apiKey>`（由客户端写入）
+- **API 文档**：优先读本地 `docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md`（Wiki 原文 Markdown），不要每次重新联网全量拉取
+- `get` / `post` / `getWithConfig` 返回 **`ApiCall<T>`**：内部判断 HTTP 成败，调用方不要再看 `Response` / `statusCode` / `try DioException`
+
+```dart
+await api.get(
+  ApiPath.sync.mainData,
+  parser: jsonParser(MaindataResponse.fromJson),
+).onSuccess((data) {
+  // data 已是实体
+}).onFail((e) {
+  // e.message 已是中文；取消时 e.isCancel == true
+});
+```
+
+- JSON object 用 `jsonParser(Xxx.fromJson)`；纯文本（如 version）指定 `T` 为 `String` 并设 `Options(responseType: ResponseType.plain)`
+- `await` 成功得 `T`，失败得 `null`（`onFail` 仍会调用）
+- 回调须在同一同步链上注册（`.onSuccess().onFail()`），不要先 `await` 再挂回调
+
+## 选哪套 API
+
+| 场景 | 方法 |
+|---|---|
+| 已有激活服务器（首页种子列表等） | `get` / `post`（自动读 `isActive == true`） |
+| 保存前探测、尚未入库 | `getWithConfig`（显式传 host/port/https/path/apiKey） |
+
+无激活服务器时 `get`/`post` 会抛错；UI 需引导去服务器设置。
+
+## 错误文案
+
+```dart
+// ✅
+.onFail((e) { /* '操作失败：${e.message}' */ });
+// ❌ 不要再手写一套 DioException switch；❌ 不要自己判断 statusCode
+```
+
+纯文本响应（如 version）用 `Options(responseType: ResponseType.plain)`。

@@ -1,0 +1,79 @@
+name: qbpanel
+description: "qBPanel"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.9
+  flutter_riverpod: ^3.4.2
+  shared_preferences: ^2.5.5
+  dynamic_color: ^1.9.0
+  flex_color_picker: ^3.8.0
+  dio: ^5.11.0
+  go_router: ^17.4.0
+  json_annotation: ^4.12.0
+  easy_refresh: ^3.4.0
+  flutter_slidable: ^4.0.3
+  openai_dart: ^8.0.0
+  flutter_svg: ^2.3.0
+  http: ^1.6.0
+  flutter_markdown_plus: ^1.0.12
+  flutter_highlight: ^0.7.0
+  highlight: ^0.7.0
+  markdown: ^7.3.1
+  drift: ^2.34.3
+  drift_flutter: ^0.3.1
+  path_provider: ^2.1.6
+  path: ^1.9.1
+  share_plus: ^13.3.0
+  file_picker: ^12.0.0
+  receive_intent: ^0.2.7
+  uri_content: ^4.0.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  json_serializable: ^6.14.1
+  build_runner: ^2.15.1
+  flutter_native_splash: ^2.4.8
+  flutter_launcher_icons: ^0.14.4
+  image: ^4.9.1
+  drift_dev: ^2.34.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/flags/
+
+# 原生启动画面：冷启动时先显示，Flutter 首帧后自动消失
+# dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/icons/qbpanel_splash.png
+  android: true
+  ios: false
+  web: true
+  android_12:
+    color: "#FFFFFF"
+    image: assets/icons/qbpanel_splash.png
+
+# 桌面 / 启动器图标（白底 + 品牌青绿）
+# dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/icons/qbpanel_launcher.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/icons/qbpanel_adaptive_fg.png
+  adaptive_icon_foreground_inset: 14
+  web:
+    generate: true
+    image_path: assets/icons/qbpanel_launcher.png
+    background_color: "#FFFFFF"
+    theme_color: "#1B6B5A"

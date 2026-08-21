@@ -1,0 +1,25 @@
+---
+description: go_router 路径注册与带参跳转
+globs: lib/router/**/*.dart
+alwaysApply: false
+---
+
+# 路由
+
+- 路径常量：`RouterPath`；query 键：`RouterParameters`
+- **注册用 path 不要带 `?query`**；query 只在 `push` 时拼接
+
+```dart
+// ✅ 注册
+path: RouterPath.serverModify,
+
+// ✅ 跳转
+context.push(RouterPath.serverModifyWithParams()); // 添加
+context.push(RouterPath.serverModifyWithParams(serverId: id)); // 编辑
+
+// ❌ path: RouterPath.serverModifyWithParams()
+// ❌ 无 id 时拼出 ?serverId=null
+```
+
+读参：`state.uri.queryParameters[...]`，id 用 `int.tryParse`。  
+转场由 `Theme.pageTransitionsTheme`（Zoom）决定，builder 返回普通页面即可。

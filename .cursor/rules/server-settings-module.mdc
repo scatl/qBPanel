@@ -1,0 +1,34 @@
+---
+description: 服务器列表/编辑模块职责与改动注意点
+globs: lib/settings/server/**/*.dart
+alwaysApply: false
+---
+
+# 服务器设置模块
+
+| 类 | 作用 |
+|---|---|
+| `ServerListPage` | 卡片列表；FAB 添加；编辑带 id；侧滑删除 |
+| `ServerModifyPage` | 添加（无 id）/ 编辑（有 id）同一页 |
+| `ServerListViewModel` | Drift 全量查询 + 删除 + `refresh` |
+| `QbServers` | host/port/https/path/apiKey/`isActive` |
+
+路由：`RouterPath.serverList`、`serverModify` / `serverModifyWithParams`。
+
+## 保存规则
+
+1. 必填：名称、域名或 IP、API 密钥；端口空 → **80**；路径空 → `""`
+2. `LoadingDialog`「校验中…」→ `getWithConfig` + `ApiPath.application.apiVersion`
+3. 成功才写库：无 id → insert（无 active 时新行 `isActive: true`）；有 id → update（**保留**原 `isActive`）
+4. 成功后 `serverListProvider.refresh()` 再 `pop`
+
+## 别漏
+
+```text
+// ✅ 删/存后 refresh 列表
+// ✅ 切换激活时事务保证最多一台 isActive（若实现切换）
+// ❌ Page 直接读写 AppDatabase
+// ❌ 校验失败仍 insert/update
+```
+
+列表：active 用主色描边，不用勾选图标；API 密钥输入 `obscureText: true`。

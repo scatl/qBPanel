@@ -1,0 +1,23 @@
+---
+description: 功能分层 Page / UiState / ViewModel（Riverpod）
+alwaysApply: true
+---
+
+# 功能分层
+
+新功能默认按三件套组织（参考 `lib/settings/server/`）：
+
+| 层 | 职责 |
+|---|---|
+| `*Page` | UI、导航、Dialog；`ref.watch` UiState / `ref.read(notifier)` |
+| `*UiState` | 页面状态；提供 `copyWith` |
+| `*ViewModel` + `NotifierProvider` | Drift / API / 业务；更新 `state` |
+
+```text
+// ✅ Page 调 ViewModel；ViewModel 读写 AppDatabase / ApiClient
+// ❌ Page 里直接 db.select / db.into / ApiClient.dio
+```
+
+- 列表数据优先嵌入 `PagedRefreshState<T>`（见 `lib/widget/refresh/`）
+- Provider 命名：`xxxProvider`；与现有 `serverListProvider` 风格一致
+- 改 Drift 表后跑 `build_runner`；持久化兼容见 alwaysApply「无需迁移」规则

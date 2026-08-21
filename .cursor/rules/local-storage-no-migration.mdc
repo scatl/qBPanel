@@ -1,0 +1,24 @@
+---
+description: 本地持久化数据结构变更时不做迁移兼容
+alwaysApply: true
+---
+
+# 本地数据结构：无需迁移
+
+涉及 SharedPreferences / 本地文件等持久化数据结构变更时：
+
+- **直接改模型与读写逻辑**，不必兼容旧字段、旧 key、旧 JSON 形状
+- **不要**写 migration、版本号升级、`fromJson` 里的多版本分支、或“读不到就按旧格式兜底”
+- 测试约定：卸载重装即可；不以保留用户本地旧数据为前提
+
+```dart
+// ❌ BAD — 为旧数据做兼容
+factory Foo.fromJson(Map json) {
+  final v = json['version'] as int? ?? 1;
+  if (v == 1) return Foo(name: json['n']);
+  return Foo(name: json['name']);
+}
+
+// ✅ GOOD — 只认当前结构
+factory Foo.fromJson(Map json) => Foo(name: json['name'] as String);
+```

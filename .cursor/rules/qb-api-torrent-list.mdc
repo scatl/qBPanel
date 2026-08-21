@@ -1,0 +1,55 @@
+---
+description: qBittorrent 5.0 种子单项字段（torrents/info 与 maindata.torrents）
+globs: lib/home/**/*.dart,lib/api/**/*.dart,lib/http/**/*.dart
+alwaysApply: false
+---
+
+# 种子单项字段（qB 5.0）
+
+官方全文（本地）：[`docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md`](docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md) → 章节 `Get torrent list`  
+在线：[Wiki](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-5.0)#get-torrent-list)（优先读本地，勿重复全量拉取）
+
+- **`/api/v2/torrents/info`**：JSON **数组**；路径 `ApiPath.torrentManagement.torrentList`（按需过滤/排序时用）
+- **首页定时刷新**：用 **`sync/maindata`**（见 `qb-api-sync-maindata`）；其 `torrents[hash]` 字段形状与本规则相同
+- **Auth:** `Authorization: Bearer <API_KEY>`
+
+## Query 参数（均 optional）
+
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| `filter` | string | `all` / `downloading` / `seeding` / `completed` / `stopped` / `active` / `inactive` / `running` / `stalled` / `stalled_uploading` / `stalled_downloading` / `errored` |
+| `category` | string | 指定分类；`""` = 无分类；缺省 = 任意。需 URL encode |
+| `tag` | string | ≥2.8.3；`""` = 无标签；缺省 = 任意。需 URL encode |
+| `sort` | string | 按响应字段名排序 |
+| `reverse` | bool | 倒序，默认 `false` |
+| `limit` | int | 返回条数上限 |
+| `offset` | int | 偏移；`<0` 表示从末尾算 |
+| `hashes` | string | 多 hash 用 `\|` 分隔 |
+
+例：`/api/v2/torrents/info?filter=downloading&sort=ratio`
+
+## 列表项常用字段（JSON）
+
+首页 UI 优先用：`hash`、`name`、`state`、`progress`、`dlspeed`、`upspeed`、`eta`、`size`、`total_size`、`num_seeds`、`num_leechs`、`category`、`tags`、`save_path`、`ratio`、`priority`。
+
+官方 Wiki 表格不完整；以源码 `serialize_torrent` 为准（与 maindata 同源）。其余字段：`added_on`、`amount_left`、`auto_tmm`、`availability`、`comment`、`completed`、`completion_on`、`connections_count`、`connections_limit`、`content_path`、`created_by`、`creation_date`、`dl_limit`、`download_path`、`downloaded`、`downloaded_session`、`f_l_piece_prio`、`force_start`、`has_metadata`、`infohash_v1`、`infohash_v2`、`inactive_seeding_time_limit`、`last_activity`、`magnet_uri`、`max_inactive_seeding_time`、`max_ratio`、`max_seeding_time`、`num_complete`、`num_incomplete`、`piece_size`、`pieces_have`、`pieces_num`、`popularity`、`private`（Wiki 误写 `isPrivate`；properties 接口才是 `isPrivate`）、`ratio_limit`、`reannounce`、`root_path`、`seeding_time`、`seeding_time_limit`、`seen_complete`、`seq_dl`、`share_limit_action`、`share_limits_mode`、`super_seeding`、`time_active`、`total_wasted`、`tracker`、`trackers_count`、`up_limit`、`uploaded`、`uploaded_session`。
+
+单位：速度/大小为 **bytes（或 bytes/s）**；时间为 Unix Epoch 或秒；`progress` 为 **0~1**。
+
+## `state` 取值
+
+枚举：`TorrentState`（`lib/api/entity/response/torrent_state.dart`）。只认 5.0：`stoppedUP` / `stoppedDL`。
+
+| Value | 含义 |
+|---|---|
+| `error` | 错误（含已暂停出错） |
+| `missingFiles` | 文件缺失 |
+| `uploading` / `forcedUP` / `stalledUP` / `queuedUP` / `stoppedUP` / `checkingUP` | 上传侧 |
+| `downloading` / `forcedDL` / `stalledDL` / `queuedDL` / `stoppedDL` / `checkingDL` / `metaDL` / `forcedMetaDL` | 下载侧 |
+| `allocating` / `moving` / `checkingResumeData` / `unknown` | 其它 |
+
+```dart
+// ✅ 需要 filter/sort 时用 info
+api.get(ApiPath.torrentManagement.torrentList, queryParameters: {'filter': 'all'});
+// ❌ 首页轮询用 info 全量；❌ 手写完整 URL
+```

@@ -1,0 +1,33 @@
+---
+description: 共用列表、模糊 Dialog 与 Sheet 用法
+globs: lib/widget/**/*.dart,lib/home/**/*.dart,lib/settings/**/*.dart
+alwaysApply: false
+---
+
+# 共用 UI
+
+## 分页/刷新列表
+
+用 `PagedRefreshList` + `PagedRefreshState`（`lib/widget/refresh/`）。
+
+- 本地全量列表：`enableLoadMore: false`，`setSuccess(..., hasMore: false)`
+- 下拉刷新走 ViewModel 的 `refresh`
+
+## Dialog
+
+| 组件 | 用途 |
+|---|---|
+| `LoadingDialog` | 校验/加载中；**不要 await show**（会卡到 dismiss） |
+| `ConfirmDialog` | 确认框；可改标题/按钮文案；`destructive: true` 用于删除 |
+| `BlurDialogScaffold` / `BlurDialogMotion` | 模糊背景 + 进入动画（320ms），两 Dialog 已共用 |
+| `showBlurModalBottomSheet` / `BlurScrim` | Sheet 模糊遮罩；滑入/拖动手势仍用系统 sheet 动画 |
+
+```dart
+LoadingDialog.show(context, message: '校验中…');
+try { /* work */ } finally {
+  if (mounted) LoadingDialog.dismiss(context);
+}
+```
+
+新模糊弹层优先复用 `BlurDialogScaffold`，勿复制一套动画参数。
+新 Bottom Sheet 用 `showBlurModalBottomSheet`，勿直接 `showModalBottomSheet`。

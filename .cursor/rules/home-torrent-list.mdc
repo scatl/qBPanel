@@ -1,0 +1,22 @@
+---
+description: 首页种子列表（待实现/改动时注意）
+globs: lib/home/**/*.dart
+alwaysApply: false
+---
+
+# 首页种子列表
+
+- 入口：`HomePage`；数据来自当前 **`isActive`** 服务器
+- API：`ApiClient.get` + `ApiPath.sync.mainData`（`/api/v2/sync/maindata`），**定时轮询**（建议 1–2s）
+- 响应实体：`MaindataResponse`（`lib/api/entity/response/`）
+- 协议细节（`rid` / `full_update` / merge）：见规则 **`qb-api-sync-maindata`**
+- 单条种子字段与 `state`：与 `torrents/info` 相同，见 **`qb-api-torrent-list`**
+- 结构：`Page` + `UiState` + `ViewModel`；列表数据用本地 map 维护，不必强行塞分页
+- 无激活服务器：提示并引导去 `RouterPath.serverList`，不要静默失败
+- 网络错误：`ApiCall.onFail` 的 `e.message`（取消可看 `e.isCancel`）
+- 服务器增删改/切换激活后：重置 `rid`、清空本地缓存并重新全量拉取
+
+```text
+// ✅ api.get(ApiPath.sync.mainData, queryParameters: {'rid': lastRid}, parser: jsonParser(MaindataResponse.fromJson))
+// ❌ 首页定时刷新用 torrents/info；❌ Page 里 new Dio / 手写完整 URL / 自己判断 Response
+```
