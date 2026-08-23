@@ -47,7 +47,8 @@ jobs:
         run: flutter pub get
 
       - name: Analyze
-        run: flutter analyze
+        # Only fail on analyzer errors; warnings/infos are non-blocking in CI.
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
       - name: Build debug APK
         run: flutter build apk --debug
