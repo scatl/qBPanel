@@ -11,6 +11,7 @@ abstract final class RouterPath {
   static const serverSettingsSpeed = '$serverSettings/speed';
   static const serverSettingsBittorrent = '$serverSettings/bittorrent';
   static const serverSettingsWebUi = '$serverSettings/webui';
+  static const serverSettingsAdvanced = '$serverSettings/advanced';
 
   /// 路由表注册用的 path（不要带 query）
   static const serverModify = '$settings/server_modify';
@@ -54,6 +55,10 @@ abstract final class RouterPath {
 
   static String serverSettingsWebUiWithParams(int serverId) {
     return '$serverSettingsWebUi?${RouterParameters.serverId}=$serverId';
+  }
+
+  static String serverSettingsAdvancedWithParams(int serverId) {
+    return '$serverSettingsAdvanced?${RouterParameters.serverId}=$serverId';
   }
 
   /// [url] 与 [torrentPath] 二选一；都会做 encode。

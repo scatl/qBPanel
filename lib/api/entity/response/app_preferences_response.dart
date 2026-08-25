@@ -149,6 +149,82 @@ class AppPreferencesResponse {
     this.dyndnsDomain,
     this.dyndnsUsername,
     this.dyndnsPassword,
+    // Advanced
+    this.resumeDataStorageType,
+    this.torrentContentRemoveOption,
+    this.memoryWorkingSetLimit,
+    this.currentNetworkInterface,
+    this.currentInterfaceName,
+    this.currentInterfaceAddress,
+    this.saveResumeDataInterval,
+    this.saveStatisticsInterval,
+    this.torrentFileSizeLimit,
+    this.confirmTorrentRecheck,
+    this.recheckCompletedTorrents,
+    this.appInstanceName,
+    this.refreshInterval,
+    this.resolvePeerHostNames,
+    this.resolvePeerCountries,
+    this.reannounceWhenAddressChanged,
+    this.enableEmbeddedTracker,
+    this.embeddedTrackerPort,
+    this.embeddedTrackerPortForwarding,
+    this.markOfTheWeb,
+    this.ignoreSslErrors,
+    this.pythonExecutablePath,
+    this.bdecodeDepthLimit,
+    this.bdecodeTokenLimit,
+    this.asyncIoThreads,
+    this.hashingThreads,
+    this.filePoolSize,
+    this.checkingMemoryUse,
+    this.diskCache,
+    this.diskCacheTtl,
+    this.diskQueueSize,
+    this.diskIoType,
+    this.diskIoReadMode,
+    this.diskIoWriteMode,
+    this.enableCoalesceReadWrite,
+    this.enablePieceExtentAffinity,
+    this.enableUploadSuggestions,
+    this.sendBufferWatermark,
+    this.sendBufferLowWatermark,
+    this.sendBufferWatermarkFactor,
+    this.connectionSpeed,
+    this.seedingOutgoingConnections,
+    this.socketSendBufferSize,
+    this.socketReceiveBufferSize,
+    this.socketBacklogSize,
+    this.outgoingPortsMin,
+    this.outgoingPortsMax,
+    this.upnpLeaseDuration,
+    this.peerTos,
+    this.utpTcpMixedMode,
+    this.hostnameCacheTtl,
+    this.idnSupportEnabled,
+    this.enableMultiConnectionsFromSameIp,
+    this.enableMultiConnectionsFromSamePeerId,
+    this.validateHttpsTrackerCertificate,
+    this.ssrfMitigation,
+    this.blockPeersOnPrivilegedPorts,
+    this.uploadSlotsBehavior,
+    this.uploadChokingAlgorithm,
+    this.announceToAllTrackers,
+    this.announceToAllTiers,
+    this.announceIp,
+    this.announcePort,
+    this.maxConcurrentHttpAnnounces,
+    this.stopTrackerTimeout,
+    this.peerTurnover,
+    this.peerTurnoverCutoff,
+    this.peerTurnoverInterval,
+    this.requestQueueSize,
+    this.maxOutstandingBlockRequests,
+    this.dhtBootstrapNodes,
+    this.i2pInboundQuantity,
+    this.i2pOutboundQuantity,
+    this.i2pInboundLength,
+    this.i2pOutboundLength,
   });
 
   // Behavior
@@ -302,6 +378,83 @@ class AppPreferencesResponse {
   final String? dyndnsDomain;
   final String? dyndnsUsername;
   final String? dyndnsPassword;
+
+  // Advanced
+  final String? resumeDataStorageType;
+  final String? torrentContentRemoveOption;
+  final int? memoryWorkingSetLimit;
+  final String? currentNetworkInterface;
+  final String? currentInterfaceName;
+  final String? currentInterfaceAddress;
+  final int? saveResumeDataInterval;
+  final int? saveStatisticsInterval;
+  final int? torrentFileSizeLimit;
+  final bool? confirmTorrentRecheck;
+  final bool? recheckCompletedTorrents;
+  final String? appInstanceName;
+  final int? refreshInterval;
+  final bool? resolvePeerHostNames;
+  final bool? resolvePeerCountries;
+  final bool? reannounceWhenAddressChanged;
+  final bool? enableEmbeddedTracker;
+  final int? embeddedTrackerPort;
+  final bool? embeddedTrackerPortForwarding;
+  final bool? markOfTheWeb;
+  final bool? ignoreSslErrors;
+  final String? pythonExecutablePath;
+  final int? bdecodeDepthLimit;
+  final int? bdecodeTokenLimit;
+  final int? asyncIoThreads;
+  final int? hashingThreads;
+  final int? filePoolSize;
+  final int? checkingMemoryUse;
+  final int? diskCache;
+  final int? diskCacheTtl;
+  final int? diskQueueSize;
+  final int? diskIoType;
+  final int? diskIoReadMode;
+  final int? diskIoWriteMode;
+  final bool? enableCoalesceReadWrite;
+  final bool? enablePieceExtentAffinity;
+  final bool? enableUploadSuggestions;
+  final int? sendBufferWatermark;
+  final int? sendBufferLowWatermark;
+  final int? sendBufferWatermarkFactor;
+  final int? connectionSpeed;
+  final bool? seedingOutgoingConnections;
+  final int? socketSendBufferSize;
+  final int? socketReceiveBufferSize;
+  final int? socketBacklogSize;
+  final int? outgoingPortsMin;
+  final int? outgoingPortsMax;
+  final int? upnpLeaseDuration;
+  final int? peerTos;
+  final int? utpTcpMixedMode;
+  final int? hostnameCacheTtl;
+  final bool? idnSupportEnabled;
+  final bool? enableMultiConnectionsFromSameIp;
+  final bool? enableMultiConnectionsFromSamePeerId;
+  final bool? validateHttpsTrackerCertificate;
+  final bool? ssrfMitigation;
+  final bool? blockPeersOnPrivilegedPorts;
+  final int? uploadSlotsBehavior;
+  final int? uploadChokingAlgorithm;
+  final bool? announceToAllTrackers;
+  final bool? announceToAllTiers;
+  final String? announceIp;
+  final int? announcePort;
+  final int? maxConcurrentHttpAnnounces;
+  final int? stopTrackerTimeout;
+  final int? peerTurnover;
+  final int? peerTurnoverCutoff;
+  final int? peerTurnoverInterval;
+  final int? requestQueueSize;
+  final int? maxOutstandingBlockRequests;
+  final String? dhtBootstrapNodes;
+  final int? i2pInboundQuantity;
+  final int? i2pOutboundQuantity;
+  final int? i2pInboundLength;
+  final int? i2pOutboundLength;
 
   /// 兼容旧版 `mail_notification_ssl_enabled` 与新版 `encryption_type`。
   bool get mailSslOrEncryptionEnabled {
@@ -470,6 +623,89 @@ class AppPreferencesResponse {
       dyndnsDomain: readString(json['dyndns_domain']),
       dyndnsUsername: readString(json['dyndns_username']),
       dyndnsPassword: readString(json['dyndns_password']),
+      resumeDataStorageType: readString(json['resume_data_storage_type']),
+      torrentContentRemoveOption: readString(json['torrent_content_remove_option']),
+      memoryWorkingSetLimit: readInt(json['memory_working_set_limit']),
+      currentNetworkInterface: readString(json['current_network_interface']),
+      currentInterfaceName: readString(json['current_interface_name']),
+      currentInterfaceAddress: readString(json['current_interface_address']),
+      saveResumeDataInterval: readInt(json['save_resume_data_interval']),
+      saveStatisticsInterval: readInt(json['save_statistics_interval']),
+      torrentFileSizeLimit: readInt(json['torrent_file_size_limit']),
+      confirmTorrentRecheck: readBool(json['confirm_torrent_recheck']),
+      recheckCompletedTorrents: readBool(json['recheck_completed_torrents']),
+      appInstanceName: readString(json['app_instance_name']),
+      refreshInterval: readInt(json['refresh_interval']),
+      resolvePeerHostNames: readBool(json['resolve_peer_host_names']),
+      resolvePeerCountries: readBool(json['resolve_peer_countries']),
+      reannounceWhenAddressChanged:
+          readBool(json['reannounce_when_address_changed']),
+      enableEmbeddedTracker: readBool(json['enable_embedded_tracker']),
+      embeddedTrackerPort: readInt(json['embedded_tracker_port']),
+      embeddedTrackerPortForwarding:
+          readBool(json['embedded_tracker_port_forwarding']),
+      markOfTheWeb: readBool(json['mark_of_the_web']),
+      ignoreSslErrors: readBool(json['ignore_ssl_errors']),
+      pythonExecutablePath: readString(json['python_executable_path']),
+      bdecodeDepthLimit: readInt(json['bdecode_depth_limit']),
+      bdecodeTokenLimit: readInt(json['bdecode_token_limit']),
+      asyncIoThreads: readInt(json['async_io_threads']),
+      hashingThreads: readInt(json['hashing_threads']),
+      filePoolSize: readInt(json['file_pool_size']),
+      checkingMemoryUse: readInt(json['checking_memory_use']),
+      diskCache: readInt(json['disk_cache']),
+      diskCacheTtl: readInt(json['disk_cache_ttl']),
+      diskQueueSize: readInt(json['disk_queue_size']),
+      diskIoType: readInt(json['disk_io_type']),
+      diskIoReadMode: readInt(json['disk_io_read_mode']),
+      diskIoWriteMode: readInt(json['disk_io_write_mode']),
+      enableCoalesceReadWrite: readBool(json['enable_coalesce_read_write']),
+      enablePieceExtentAffinity: readBool(json['enable_piece_extent_affinity']),
+      enableUploadSuggestions: readBool(json['enable_upload_suggestions']),
+      sendBufferWatermark: readInt(json['send_buffer_watermark']),
+      sendBufferLowWatermark: readInt(json['send_buffer_low_watermark']),
+      sendBufferWatermarkFactor: readInt(json['send_buffer_watermark_factor']),
+      connectionSpeed: readInt(json['connection_speed']),
+      seedingOutgoingConnections: readBool(json['seeding_outgoing_connections']),
+      socketSendBufferSize: readInt(json['socket_send_buffer_size']),
+      socketReceiveBufferSize: readInt(json['socket_receive_buffer_size']),
+      socketBacklogSize: readInt(json['socket_backlog_size']),
+      outgoingPortsMin: readInt(json['outgoing_ports_min']),
+      outgoingPortsMax: readInt(json['outgoing_ports_max']),
+      upnpLeaseDuration: readInt(json['upnp_lease_duration']),
+      peerTos: readInt(json['peer_tos']),
+      utpTcpMixedMode: readInt(json['utp_tcp_mixed_mode']),
+      hostnameCacheTtl: readInt(json['hostname_cache_ttl']),
+      idnSupportEnabled: readBool(json['idn_support_enabled']),
+      enableMultiConnectionsFromSameIp:
+          readBool(json['enable_multi_connections_from_same_ip']),
+      enableMultiConnectionsFromSamePeerId:
+          readBool(json['enable_multi_connections_from_same_peer_id']),
+      validateHttpsTrackerCertificate:
+          readBool(json['validate_https_tracker_certificate']),
+      ssrfMitigation: readBool(json['ssrf_mitigation']),
+      blockPeersOnPrivilegedPorts:
+          readBool(json['block_peers_on_privileged_ports']),
+      uploadSlotsBehavior: readInt(json['upload_slots_behavior']),
+      uploadChokingAlgorithm: readInt(json['upload_choking_algorithm']),
+      announceToAllTrackers: readBool(json['announce_to_all_trackers']),
+      announceToAllTiers: readBool(json['announce_to_all_tiers']),
+      announceIp: readString(json['announce_ip']),
+      announcePort: readInt(json['announce_port']),
+      maxConcurrentHttpAnnounces:
+          readInt(json['max_concurrent_http_announces']),
+      stopTrackerTimeout: readInt(json['stop_tracker_timeout']),
+      peerTurnover: readInt(json['peer_turnover']),
+      peerTurnoverCutoff: readInt(json['peer_turnover_cutoff']),
+      peerTurnoverInterval: readInt(json['peer_turnover_interval']),
+      requestQueueSize: readInt(json['request_queue_size']),
+      maxOutstandingBlockRequests:
+          readInt(json['max_outstanding_block_requests']),
+      dhtBootstrapNodes: readString(json['dht_bootstrap_nodes']),
+      i2pInboundQuantity: readInt(json['i2p_inbound_quantity']),
+      i2pOutboundQuantity: readInt(json['i2p_outbound_quantity']),
+      i2pInboundLength: readInt(json['i2p_inbound_length']),
+      i2pOutboundLength: readInt(json['i2p_outbound_length']),
     );
   }
 }
