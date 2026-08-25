@@ -192,6 +192,54 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     );
   }
 
+  /// 设置当前生效的全局上下行限速（bytes/s；`0` 为不限）。
+  /// 开启备用速度限制时，qB 会改备用限速；否则改普通全局限速。
+  Future<String?> setGlobalSpeedLimits({
+    required int downloadBytesPerSec,
+    required int uploadBytesPerSec,
+  }) async {
+    final api = ref.read(apiClientProvider);
+    Future<String?> postLimit(String path, int limit) async {
+      String? error;
+      await api
+          .post<void>(
+            path,
+            data: {'limit': '$limit'},
+            options: Options(contentType: Headers.formUrlEncodedContentType),
+            parser: (_) {},
+          )
+          .onFail((e) {
+            error = e.message;
+          });
+      return error;
+    }
+
+    final dlError = await postLimit(
+      ApiPath.transfer.setDownloadLimit,
+      downloadBytesPerSec,
+    );
+    if (dlError != null) return dlError;
+    final upError = await postLimit(
+      ApiPath.transfer.setUploadLimit,
+      uploadBytesPerSec,
+    );
+    if (upError != null) return upError;
+
+    final current = state.serverState;
+    if (current != null) {
+      state = state.copyWith(
+        serverState: current.merge(
+          ServerStateResponse(
+            dlRateLimit: downloadBytesPerSec,
+            upRateLimit: uploadBytesPerSec,
+          ),
+        ),
+      );
+    }
+    unawaited(sync());
+    return null;
+  }
+
   Future<String?> fetchDefaultSavePath() async {
     String? path;
     final api = ref.read(apiClientProvider);

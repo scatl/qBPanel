@@ -5,6 +5,7 @@ import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
 import 'package:qbpanel/home/entity/torrent_status_filter.dart';
+import 'package:qbpanel/home/ui/dialog/global_speed_limit_dialog.dart';
 import 'package:qbpanel/home/ui/home_bottom_bar.dart';
 import 'package:qbpanel/home/ui/sheet/server_state_sheet.dart';
 import 'package:qbpanel/home/ui/sheet/server_switch_sheet.dart';
@@ -32,6 +33,34 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   void _showServerStateSheet() {
     ServerStateSheet.show(context);
+  }
+
+  Future<void> _showGlobalSpeedLimitDialog() async {
+    final serverState = ref.read(homePageProvider).serverState;
+    if (serverState == null) return;
+    final saved = await GlobalSpeedLimitDialog.show(
+      context: context,
+      useAltSpeedLimits: serverState.useAltSpeedLimits == true,
+      initialDownloadBytesPerSec: serverState.dlRateLimit,
+      initialUploadBytesPerSec: serverState.upRateLimit,
+      onSubmit: ({
+        required int downloadBytesPerSec,
+        required int uploadBytesPerSec,
+      }) {
+        return ref.read(homePageProvider.notifier).setGlobalSpeedLimits(
+              downloadBytesPerSec: downloadBytesPerSec,
+              uploadBytesPerSec: uploadBytesPerSec,
+            );
+      },
+    );
+    if (!mounted || !saved) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          serverState.useAltSpeedLimits == true ? '已保存备用限速' : '已保存全局限速',
+        ),
+      ),
+    );
   }
 
   Future<void> _confirmStartDisplayed() {
@@ -219,7 +248,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           ? null
           : HomeBottomBar(
               serverState: ui.serverState!,
-              onTap: _showServerStateSheet,
+              onStatusTap: _showServerStateSheet,
+              onSpeedTap: _showGlobalSpeedLimitDialog,
               onAltSpeedPressed: _toggleAltSpeed,
             ),
       body: PagedRefreshList<TorrentInfoResponse>(
