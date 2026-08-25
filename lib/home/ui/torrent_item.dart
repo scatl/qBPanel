@@ -63,7 +63,7 @@ class TorrentItem extends StatelessWidget {
                         ),
                       ),
                     if (showQueuePosition) const TextSpan(text: ' '),
-                    TextSpan(text: torrent.name ?? ''),
+                    TextSpan(text: _softWrapName(torrent.name)),
                   ],
                 ),
                 maxLines: 2,
@@ -213,6 +213,19 @@ bool _isCompleted(TorrentState? state) {
     default:
       return false;
   }
+}
+
+/// 种子名常无空格；跟在 WidgetSpan 后若整段不可断，会被挤到下一行。
+/// 插入零宽空格后可在第一行继续排字，换行仍从左侧顶格开始。
+String _softWrapName(String? name) {
+  final text = name ?? '';
+  if (text.isEmpty) return text;
+  final buffer = StringBuffer();
+  for (final unit in text.runes) {
+    buffer.writeCharCode(unit);
+    buffer.write('\u200B');
+  }
+  return buffer.toString();
 }
 
 class _StateLabel extends StatelessWidget {
