@@ -18,6 +18,7 @@ import 'package:qbpanel/home/entity/torrent_category_node.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
 import 'package:qbpanel/home/entity/torrent_status_filter.dart';
 import 'package:qbpanel/home/entity/torrent_tag.dart';
+import 'package:qbpanel/detail/general/speed/torrent_speed_history_view_model.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
@@ -25,7 +26,7 @@ import 'package:qbpanel/storage/db/app_database_provider.dart';
 import 'package:qbpanel/widget/refresh/paged_refresh_state.dart';
 
 final homePageProvider = NotifierProvider<HomePageViewModel, HomePageUiState>(
-  HomePageViewModel.new
+  HomePageViewModel.new,
 );
 
 class HomePageViewModel extends Notifier<HomePageUiState> {
@@ -57,8 +58,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     )..attach(startImmediately: false);
 
     final db = ref.read(appDatabaseProvider);
-    final sub = (db.select(db.qbServers)
-      ..where((t) => t.isActive.equals(true)))
+    final sub = (db.select(db.qbServers)..where((t) => t.isActive.equals(true)))
         .watchSingleOrNull()
         .listen(_onActiveServerChanged);
     ref.onDispose(sub.cancel);
@@ -246,10 +246,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     required CategoryIncompletePathMode incompletePathMode,
     required String downloadPath,
   }) async {
-    final data = <String, String>{
-      'category': name,
-      'savePath': savePath,
-    };
+    final data = <String, String>{'category': name, 'savePath': savePath};
     switch (incompletePathMode) {
       case CategoryIncompletePathMode.followDefault:
         break;
@@ -293,7 +290,10 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       removeCategories(unusedCategoryNames());
 
   Future<String?> removeCategories(Iterable<String> names) async {
-    final list = [for (final name in names) if (name.isNotEmpty) name];
+    final list = [
+      for (final name in names)
+        if (name.isNotEmpty) name,
+    ];
     if (list.isEmpty) return null;
     String? error;
     final api = ref.read(apiClientProvider);
@@ -333,7 +333,10 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   }
 
   Future<String?> addTorrentTags(String hash, Iterable<String> names) async {
-    final list = [for (final name in names) if (name.isNotEmpty) name];
+    final list = [
+      for (final name in names)
+        if (name.isNotEmpty) name,
+    ];
     if (list.isEmpty) return null;
     final error = await _postTorrentHashes(
       ApiPath.torrentManagement.addTags,
@@ -346,7 +349,10 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   }
 
   Future<String?> removeTorrentTags(String hash, Iterable<String> names) async {
-    final list = [for (final name in names) if (name.isNotEmpty) name];
+    final list = [
+      for (final name in names)
+        if (name.isNotEmpty) name,
+    ];
     if (list.isEmpty) return null;
     final error = await _postTorrentHashes(
       ApiPath.torrentManagement.removeTags,
@@ -457,7 +463,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
 
   /// 把 `.torrent` 写到缓存目录，供系统分享。成功时 [error] 为空。
   Future<({String? filePath, String? fileName, String? error})>
-      exportTorrentFile(String hash, {String? name}) async {
+  exportTorrentFile(String hash, {String? name}) async {
     final trimmed = hash.trim();
     if (trimmed.isEmpty) {
       return (filePath: null, fileName: null, error: '无效的种子');
@@ -525,10 +531,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     );
   }
 
-  Future<String?> setTorrentSuperSeeding(
-    String hash, {
-    required bool enable,
-  }) {
+  Future<String?> setTorrentSuperSeeding(String hash, {required bool enable}) {
     return _postTorrentHashes(
       ApiPath.torrentManagement.setSuperSeeding,
       hash,
@@ -662,8 +665,9 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       TorrentInfoResponse(
         ratioLimit: ratioLimit,
         seedingTimeLimit: _shareLimitSecondsForCache(seedingTimeLimit),
-        inactiveSeedingTimeLimit:
-            _shareLimitSecondsForCache(inactiveSeedingTimeLimit),
+        inactiveSeedingTimeLimit: _shareLimitSecondsForCache(
+          inactiveSeedingTimeLimit,
+        ),
         shareLimitAction: shareLimitAction,
       ),
     );
@@ -740,7 +744,10 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   }
 
   Future<String?> _postTags(String path, Iterable<String> names) async {
-    final list = [for (final name in names) if (name.isNotEmpty) name];
+    final list = [
+      for (final name in names)
+        if (name.isNotEmpty) name,
+    ];
     if (list.isEmpty) return null;
     String? error;
     final api = ref.read(apiClientProvider);
@@ -767,6 +774,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       _activeServerId = null;
       _userRefreshPending = false;
       _clearTorrentCache();
+      ref.read(torrentSpeedHistoryProvider.notifier).clear();
       final pageListState = state.pageListState;
       pageListState.setEmpty();
       state = HomePageUiState(pageListState: pageListState);
@@ -784,12 +792,21 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     _poll.stop();
     _userRefreshPending = false;
     _clearTorrentCache();
+    ref.read(torrentSpeedHistoryProvider.notifier).clear();
 
     final pageListState = state.pageListState;
     pageListState.setEmpty();
     pageListState.beginInit();
     state = HomePageUiState(activeServer: server, pageListState: pageListState);
     unawaited(sync());
+  }
+
+  void _recordSpeedSamples() {
+    final serverId = _activeServerId;
+    if (serverId == null || _torrentsByHash.isEmpty) return;
+    ref
+        .read(torrentSpeedHistoryProvider.notifier)
+        .recordAll(serverId: serverId, torrents: _torrentsByHash);
   }
 
   Future<void> _onPoll(PollTicket ticket) async {
@@ -809,55 +826,59 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     if (!ticket.isActive) return;
     if (activeServer == null) {
       _clearTorrentCache();
+      ref.read(torrentSpeedHistoryProvider.notifier).clear();
       pageListState.setEmpty();
       state = HomePageUiState(pageListState: pageListState);
       ticket.stopPolling();
       return;
     }
 
-    state = state.copyWith(activeServer: activeServer, pageListState: pageListState);
+    state = state.copyWith(
+      activeServer: activeServer,
+      pageListState: pageListState,
+    );
 
     final api = ref.read(apiClientProvider);
-    await api.get(
-      ApiPath.sync.mainData,
-      queryParameters: {'rid': _rid},
-      cancelToken: ticket.cancelToken,
-      parser: jsonParser(MainDataResponse.fromJson)
-    ).onSuccess((data) {
-      if (!ticket.isActive) return;
-      if (activeServer.id != _activeServerId) return;
-      _applyMainData(data);
-      _dropMissingFilters();
-      _applyFilteredList(pageListState);
-      state = state.copyWith(
-        serverState: _mergeServerState(data),
-        pageListState: pageListState,
-        activeServer: activeServer,
-        hasTorrents: _torrentsByHash.isNotEmpty,
-        statusCounts: _countByStatus(),
-        categoryTree: buildCategoryTree(_categoriesByName.keys),
-        categoryCounts: _countByCategory(),
-        tags: _sortedTags(),
-        tagCounts: _countByTag(),
-      );
-    }).onFail((e) {
-      if (!ticket.isActive) return;
-      if (e.isCancel) return;
-      final hasItems = pageListState.items.isNotEmpty || _torrentsByHash.isNotEmpty;
-      if (userRefresh || !hasItems) {
-        pageListState.setError(
-          e.message,
-          keepItems: hasItems,
-        );
-        state = state.copyWith(pageListState: pageListState);
-      }
-    });
+    await api
+        .get(
+          ApiPath.sync.mainData,
+          queryParameters: {'rid': _rid},
+          cancelToken: ticket.cancelToken,
+          parser: jsonParser(MainDataResponse.fromJson),
+        )
+        .onSuccess((data) {
+          if (!ticket.isActive) return;
+          if (activeServer.id != _activeServerId) return;
+          _applyMainData(data);
+          _recordSpeedSamples();
+          _dropMissingFilters();
+          _applyFilteredList(pageListState);
+          state = state.copyWith(
+            serverState: _mergeServerState(data),
+            pageListState: pageListState,
+            activeServer: activeServer,
+            hasTorrents: _torrentsByHash.isNotEmpty,
+            statusCounts: _countByStatus(),
+            categoryTree: buildCategoryTree(_categoriesByName.keys),
+            categoryCounts: _countByCategory(),
+            tags: _sortedTags(),
+            tagCounts: _countByTag(),
+          );
+        })
+        .onFail((e) {
+          if (!ticket.isActive) return;
+          if (e.isCancel) return;
+          final hasItems =
+              pageListState.items.isNotEmpty || _torrentsByHash.isNotEmpty;
+          if (userRefresh || !hasItems) {
+            pageListState.setError(e.message, keepItems: hasItems);
+            state = state.copyWith(pageListState: pageListState);
+          }
+        });
   }
 
   Map<TorrentStatusFilter, int> _countByStatus() {
-    final counts = {
-      for (final filter in TorrentStatusFilter.values) filter: 0,
-    };
+    final counts = {for (final filter in TorrentStatusFilter.values) filter: 0};
     for (final torrent in _torrentsByHash.values) {
       for (final filter in TorrentStatusFilter.values) {
         if (filter.matches(torrent)) {
@@ -940,22 +961,19 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     final tag = state.tagFilter;
     final sortKey = state.sortKey;
     final sortAscending = state.sortAscending;
-    final items = [
-      for (final torrent in _torrentsByHash.values)
-        if (status.matches(torrent) &&
-            category.matches(torrent.category) &&
-            tag.matches(torrent.tags))
-          torrent,
-    ]..sort((a, b) {
-        final order = sortKey.compare(a, b, ascending: sortAscending);
-        if (order != 0) return order;
-        return (a.hash ?? '').compareTo(b.hash ?? '');
-      });
-    pageListState.setSuccess(
-      data: items,
-      append: false,
-      hasMore: false,
-    );
+    final items =
+        [
+          for (final torrent in _torrentsByHash.values)
+            if (status.matches(torrent) &&
+                category.matches(torrent.category) &&
+                tag.matches(torrent.tags))
+              torrent,
+        ]..sort((a, b) {
+          final order = sortKey.compare(a, b, ascending: sortAscending);
+          if (order != 0) return order;
+          return (a.hash ?? '').compareTo(b.hash ?? '');
+        });
+    pageListState.setSuccess(data: items, append: false, hasMore: false);
   }
 
   void _applyMainData(MainDataResponse data) {
@@ -984,8 +1002,9 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     if (incoming != null) {
       for (final entry in incoming.entries) {
         final existing = _categoriesByName[entry.key];
-        _categoriesByName[entry.key] =
-            existing == null ? entry.value : existing.merge(entry.value);
+        _categoriesByName[entry.key] = existing == null
+            ? entry.value
+            : existing.merge(entry.value);
       }
     }
     for (final name in removed) {
@@ -1019,8 +1038,9 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     if (incoming != null) {
       for (final entry in incoming.entries) {
         final existing = _torrentsByHash[entry.key];
-        _torrentsByHash[entry.key] =
-            existing == null ? entry.value : existing.merge(entry.value);
+        _torrentsByHash[entry.key] = existing == null
+            ? entry.value
+            : existing.merge(entry.value);
       }
     }
     for (final hash in removed) {
@@ -1045,9 +1065,9 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
 
   Future<QbServer?> _activeServer() async {
     final db = ref.read(appDatabaseProvider);
-    final active = await (db.select(db.qbServers)
-      ..where((t) => t.isActive.equals(true)))
-        .getSingleOrNull();
+    final active = await (db.select(
+      db.qbServers,
+    )..where((t) => t.isActive.equals(true))).getSingleOrNull();
     return active;
   }
 
