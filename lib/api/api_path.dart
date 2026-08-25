@@ -35,6 +35,12 @@ class _Application {
 
   /// Get default save path
   final defaultSavePath = '$_base/defaultSavePath';
+
+  /// 网卡列表（`[{ "name", "value" }]`）
+  final networkInterfaceList = '$_base/networkInterfaceList';
+
+  /// 指定网卡上的 IP 列表（`iface` query）
+  final networkInterfaceAddressList = '$_base/networkInterfaceAddressList';
 }
 
 class _TorrentManagement {

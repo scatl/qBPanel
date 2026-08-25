@@ -68,7 +68,13 @@ class _ServerSettingsPageState extends State<ServerSettingsPage> {
           RouterPath.serverSettingsWebUiWithParams(widget.serverId),
         ),
       ),
-      const _ServerSettingGroup(icon: Icons.build_outlined, title: '高级'),
+      _ServerSettingGroup(
+        icon: Icons.build_outlined,
+        title: '高级',
+        onTap: () => context.push(
+          RouterPath.serverSettingsAdvancedWithParams(widget.serverId),
+        ),
+      ),
     ];
 
     return Scaffold(

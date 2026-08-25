@@ -13,6 +13,7 @@ import 'package:qbpanel/settings/server/setting/bittorrent/bittorrent_settings_p
 import 'package:qbpanel/settings/server/setting/connection/connection_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/speed/speed_settings_page.dart';
+import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/server_settings_page.dart';
 import 'package:qbpanel/settings/settings_page.dart';
@@ -86,6 +87,14 @@ final GoRouter appRouter = GoRouter(
         final raw = state.uri.queryParameters[RouterParameters.serverId];
         final id = int.tryParse(raw.toString()) ?? -1;
         return WebUiSettingsPage(serverId: id);
+      },
+    ),
+    GoRoute(
+      path: RouterPath.serverSettingsAdvanced,
+      builder: (context, state) {
+        final raw = state.uri.queryParameters[RouterParameters.serverId];
+        final id = int.tryParse(raw.toString()) ?? -1;
+        return AdvancedSettingsPage(serverId: id);
       },
     ),
     GoRoute(
