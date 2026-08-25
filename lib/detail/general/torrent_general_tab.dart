@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/detail/general/pieces_bar.dart';
+import 'package:qbpanel/detail/general/speed/torrent_speed_chart.dart';
 import 'package:qbpanel/detail/general/torrent_general_format.dart';
 import 'package:qbpanel/detail/torrent_detail_ui_state.dart';
 import 'package:qbpanel/util/byte_format.dart';
@@ -9,10 +10,12 @@ import 'package:qbpanel/widget/page_insets.dart';
 class TorrentGeneralTab extends StatelessWidget {
   const TorrentGeneralTab({
     super.key,
+    required this.torrentHash,
     required this.ui,
     required this.onRetry,
   });
 
+  final String torrentHash;
   final TorrentDetailUiState ui;
   final VoidCallback onRetry;
 
@@ -49,25 +52,57 @@ class TorrentGeneralTab extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 28),
+            TorrentSpeedChart(torrentHash: torrentHash),
+            const SizedBox(height: 28),
             const _SectionTitle('传输'),
             const SizedBox(height: 16),
             _KvList(
               items: [
-                _KvItem('活动时间', formatTimeActive(props.timeElapsed, props.seedingTime)),
+                _KvItem(
+                  '活动时间',
+                  formatTimeActive(props.timeElapsed, props.seedingTime),
+                ),
                 _KvItem('剩余时间', formatDurationSeconds(props.eta)),
-                _KvItem('连接', formatConnections(props.nbConnections, props.nbConnectionsLimit)),
-                _KvItem('已下载', formatWithSession(props.totalDownloaded, props.totalDownloadedSession)),
-                _KvItem('已上传', formatWithSession(props.totalUploaded, props.totalUploadedSession)),
+                _KvItem(
+                  '连接',
+                  formatConnections(
+                    props.nbConnections,
+                    props.nbConnectionsLimit,
+                  ),
+                ),
+                _KvItem(
+                  '已下载',
+                  formatWithSession(
+                    props.totalDownloaded,
+                    props.totalDownloadedSession,
+                  ),
+                ),
+                _KvItem(
+                  '已上传',
+                  formatWithSession(
+                    props.totalUploaded,
+                    props.totalUploadedSession,
+                  ),
+                ),
                 _KvItem('种子', formatCountTotal(props.seeds, props.seedsTotal)),
-                _KvItem('下载速度', formatSpeedAvg(props.dlSpeed, props.dlSpeedAvg)),
-                _KvItem('上传速度', formatSpeedAvg(props.upSpeed, props.upSpeedAvg)),
+                _KvItem(
+                  '下载速度',
+                  formatSpeedAvg(props.dlSpeed, props.dlSpeedAvg),
+                ),
+                _KvItem(
+                  '上传速度',
+                  formatSpeedAvg(props.upSpeed, props.upSpeedAvg),
+                ),
                 _KvItem('用户', formatCountTotal(props.peers, props.peersTotal)),
                 _KvItem('下载限制', formatSpeedLimit(props.dlLimit)),
                 _KvItem('上传限制', formatSpeedLimit(props.upLimit)),
                 _KvItem('已丢弃', formatBytes(props.totalWasted)),
                 _KvItem('分享率', formatShareNumber(props.shareRatio)),
                 _KvItem('下次汇报', formatDurationSeconds(props.reannounce)),
-                _KvItem('最后完整可见', formatUnixDate(props.lastSeen, unknown: '从未')),
+                _KvItem(
+                  '最后完整可见',
+                  formatUnixDate(props.lastSeen, unknown: '从未'),
+                ),
                 _KvItem('流行度', formatShareNumber(props.popularity)),
               ],
             ),
@@ -80,13 +115,26 @@ class TorrentGeneralTab extends StatelessWidget {
                 _KvItem('总大小', formatBytes(props.totalSize)),
                 _KvItem(
                   '区块',
-                  formatPieces(props.piecesNum, props.pieceSize, props.piecesHave),
+                  formatPieces(
+                    props.piecesNum,
+                    props.pieceSize,
+                    props.piecesHave,
+                  ),
                 ),
                 _KvItem('创建', props.createdBy ?? ''),
-                _KvItem('添加于', formatUnixDate(props.additionDate, unknown: '未知')),
-                _KvItem('完成于', formatUnixDate(props.completionDate, unknown: '')),
+                _KvItem(
+                  '添加于',
+                  formatUnixDate(props.additionDate, unknown: '未知'),
+                ),
+                _KvItem(
+                  '完成于',
+                  formatUnixDate(props.completionDate, unknown: ''),
+                ),
                 _KvItem('创建于', formatUnixDate(props.creationDate, unknown: '')),
-                _KvItem('私有', formatPrivate(props.hasMetadata, props.isPrivate)),
+                _KvItem(
+                  '私有',
+                  formatPrivate(props.hasMetadata, props.isPrivate),
+                ),
                 _KvItem('信息哈希值 v1', formatInfoHash(props.infohashV1), true),
                 _KvItem('信息哈希值 v2', formatInfoHash(props.infohashV2), true),
                 _KvItem('保存路径', props.savePath ?? '', true),
@@ -129,7 +177,10 @@ class _BarTable extends StatelessWidget {
           TableRow(
             children: [
               Padding(
-                padding: EdgeInsets.only(right: 8, bottom: i == rows.length - 1 ? 0 : 10),
+                padding: EdgeInsets.only(
+                  right: 8,
+                  bottom: i == rows.length - 1 ? 0 : 10,
+                ),
                 child: Text('${rows[i].$1}:', style: labelStyle),
               ),
               Padding(
@@ -137,7 +188,10 @@ class _BarTable extends StatelessWidget {
                 child: rows[i].$2,
               ),
               Padding(
-                padding: EdgeInsets.only(left: 4, bottom: i == rows.length - 1 ? 0 : 10),
+                padding: EdgeInsets.only(
+                  left: 4,
+                  bottom: i == rows.length - 1 ? 0 : 10,
+                ),
                 child: Text(rows[i].$3, style: trailingStyle),
               ),
             ],
@@ -156,9 +210,9 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-      ),
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
     );
   }
 }
@@ -189,12 +243,8 @@ class _KvList extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-        child: Column(
-          children: [
-            for (final item in items) _KvRow(item: item),
-          ],
-        ),
-      )
+        child: Column(children: [for (final item in items) _KvRow(item: item)]),
+      ),
     );
   }
 }
@@ -235,4 +285,3 @@ class _KvRow extends StatelessWidget {
     );
   }
 }
-

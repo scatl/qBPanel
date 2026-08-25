@@ -65,7 +65,11 @@ class TorrentDetailPage extends ConsumerWidget {
                 ),
                 body: TabBarView(
                   children: [
-                    TorrentGeneralTab(ui: ui, onRetry: vm.retry),
+                    TorrentGeneralTab(
+                      torrentHash: torrentHash,
+                      ui: ui,
+                      onRetry: vm.retry,
+                    ),
                     TorrentPeersTab(torrentHash: torrentHash),
                     TorrentContentTab(torrentHash: torrentHash),
                     TorrentTrackersTab(torrentHash: torrentHash),
