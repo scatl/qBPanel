@@ -232,10 +232,12 @@ class PagedRefreshListState<T> extends State<PagedRefreshList<T>> {
     final canPull = widget.enableRefresh;
     final canLoad = widget.enableLoadMore && !_state.isEmpty;
 
+    // 无加载更多时不要用 MaterialFooter：其 clamping:true 会被 NotLoadFooter 继承，
+    // 列表在底部删项变矮后 footer offset 易卡住，表现为整表无法滑动。
     return EasyRefresh(
       controller: _refresh,
-      header: MaterialHeader(),
-      footer: MaterialFooter(),
+      header: const MaterialHeader(),
+      footer: canLoad ? const MaterialFooter() : const NotLoadFooter(),
       onRefresh: canPull ? _handleRefresh : null,
       onLoad: canLoad ? _handleLoad : null,
       child: _buildScrollable(context),
