@@ -36,18 +36,13 @@ class TorrentSpeedChart extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Text(
-              '速度',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: _PeriodSelector(selected: historyUi.period)),
-          ],
+        Text(
+          '速度',
+          style: textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        _PeriodSelector(selected: historyUi.period),
         const SizedBox(height: 8),
         Container(
           height: 132,
