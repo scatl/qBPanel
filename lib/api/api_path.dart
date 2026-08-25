@@ -200,6 +200,12 @@ class _Transfer {
 
   /// Toggle alternative speed limits
   final toggleSpeedLimitsMode = '$_base/toggleSpeedLimitsMode';
+
+  /// Set global download limit（bytes/s；开启备用限速时改备用值）
+  final setDownloadLimit = '$_base/setDownloadLimit';
+
+  /// Set global upload limit（bytes/s；开启备用限速时改备用值）
+  final setUploadLimit = '$_base/setUploadLimit';
 }
 
 class _Sync {
