@@ -3,6 +3,7 @@ abstract final class ApiPath {
   static const torrentManagement = _TorrentManagement();
   static const transfer = _Transfer();
   static const sync = _Sync();
+  static const log = _Log();
 }
 
 class _Application {
@@ -216,4 +217,15 @@ class _Sync {
 
   /// Get peers of a torrent (`rid=0` 为全量)
   final torrentPeers = '$_base/torrentPeers';
+}
+
+class _Log {
+  const _Log();
+  static const _base = '/api/v2/log';
+
+  /// Application log (`normal` / `info` / `warning` / `critical` / `last_known_id`)
+  final main = '$_base/main';
+
+  /// Peer / banned IP log (`last_known_id`)
+  final peers = '$_base/peers';
 }

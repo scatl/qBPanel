@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import 'package:qbpanel/add/add_torrent_page.dart';
 import 'package:qbpanel/detail/torrent_detail_page.dart';
 import 'package:qbpanel/home/home_page.dart';
+import 'package:qbpanel/log/log_page.dart';
 import 'package:qbpanel/router/router_para.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/settings/server/list/server_list_page.dart';
@@ -28,6 +29,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouterPath.home,
       builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: RouterPath.log,
+      builder: (context, state) => const LogPage(),
     ),
     GoRoute(
       path: RouterPath.settings,
