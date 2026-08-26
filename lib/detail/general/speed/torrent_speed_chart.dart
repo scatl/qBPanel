@@ -30,7 +30,6 @@ class TorrentSpeedChart extends ConsumerWidget {
           period: historyUi.period,
         );
 
-    final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Column(
@@ -38,41 +37,11 @@ class TorrentSpeedChart extends ConsumerWidget {
       children: [
         Text(
           '速度',
-          style: textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         _PeriodSelector(selected: historyUi.period),
         const SizedBox(height: 8),
-        Container(
-          height: 132,
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: scheme.outlineVariant),
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
-          ),
-          child: samples.length < 2
-              ? Center(
-                  child: Text(
-                    '采样中…',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                )
-              : RepaintBoundary(
-                  child: CustomPaint(
-                    painter: _SpeedChartPainter(
-                      samples: samples,
-                      period: historyUi.period,
-                      scheme: scheme,
-                      textTheme: textTheme,
-                    ),
-                    child: const SizedBox.expand(),
-                  ),
-                ),
-        ),
+        _SpeedChartCanvas(samples: samples, period: historyUi.period),
         const SizedBox(height: 8),
         Wrap(
           spacing: 12,
@@ -85,6 +54,291 @@ class TorrentSpeedChart extends ConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _SpeedChartCanvas extends StatefulWidget {
+  const _SpeedChartCanvas({required this.samples, required this.period});
+
+  final List<SpeedSample> samples;
+  final SpeedChartPeriod period;
+
+  @override
+  State<_SpeedChartCanvas> createState() => _SpeedChartCanvasState();
+}
+
+class _SpeedChartCanvasState extends State<_SpeedChartCanvas> {
+  int? _scrubIndex;
+
+  @override
+  void didUpdateWidget(covariant _SpeedChartCanvas oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.samples.length < 2) {
+      _scrubIndex = null;
+      return;
+    }
+    if (_scrubIndex != null && _scrubIndex! >= widget.samples.length) {
+      _scrubIndex = widget.samples.length - 1;
+    }
+  }
+
+  void _scrubAtGlobal(
+    BuildContext hitContext,
+    Offset global,
+    Size size,
+    TextTheme textTheme,
+  ) {
+    final box = hitContext.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    _scrubAt(box.globalToLocal(global), size, textTheme);
+  }
+
+  void _scrubAt(Offset local, Size size, TextTheme textTheme) {
+    if (widget.samples.length < 2) return;
+    final layout = _SpeedChartLayout.compute(size, textTheme);
+    if (layout == null) return;
+    final index = _nearestSampleIndex(
+      localX: local.dx,
+      chartRect: layout.chartRect,
+      samples: widget.samples,
+      period: widget.period,
+    );
+    if (index == _scrubIndex) return;
+    setState(() => _scrubIndex = index);
+  }
+
+  void _clearScrub() {
+    if (_scrubIndex == null) return;
+    setState(() => _scrubIndex = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final samples = widget.samples;
+    final avgSamples = samples.length < 2
+        ? const <SpeedSample>[]
+        : cumulativeAverageSamples(samples);
+    final scrub =
+        _scrubIndex == null ||
+            _scrubIndex! < 0 ||
+            _scrubIndex! >= samples.length
+        ? null
+        : (instant: samples[_scrubIndex!], average: avgSamples[_scrubIndex!]);
+
+    return Container(
+      height: 148,
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant),
+        color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      ),
+      child: samples.length < 2
+          ? Center(
+              child: Text(
+                '采样中…',
+                style: textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            )
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final size = Size(constraints.maxWidth, constraints.maxHeight);
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  // 未长按前不抢横滑，TabBarView 可正常切页；
+                  // 长按出现竖线后，后续移动由 LongPress 接管。
+                  onLongPressStart: (d) {
+                    _scrubAt(d.localPosition, size, textTheme);
+                  },
+                  onLongPressMoveUpdate: (d) {
+                    _scrubAtGlobal(context, d.globalPosition, size, textTheme);
+                  },
+                  onLongPressEnd: (_) => _clearScrub(),
+                  onLongPressCancel: _clearScrub,
+                  child: Stack(
+                    children: [
+                      RepaintBoundary(
+                        child: CustomPaint(
+                          painter: _SpeedChartPainter(
+                            samples: samples,
+                            averageSamples: avgSamples,
+                            period: widget.period,
+                            scheme: scheme,
+                            textTheme: textTheme,
+                            scrubIndex: _scrubIndex,
+                          ),
+                          child: const SizedBox.expand(),
+                        ),
+                      ),
+                      if (scrub != null)
+                        _ScrubTooltip(
+                          chartSize: size,
+                          textTheme: textTheme,
+                          scheme: scheme,
+                          samples: samples,
+                          period: widget.period,
+                          scrubIndex: _scrubIndex!,
+                          time: scrub.instant.at,
+                          download: scrub.instant.download,
+                          upload: scrub.instant.upload,
+                          downloadAvg: scrub.average.download,
+                          uploadAvg: scrub.average.upload,
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
+
+class _ScrubTooltip extends StatelessWidget {
+  const _ScrubTooltip({
+    required this.chartSize,
+    required this.textTheme,
+    required this.scheme,
+    required this.samples,
+    required this.period,
+    required this.scrubIndex,
+    required this.time,
+    required this.download,
+    required this.upload,
+    required this.downloadAvg,
+    required this.uploadAvg,
+  });
+
+  final Size chartSize;
+  final TextTheme textTheme;
+  final ColorScheme scheme;
+  final List<SpeedSample> samples;
+  final SpeedChartPeriod period;
+  final int scrubIndex;
+  final DateTime time;
+  final int download;
+  final int upload;
+  final int downloadAvg;
+  final int uploadAvg;
+
+  @override
+  Widget build(BuildContext context) {
+    final layout = _SpeedChartLayout.compute(chartSize, textTheme);
+    if (layout == null) return const SizedBox.shrink();
+
+    final now = samples.last.at;
+    final windowStart = now.subtract(period.window);
+    final windowMs = period.window.inMilliseconds;
+    final t =
+        samples[scrubIndex].at.difference(windowStart).inMilliseconds /
+        windowMs;
+    final x =
+        layout.chartRect.left + t.clamp(0.0, 1.0) * layout.chartRect.width;
+
+    const tooltipWidth = 128.0;
+    final left = (x + 8)
+        .clamp(8.0, math.max(8.0, chartSize.width - tooltipWidth - 8))
+        .toDouble();
+    final style = textTheme.labelSmall?.copyWith(
+      color: scheme.onSurface,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+
+    return Positioned(
+      left: left,
+      top: 8,
+      width: tooltipWidth,
+      child: Material(
+        color: scheme.surfaceContainerHigh.withValues(alpha: 0.94),
+        elevation: 2,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: DefaultTextStyle(
+            style: style ?? const TextStyle(fontSize: 11),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  formatChartTime(time),
+                  style: style?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                _ScrubValueRow(
+                  color: _downloadColor,
+                  label: '下载',
+                  value: formatChartSpeed(download),
+                ),
+                _ScrubValueRow(
+                  color: _uploadColor,
+                  label: '上传',
+                  value: formatChartSpeed(upload),
+                ),
+                _ScrubValueRow(
+                  color: _downloadColor,
+                  label: '下载平均',
+                  value: formatChartSpeed(downloadAvg),
+                  dashed: true,
+                ),
+                _ScrubValueRow(
+                  color: _uploadColor,
+                  label: '上传平均',
+                  value: formatChartSpeed(uploadAvg),
+                  dashed: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScrubValueRow extends StatelessWidget {
+  const _ScrubValueRow({
+    required this.color,
+    required this.label,
+    required this.value,
+    this.dashed = false,
+  });
+
+  final Color color;
+  final String label;
+  final String value;
+  final bool dashed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 12,
+            height: 2,
+            child: dashed
+                ? CustomPaint(painter: _DashedLinePainter(color: color))
+                : DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(child: Text(label)),
+          Text(value),
+        ],
+      ),
     );
   }
 }
@@ -197,24 +451,105 @@ class _DashedLinePainter extends CustomPainter {
   }
 }
 
+class _SpeedChartLayout {
+  const _SpeedChartLayout({required this.chartRect});
+
+  final Rect chartRect;
+
+  static const yAxisLabelLeft = 4.0;
+  static const yAxisRight = 34.0;
+  static const timeAxisReserve = 16.0;
+
+  static _SpeedChartLayout? compute(Size size, TextTheme textTheme) {
+    final labelStyle = textTheme.labelSmall?.copyWith(fontSize: 10);
+    final labelPainter = TextPainter(
+      text: TextSpan(text: '0B/s', style: labelStyle),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final topPad = 8 + labelPainter.height;
+    final chartRect = Rect.fromLTWH(
+      yAxisRight + 4,
+      topPad,
+      size.width - yAxisRight - 8,
+      size.height - topPad - timeAxisReserve,
+    );
+    if (chartRect.width <= 0 || chartRect.height <= 0) return null;
+    return _SpeedChartLayout(chartRect: chartRect);
+  }
+}
+
+int _nearestSampleIndex({
+  required double localX,
+  required Rect chartRect,
+  required List<SpeedSample> samples,
+  required SpeedChartPeriod period,
+}) {
+  final windowMs = period.window.inMilliseconds;
+  if (windowMs <= 0 || samples.isEmpty) return 0;
+  final t = ((localX - chartRect.left) / chartRect.width).clamp(0.0, 1.0);
+  final now = samples.last.at;
+  final windowStart = now.subtract(period.window);
+  final target = windowStart.add(
+    Duration(milliseconds: (t * windowMs).round()),
+  );
+
+  var best = 0;
+  var bestDiff = samples.first.at.difference(target).abs();
+  for (var i = 1; i < samples.length; i++) {
+    final diff = samples[i].at.difference(target).abs();
+    if (diff < bestDiff) {
+      best = i;
+      bestDiff = diff;
+    }
+  }
+  return best;
+}
+
+/// 图表速度短格式。
+String formatChartSpeed(int bytesPerSec) {
+  if (bytesPerSec <= 0) return '0B/s';
+  const suffixes = ['B', 'K', 'M', 'G'];
+  var value = bytesPerSec.toDouble();
+  var unit = 0;
+  while (value >= 1024 && unit < suffixes.length - 1) {
+    value /= 1024;
+    unit++;
+  }
+  final digits = unit == 0 ? 0 : (value >= 100 ? 0 : (value >= 10 ? 1 : 2));
+  final number = value.toStringAsFixed(digits);
+  if (unit == 0) return '${number}B/s';
+  return '$number${suffixes[unit]}/s';
+}
+
+String formatChartTime(DateTime time) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${two(time.hour)}:${two(time.minute)}:${two(time.second)}';
+}
+
 class _SpeedChartPainter extends CustomPainter {
   _SpeedChartPainter({
     required this.samples,
+    required this.averageSamples,
     required this.period,
     required this.scheme,
     required this.textTheme,
+    this.scrubIndex,
   });
 
   final List<SpeedSample> samples;
+  final List<SpeedSample> averageSamples;
   final SpeedChartPeriod period;
   final ColorScheme scheme;
   final TextTheme textTheme;
+  final int? scrubIndex;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (samples.length < 2) return;
 
-    final avgSamples = cumulativeAverageSamples(samples);
+    final avgSamples = averageSamples.isEmpty
+        ? cumulativeAverageSamples(samples)
+        : averageSamples;
     final now = samples.last.at;
     final windowStart = now.subtract(period.window);
     final maxSpeed = _maxSpeed(samples, avgSamples);
@@ -228,7 +563,7 @@ class _SpeedChartPainter extends CustomPainter {
       textAlign: TextAlign.right,
     );
 
-    final topLabel = _formatChartSpeed(maxSpeed);
+    final topLabel = formatChartSpeed(maxSpeed);
     labelPainter.text = TextSpan(
       text: topLabel,
       style: labelStyle?.copyWith(
@@ -236,13 +571,12 @@ class _SpeedChartPainter extends CustomPainter {
       ),
     );
     labelPainter.layout();
-    const yAxisLabelLeft = 4.0;
-    const yAxisRight = 34.0;
+    final topPad = 8 + labelPainter.height;
     final chartRect = Rect.fromLTWH(
-      yAxisRight + 4,
-      8 + labelPainter.height,
-      size.width - yAxisRight - 8,
-      size.height - 16 - labelPainter.height,
+      _SpeedChartLayout.yAxisRight + 4,
+      topPad,
+      size.width - _SpeedChartLayout.yAxisRight - 8,
+      size.height - topPad - _SpeedChartLayout.timeAxisReserve,
     );
     if (chartRect.width <= 0 || chartRect.height <= 0) return;
 
@@ -265,7 +599,10 @@ class _SpeedChartPainter extends CustomPainter {
       ),
     );
     labelPainter.layout();
-    final labelX = math.max(yAxisLabelLeft, yAxisRight - labelPainter.width);
+    final labelX = math.max(
+      _SpeedChartLayout.yAxisLabelLeft,
+      _SpeedChartLayout.yAxisRight - labelPainter.width,
+    );
     labelPainter.paint(canvas, Offset(labelX, chartRect.top - 2));
     labelPainter.text = TextSpan(
       text: '0B/s',
@@ -277,7 +614,10 @@ class _SpeedChartPainter extends CustomPainter {
     labelPainter.paint(
       canvas,
       Offset(
-        math.max(yAxisLabelLeft, yAxisRight - labelPainter.width),
+        math.max(
+          _SpeedChartLayout.yAxisLabelLeft,
+          _SpeedChartLayout.yAxisRight - labelPainter.width,
+        ),
         chartRect.bottom - labelPainter.height,
       ),
     );
@@ -320,6 +660,62 @@ class _SpeedChartPainter extends CustomPainter {
       (s) => s.upload,
       _uploadColor,
     );
+
+    _drawTimeAxis(
+      canvas,
+      chartRect: chartRect,
+      windowStart: windowStart,
+      now: now,
+      labelStyle: labelStyle?.copyWith(
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
+
+    final index = scrubIndex;
+    if (index != null && index >= 0 && index < samples.length) {
+      final windowMs = period.window.inMilliseconds;
+      if (windowMs > 0) {
+        final t =
+            samples[index].at.difference(windowStart).inMilliseconds / windowMs;
+        final x = chartRect.left + t.clamp(0.0, 1.0) * chartRect.width;
+        final scrubPaint = Paint()
+          ..color = scheme.onSurface.withValues(alpha: 0.45)
+          ..strokeWidth = 1;
+        canvas.drawLine(
+          Offset(x, chartRect.top),
+          Offset(x, chartRect.bottom),
+          scrubPaint,
+        );
+      }
+    }
+  }
+
+  void _drawTimeAxis(
+    Canvas canvas, {
+    required Rect chartRect,
+    required DateTime windowStart,
+    required DateTime now,
+    TextStyle? labelStyle,
+  }) {
+    final mid = windowStart.add(
+      Duration(milliseconds: period.window.inMilliseconds ~/ 2),
+    );
+    final labels = [
+      (formatChartTime(windowStart), chartRect.left, TextAlign.left),
+      (formatChartTime(mid), chartRect.center.dx, TextAlign.center),
+      (formatChartTime(now), chartRect.right, TextAlign.right),
+    ];
+    final painter = TextPainter(textDirection: TextDirection.ltr);
+    for (final (text, anchorX, align) in labels) {
+      painter.text = TextSpan(text: text, style: labelStyle);
+      painter.layout();
+      final x = switch (align) {
+        TextAlign.left => anchorX,
+        TextAlign.right => anchorX - painter.width,
+        _ => anchorX - painter.width / 2,
+      };
+      painter.paint(canvas, Offset(x, chartRect.bottom + 2));
+    }
   }
 
   void _drawSeries(
@@ -339,11 +735,11 @@ class _SpeedChartPainter extends CustomPainter {
     for (final sample in samples) {
       final t = sample.at.difference(windowStart).inMilliseconds / windowMs;
       final x = chartRect.left + t.clamp(0.0, 1.0) * chartRect.width;
-      final speed = valueOf(sample);
+      final speed = math.max(0, valueOf(sample));
       final y =
           chartRect.bottom -
           (maxSpeed <= 0 ? 0 : speed / maxSpeed) * chartRect.height;
-      points.add(Offset(x, y));
+      points.add(Offset(x, y.clamp(chartRect.top, chartRect.bottom)));
     }
     if (points.isEmpty) return;
 
@@ -370,25 +766,60 @@ class _SpeedChartPainter extends CustomPainter {
     return path;
   }
 
-  /// Catmull-Rom 转 cubic，只影响绘制，不改采样数据。
+  /// 单调三次样条（Fritsch–Carlson）：光滑且不越过相邻采样点，避免 0 以下过冲。
   Path _buildSmoothPath(List<Offset> points) {
     if (points.length < 3) return _buildLinePath(points);
 
+    final n = points.length;
+    final dx = List<double>.filled(n - 1, 0);
+    final delta = List<double>.filled(n - 1, 0);
+    for (var i = 0; i < n - 1; i++) {
+      dx[i] = points[i + 1].dx - points[i].dx;
+      delta[i] = dx[i].abs() < 1e-9
+          ? 0
+          : (points[i + 1].dy - points[i].dy) / dx[i];
+    }
+
+    final m = List<double>.filled(n, 0);
+    m[0] = delta[0];
+    m[n - 1] = delta[n - 2];
+    for (var i = 1; i < n - 1; i++) {
+      if (delta[i - 1] * delta[i] <= 0) {
+        m[i] = 0;
+      } else {
+        m[i] = (delta[i - 1] + delta[i]) / 2;
+      }
+    }
+
+    for (var i = 0; i < n - 1; i++) {
+      if (delta[i].abs() < 1e-12) {
+        m[i] = 0;
+        m[i + 1] = 0;
+        continue;
+      }
+      final a = m[i] / delta[i];
+      final b = m[i + 1] / delta[i];
+      final s = a * a + b * b;
+      if (s > 9) {
+        final t = 3 / math.sqrt(s);
+        m[i] = t * a * delta[i];
+        m[i + 1] = t * b * delta[i];
+      }
+    }
+
     final path = Path()..moveTo(points.first.dx, points.first.dy);
-    for (var i = 0; i < points.length - 1; i++) {
-      final p0 = i > 0 ? points[i - 1] : points[i];
-      final p1 = points[i];
-      final p2 = points[i + 1];
-      final p3 = i + 2 < points.length ? points[i + 2] : p2;
-      final cp1 = Offset(
-        p1.dx + (p2.dx - p0.dx) / 6,
-        p1.dy + (p2.dy - p0.dy) / 6,
+    for (var i = 0; i < n - 1; i++) {
+      final p0 = points[i];
+      final p1 = points[i + 1];
+      final h = dx[i] / 3;
+      path.cubicTo(
+        p0.dx + h,
+        p0.dy + m[i] * h,
+        p1.dx - h,
+        p1.dy - m[i + 1] * h,
+        p1.dx,
+        p1.dy,
       );
-      final cp2 = Offset(
-        p2.dx - (p3.dx - p1.dx) / 6,
-        p2.dy - (p3.dy - p1.dy) / 6,
-      );
-      path.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, p2.dx, p2.dy);
     }
     return path;
   }
@@ -434,26 +865,12 @@ class _SpeedChartPainter extends CustomPainter {
     return ((scaled / step).ceil() * step * unit).round();
   }
 
-  /// 图表 Y 轴用短格式，避免 `12.0 MB/s` 占过宽。
-  static String _formatChartSpeed(int bytesPerSec) {
-    if (bytesPerSec <= 0) return '0';
-    const suffixes = ['B', 'K', 'M', 'G'];
-    var value = bytesPerSec.toDouble();
-    var unit = 0;
-    while (value >= 1024 && unit < suffixes.length - 1) {
-      value /= 1024;
-      unit++;
-    }
-    final digits = unit == 0 ? 0 : (value >= 100 ? 0 : (value >= 10 ? 1 : 2));
-    final number = value.toStringAsFixed(digits);
-    if (unit == 0) return '${number}B/s';
-    return '$number${suffixes[unit]}/s';
-  }
-
   @override
   bool shouldRepaint(covariant _SpeedChartPainter oldDelegate) {
     return oldDelegate.samples != samples ||
+        oldDelegate.averageSamples != averageSamples ||
         oldDelegate.period != period ||
-        oldDelegate.scheme != scheme;
+        oldDelegate.scheme != scheme ||
+        oldDelegate.scrubIndex != scrubIndex;
   }
 }
