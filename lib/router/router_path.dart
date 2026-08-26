@@ -18,6 +18,7 @@ abstract final class RouterPath {
 
   static const torrentDetail = '/torrent/detail';
   static const addTorrent = '/torrent/add';
+  static const log = '/log';
 
   /// 跳转用：添加不传 [serverId]；编辑传入数据库 id
   static String serverModifyWithParams({int? serverId}) {

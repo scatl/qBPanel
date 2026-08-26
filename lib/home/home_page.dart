@@ -197,6 +197,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                   _confirmStartDisplayed();
                 case _HomeMoreAction.stopAll:
                   _confirmStopDisplayed();
+                case _HomeMoreAction.logs:
+                  context.push(RouterPath.log);
                 case _HomeMoreAction.settings:
                   context.push(RouterPath.settings);
               }
@@ -222,6 +224,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 ),
                 const PopupMenuDivider(),
+                const PopupMenuItem(
+                  value: _HomeMoreAction.logs,
+                  child: ListTile(
+                    leading: Icon(Icons.receipt_long_outlined),
+                    title: Text('日志'),
+                    contentPadding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
               ],
               const PopupMenuItem(
                 value: _HomeMoreAction.settings,
@@ -300,7 +311,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 }
 
-enum _HomeMoreAction { startAll, stopAll, settings }
+enum _HomeMoreAction { startAll, stopAll, logs, settings }
 
 class _AppBarTitle extends StatelessWidget {
   const _AppBarTitle({required this.name});
