@@ -1,0 +1,135 @@
+---
+description: 项目架构地图——列表/轮询/路由/入口等常用模式（优先读本规则，勿 broad explore）
+alwaysApply: true
+---
+
+# 项目架构地图
+
+新任务先读本规则 + 已有专项规则（`architecture-feature-layer`、`api-client-conventions`、`routing-conventions` 等），再 **targeted read/grep** 具体文件。不要为「项目怎么组织」做 broad explore。
+
+## 目录速查
+
+| 区域 | 路径 | 说明 |
+|---|---|---|
+| 首页 | `lib/home/` | 种子列表、AppBar、底部栏 |
+| 种子详情 | `lib/detail/` | Tab 页 + PollLoop 子 Tab |
+| 设置 | `lib/settings/` | 服务器列表/编辑、preferences 表单 |
+| API | `lib/api/` | `api_path.dart`、`entity/request|response/` |
+| HTTP | `lib/http/` | `api_client.dart`、`poll_loop.dart` |
+| 共用 UI | `lib/widget/` | 列表刷新、空态、Dialog、Sheet |
+| 路由 | `lib/router/` | `router_path.dart`、`app_router.dart` |
+| 本地库 | `lib/storage/db/` | Drift |
+| qB API 文档 | `docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md` | 优先读本地，勿联网全量拉 Wiki |
+
+## 功能分层（三件套）
+
+详见 `architecture-feature-layer.mdc`。参考实现：
+
+- 列表页：`lib/settings/server/list/`
+- 表单页：`lib/settings/server/modify/`
+- Preferences 子页：`lib/settings/server/setting/behavior/`
+
+```text
+// ✅ Page：ref.watch(ui) + ref.read(notifier)
+// ✅ ViewModel：ApiClient / AppDatabase
+// ❌ Page 里直接 dio / db.select
+```
+
+## Provider 命名与生命周期
+
+- 命名：`xxxProvider`，如 `homePageProvider`、`serverListProvider`
+- **全局/长驻页**（首页、设置列表）：`NotifierProvider`（非 autoDispose）
+- **详情子 Tab / 单次流程**（种子详情各 Tab、添加种子）：`NotifierProvider.autoDispose`；带参用 `.family`
+
+## 列表与轮询：怎么选
+
+| 场景 | 数据形态 | UI | 参考 |
+|---|---|---|---|
+| 本地全量 + 下拉刷新 | `PagedRefreshState<T>` | `PagedRefreshList` | `server_list_page`、`home_page` |
+| API 定时轮询 + 本地 map 合并 | ViewModel 内 `Map` + 过滤后写入 `PagedRefreshState` | `PagedRefreshList` + `PollLoop` | `home_page_view_model` |
+| API 定时轮询、无分页/load-more | `List<T>` + `EmptyState` | `EmptyStateHost` + `ListView` | `torrent_peers_tab` |
+| 单次拉取表单 | `EmptyState` 或 loading 字段 | `EmptyStateHost` + 表单 | `behavior_settings_page` |
+| 纯本地 Drift 列表 | `PagedRefreshState` | `PagedRefreshList`，`enableLoadMore: false` | `server_list_view_model` |
+
+```text
+// PagedRefreshList：enableLoadMore 目前全项目均为 false（无真正分页）
+// PollLoop：默认 interval 1.5s；build 里 attach；canPoll 控制有无 activeServer 等
+// 用户下拉刷新：_userRefreshPending / beginRefresh + refreshNow(ignoreCanPoll: true)
+```
+
+**PollLoop 参考文件：**
+
+- `lib/http/poll_loop.dart` — 实现
+- `lib/home/home_page_view_model.dart` — 轮询 + 本地 map + 筛选排序
+- `lib/detail/peers/torrent_peers_view_model.dart` — 子 Tab 轮询 + `canPoll: () => !state.pollPaused`
+
+**EmptyState 参考：** `lib/widget/empty/empty_state.dart`、`empty_state_view.dart`
+
+## 双 Tab / 多 Tab 页
+
+- 用 `DefaultTabController` + `TabBar` + `TabBarView`
+- 参考：`lib/detail/torrent_detail_page.dart`
+- 每个 Tab 独立 Provider + PollLoop；**只轮询当前可见 Tab**（`canPoll` 绑 Tab 索引，或切 Tab 时 stop/retry）
+- AppBar actions 可按 Tab 索引显隐（详情页排序按钮）
+
+## 首页 AppBar 与入口
+
+文件：`lib/home/home_page.dart`
+
+| 区域 | 行为 |
+|---|---|
+| Title | 无服务器 → `qBPanel`；有 → 点标题开 `ServerSwitchSheet` |
+| 筛选 / 排序 | 仅 `activeServer != null` 时显示 |
+| 更多 (⋮) | `PopupMenuButton<_HomeMoreAction>`，始终显示 |
+| FAB | 无服务器隐藏；有服务器 → 添加种子 |
+
+**更多菜单现有项**（需 `activeServer`）：一键开始、一键停止、设置。  
+**新增需连服务器的入口**（如日志）：与一键开始同样 gating，放在分隔线之上；纯本地功能放设置附近。
+
+无激活服务器：`ApiClient.get/post` 会抛错 → UI 引导 `RouterPath.serverList`，勿静默失败（见 `home-torrent-list.mdc`）。
+
+## 路由
+
+详见 `routing-conventions.mdc`。
+
+- 常量：`RouterPath`；query 键：`RouterParameters`
+- 注册：`lib/router/app_router.dart`（`GoRoute` + `builder`）
+- 跳转：`context.push(...)`（stack），不用 `go`
+- 新页面：在 `router_path.dart` 加常量 → `app_router.dart` 注册 → Page 内 push
+
+## API 调用
+
+详见 `api-client-conventions.mdc`、`api-entity-layout.mdc`。
+
+- 路径：`ApiPath.*`（`lib/api/api_path.dart`）
+- 实体：`lib/api/entity/response/`、`request/`
+- 链式：`api.get(..., parser: jsonParser(X.fromJson)).onSuccess(...).onFail(...)`
+- 表单 POST：`Options(contentType: Headers.formUrlEncodedContentType)`
+
+## 共用 UI
+
+详见 `shared-ui-patterns.mdc`。
+
+- 列表刷新：`PagedRefreshList` + `PagedRefreshState`
+- 加载/确认：`LoadingDialog`（**不要 await show**）、`ConfirmDialog`
+- Sheet：`showBlurModalBottomSheet`
+- 时间格式化：`formatUnixDate`（`lib/detail/general/torrent_general_format.dart`，秒级 epoch）
+
+## 新功能落地 checklist
+
+1. 是否需要 activeServer？无则入口 gating + 空态引导
+2. 列表选型：PagedRefresh vs PollLoop + ListView（见上表）
+3. 三件套目录：`lib/<feature>/` 下 `*_page.dart`、`*_ui_state.dart`、`*_view_model.dart`
+4. 新 API：`ApiPath` + entity + 本地 `docs/qbittorrent/` 文档核对
+5. 新路由：`RouterPath` + `app_router.dart`
+6. Drift 表变更：跑 `build_runner`；本地数据无需 migration（见 `local-storage-no-migration.mdc`）
+
+## 仍须读代码的情况
+
+本规则不替代：
+
+- 某 API 是否已接入（grep `ApiPath` / entity 名）
+- 具体 widget 字段、行号、业务分支
+- 尚未写入规则的全新模块
+
+以上用 **grep / Read 单文件** 即可，勿再跑「Explore app architecture patterns」类 broad explore。
