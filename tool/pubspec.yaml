@@ -1,0 +1,6 @@
+name: icon_tool
+description: Standalone icon export script
+environment:
+  sdk: ^3.0.0
+dependencies:
+  image: ^4.9.1
