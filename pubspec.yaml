@@ -55,26 +55,26 @@ flutter:
 # 原生启动画面：冷启动时先显示，Flutter 首帧后自动消失
 # dart run flutter_native_splash:create
 flutter_native_splash:
-  color: "#FFFFFF"
+  color: "#FAFAFA"
   image: assets/icons/qbpanel_splash.png
   android: true
   ios: false
   web: true
   android_12:
-    color: "#FFFFFF"
+    color: "#FAFAFA"
     image: assets/icons/qbpanel_splash.png
 
-# 桌面 / 启动器图标（白底 + 品牌青绿）
+# 桌面 / 启动器图标
 # dart run flutter_launcher_icons
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: assets/icons/qbpanel_launcher.png
-  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_background: "#15897C"
   adaptive_icon_foreground: assets/icons/qbpanel_adaptive_fg.png
-  adaptive_icon_foreground_inset: 14
+  adaptive_icon_foreground_inset: 8
   web:
     generate: true
     image_path: assets/icons/qbpanel_launcher.png
-    background_color: "#FFFFFF"
+    background_color: "#15897C"
     theme_color: "#1B6B5A"

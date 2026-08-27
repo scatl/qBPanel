@@ -3,7 +3,7 @@
     "short_name": "qBPanel",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFFFFF",
+    "background_color": "#15897C",
     "theme_color": "#1B6B5A",
     "description": "A new Flutter project.",
     "orientation": "portrait-primary",
