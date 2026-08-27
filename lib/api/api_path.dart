@@ -4,6 +4,7 @@ abstract final class ApiPath {
   static const transfer = _Transfer();
   static const sync = _Sync();
   static const log = _Log();
+  static const search = _Search();
 }
 
 class _Application {
@@ -228,4 +229,39 @@ class _Log {
 
   /// Peer / banned IP log (`last_known_id`)
   final peers = '$_base/peers';
+}
+
+class _Search {
+  const _Search();
+  static const _base = '/api/v2/search';
+
+  /// Start search job (`pattern`, `category`, `plugins`)
+  final start = '$_base/start';
+
+  /// Stop search job (`id`)
+  final stop = '$_base/stop';
+
+  /// Search job status (`id` optional)
+  final status = '$_base/status';
+
+  /// Search results (`id`, optional `limit` / `offset`)
+  final results = '$_base/results';
+
+  /// Delete search job (`id`)
+  final delete = '$_base/delete';
+
+  /// Installed search plugins
+  final plugins = '$_base/plugins';
+
+  /// Install search plugin (`sources`, `\|` separated)
+  final installPlugin = '$_base/installPlugin';
+
+  /// Uninstall search plugin (`names`, `\|` separated)
+  final uninstallPlugin = '$_base/uninstallPlugin';
+
+  /// Enable / disable plugins (`names`, `enable`)
+  final enablePlugin = '$_base/enablePlugin';
+
+  /// Check and apply plugin updates
+  final updatePlugins = '$_base/updatePlugins';
 }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart';
 import 'package:qbpanel/add/add_torrent_page.dart';
 import 'package:qbpanel/detail/torrent_detail_page.dart';
 import 'package:qbpanel/home/home_page.dart';
 import 'package:qbpanel/log/log_page.dart';
+import 'package:qbpanel/search/plugin/search_plugin_list_page.dart';
+import 'package:qbpanel/search/search_page.dart';
 import 'package:qbpanel/router/router_para.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/settings/server/list/server_list_page.dart';
@@ -33,6 +34,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouterPath.log,
       builder: (context, state) => const LogPage(),
+    ),
+    GoRoute(
+      path: RouterPath.search,
+      builder: (context, state) => const SearchPage(),
+    ),
+    GoRoute(
+      path: RouterPath.searchPlugins,
+      builder: (context, state) => const SearchPluginListPage(),
     ),
     GoRoute(
       path: RouterPath.settings,

@@ -199,6 +199,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                   _confirmStopDisplayed();
                 case _HomeMoreAction.logs:
                   context.push(RouterPath.log);
+                case _HomeMoreAction.search:
+                  context.push(RouterPath.search);
                 case _HomeMoreAction.settings:
                   context.push(RouterPath.settings);
               }
@@ -224,6 +226,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 ),
                 const PopupMenuDivider(),
+                const PopupMenuItem(
+                  value: _HomeMoreAction.search,
+                  child: ListTile(
+                    leading: Icon(Icons.travel_explore_outlined),
+                    title: Text('搜索种子'),
+                    contentPadding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
                 const PopupMenuItem(
                   value: _HomeMoreAction.logs,
                   child: ListTile(
@@ -311,7 +322,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 }
 
-enum _HomeMoreAction { startAll, stopAll, logs, settings }
+enum _HomeMoreAction { startAll, stopAll, search, logs, settings }
 
 class _AppBarTitle extends StatelessWidget {
   const _AppBarTitle({required this.name});
