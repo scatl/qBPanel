@@ -14,6 +14,7 @@ import 'package:qbpanel/home/ui/sheet/actions/torrent_queue_page.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_share_limit_page.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_speed_limit_page.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_tags_page.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 import 'package:qbpanel/widget/check_row.dart';
@@ -115,8 +116,9 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       return const SizedBox.shrink();
     }
 
+    final l10n = context.l10n;
     final availability = TorrentActionAvailability.of(torrent);
-    final copyItems = torrentCopyItems(torrent);
+    final copyItems = torrentCopyItems(torrent, l10n);
     final queueing = ref.read(homePageProvider).serverState?.queueing == true;
     final maxHeight = MediaQuery.sizeOf(context).height * 0.7;
     final vm = ref.read(homePageProvider.notifier);
@@ -184,19 +186,19 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                         onBack: _closeSub,
                         onTop: () => _run(
                           action: () => vm.moveTorrentQueueTop(widget.hash),
-                          failLabel: '置顶失败',
+                          failLabel: l10n.queueTopFailed,
                         ),
                         onUp: () => _run(
                           action: () => vm.moveTorrentQueueUp(widget.hash),
-                          failLabel: '上移失败',
+                          failLabel: l10n.queueUpFailed,
                         ),
                         onDown: () => _run(
                           action: () => vm.moveTorrentQueueDown(widget.hash),
-                          failLabel: '下移失败',
+                          failLabel: l10n.queueDownFailed,
                         ),
                         onBottom: () => _run(
                           action: () => vm.moveTorrentQueueBottom(widget.hash),
-                          failLabel: '置底失败',
+                          failLabel: l10n.queueBottomFailed,
                         ),
                       ),
                       _SubPage.none => const SizedBox.shrink(),
@@ -219,6 +221,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     required bool queueing,
     required HomePageViewModel vm,
   }) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     return Column(
@@ -244,34 +247,34 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               if (availability.showStart)
                 TorrentActionTile(
                   icon: Icons.play_arrow_rounded,
-                  label: '开始',
+                  label: l10n.homeStart,
                   onTap: () => _run(
                     action: () => vm.startTorrent(widget.hash),
-                    failLabel: '开始失败',
+                    failLabel: l10n.actionStartFailed,
                   ),
                 ),
               if (availability.showStop)
                 TorrentActionTile(
                   icon: Icons.stop_rounded,
-                  label: '停止',
+                  label: l10n.homeStop,
                   onTap: () => _run(
                     action: () => vm.stopTorrent(widget.hash),
-                    failLabel: '停止失败',
+                    failLabel: l10n.actionStopFailed,
                   ),
                 ),
               if (availability.showForceStart)
                 TorrentActionTile(
                   icon: Icons.fast_forward_rounded,
-                  label: '强制启动',
+                  label: l10n.actionForceStart,
                   onTap: () => _run(
                     action: () => vm.forceStartTorrent(widget.hash),
-                    failLabel: '强制启动失败',
+                    failLabel: l10n.actionForceStartFailed,
                   ),
                 ),
               const Divider(height: 8),
               TorrentActionTile(
                 icon: Icons.delete_outline,
-                label: '删除',
+                label: l10n.actionDelete,
                 foreground: scheme.error,
                 onTap: () => _confirmDelete(
                   name: torrent.name ?? '',
@@ -281,17 +284,17 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               const Divider(height: 8),
               TorrentActionTile(
                 icon: Icons.folder_outlined,
-                label: '设置保存位置',
+                label: l10n.setSaveLocation,
                 onTap: () => _setLocation(torrent, vm),
               ),
               TorrentActionTile(
                 icon: Icons.drive_file_rename_outline,
-                label: '重命名',
+                label: l10n.renameTitle,
                 onTap: () => _rename(torrent, vm),
               ),
               TorrentActionTile(
                 icon: Icons.category_outlined,
-                label: '分类',
+                label: l10n.category,
                 trailing: Icon(
                   Icons.chevron_right,
                   size: 22,
@@ -301,7 +304,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               ),
               TorrentActionTile(
                 icon: Icons.label_outlined,
-                label: '标签',
+                label: l10n.tags,
                 trailing: Icon(
                   Icons.chevron_right,
                   size: 22,
@@ -311,7 +314,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               ),
               TorrentActionTile(
                 icon: Icons.auto_mode_outlined,
-                label: '自动种子管理',
+                label: l10n.autoTmm,
                 trailing: torrent.autoTmm == true
                     ? Icon(Icons.check, size: 22, color: scheme.primary)
                     : null,
@@ -323,7 +326,9 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               const Divider(height: 8),
               TorrentActionTile(
                 icon: Icons.speed,
-                label: availability.isCompleted ? '上传限速' : '上传/下载限速',
+                label: availability.isCompleted
+                    ? l10n.uploadLimit
+                    : l10n.uploadDownloadLimit,
                 trailing: Icon(
                   Icons.chevron_right,
                   size: 22,
@@ -333,7 +338,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               ),
               TorrentActionTile(
                 icon: Icons.percent,
-                label: '分享率限制',
+                label: l10n.shareLimit,
                 trailing: Icon(
                   Icons.chevron_right,
                   size: 22,
@@ -344,7 +349,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               if (availability.showSuperSeeding)
                 TorrentActionTile(
                   icon: Icons.hub_outlined,
-                  label: '超级做种模式',
+                  label: l10n.superSeeding,
                   trailing: torrent.superSeeding == true
                       ? Icon(Icons.check, size: 22, color: scheme.primary)
                       : null,
@@ -356,45 +361,45 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               if (!availability.isCompleted) ...[
                 TorrentActionTile(
                   icon: Icons.format_list_numbered,
-                  label: '顺序下载',
+                  label: l10n.sequentialDownload,
                   trailing: torrent.seqDl == true
                       ? Icon(Icons.check, size: 22, color: scheme.primary)
                       : null,
                   onTap: () => _run(
                     action: () => vm.toggleTorrentSequentialDownload(widget.hash),
-                    failLabel: '设置顺序下载失败',
+                    failLabel: l10n.sequentialFailed,
                   ),
                 ),
                 TorrentActionTile(
                   icon: Icons.vertical_align_center,
-                  label: '先下首尾块',
+                  label: l10n.firstLastPiece,
                   trailing: torrent.fLPiecePrio == true
                       ? Icon(Icons.check, size: 22, color: scheme.primary)
                       : null,
                   onTap: () => _run(
                     action: () =>
                         vm.toggleTorrentFirstLastPiecePrio(widget.hash),
-                    failLabel: '设置先下首尾块失败',
+                    failLabel: l10n.firstLastFailed,
                   ),
                 ),
               ],
               const Divider(height: 8),
               TorrentActionTile(
                 icon: Icons.verified_outlined,
-                label: '强制重新校验',
+                label: l10n.forceRecheck,
                 onTap: () => _run(
                   action: () => vm.recheckTorrent(widget.hash),
-                  failLabel: '重新校验失败',
+                  failLabel: l10n.recheckFailed,
                 ),
               ),
               TorrentActionTile(
                 icon: Icons.campaign_outlined,
-                label: '强制重新汇报',
+                label: l10n.forceReannounce,
                 enabled: availability.canReannounce,
                 onTap: availability.canReannounce
                     ? () => _run(
                         action: () => vm.reannounceTorrent(widget.hash),
-                        failLabel: '重新汇报失败',
+                        failLabel: l10n.reannounceFailed,
                       )
                     : null,
               ),
@@ -402,7 +407,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               if (queueing)
                 TorrentActionTile(
                   icon: Icons.low_priority,
-                  label: '队列',
+                  label: l10n.queue,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -428,7 +433,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               if (showCopy)
                 TorrentActionTile(
                   icon: Icons.copy_outlined,
-                  label: '复制',
+                  label: l10n.copy,
                   trailing: Icon(
                     Icons.chevron_right,
                     size: 22,
@@ -438,7 +443,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                 ),
               TorrentActionTile(
                 icon: Icons.share_outlined,
-                label: '分享种子',
+                label: l10n.shareTorrent,
                 enabled: torrent.hasMetadata != false,
                 onTap: torrent.hasMetadata != false
                     ? () => _exportTorrent(torrent, vm)
@@ -456,30 +461,35 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     required Future<String?> Function() action,
     required String failLabel,
     bool loading = false,
-    String loadingMessage = '处理中…',
+    String? loadingMessage,
   }) {
+    final l10n = widget.pageContext.l10n;
     final sheetContext = context;
     Navigator.pop(sheetContext);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!widget.pageContext.mounted) return;
       if (loading) {
-        LoadingDialog.show(widget.pageContext, message: loadingMessage);
+        LoadingDialog.show(
+          widget.pageContext,
+          message: loadingMessage ?? l10n.processing,
+        );
       }
       final error = await action();
       if (!widget.pageContext.mounted) return;
       if (loading) LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
       ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text('$failLabel：$error')),
+        SnackBar(content: Text(l10n.errorWithDetail(failLabel, error))),
       );
     });
   }
 
   void _exportTorrent(TorrentInfoResponse torrent, HomePageViewModel vm) {
+    final l10n = widget.pageContext.l10n;
     Navigator.pop(context);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!widget.pageContext.mounted) return;
-      LoadingDialog.show(widget.pageContext, message: '准备分享…');
+      LoadingDialog.show(widget.pageContext, message: l10n.preparingShare);
       final result = await vm.exportTorrentFile(
         widget.hash,
         name: torrent.name,
@@ -488,7 +498,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       LoadingDialog.dismiss(widget.pageContext);
       if (result.error != null) {
         ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-          SnackBar(content: Text('分享失败：${result.error}')),
+          SnackBar(content: Text(l10n.shareFailed(result.error!))),
         );
         return;
       }
@@ -511,13 +521,14 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       } catch (e) {
         if (!widget.pageContext.mounted) return;
         ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-          SnackBar(content: Text('分享失败：$e')),
+          SnackBar(content: Text(l10n.shareFailed('$e'))),
         );
       }
     });
   }
 
   void _rename(TorrentInfoResponse torrent, HomePageViewModel vm) {
+    final l10n = widget.pageContext.l10n;
     final currentName = torrent.name ?? '';
     Navigator.pop(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -525,8 +536,8 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       RenameDialog.show(
         context: widget.pageContext,
         initialName: currentName,
-        labelText: '名称',
-        description: '修改的是种子在列表中的显示名称，不会改动服务器上的文件或文件夹。',
+        labelText: l10n.sortName,
+        description: l10n.renameTorrentHint,
         onSubmit: (name) => vm.renameTorrent(widget.hash, name),
       );
     });
@@ -545,13 +556,14 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       );
       if (location == null || !widget.pageContext.mounted) return;
       if (location == currentPath.trim() && !autoTmm) return;
-      LoadingDialog.show(widget.pageContext, message: '设置中…');
+      final l10n = widget.pageContext.l10n;
+      LoadingDialog.show(widget.pageContext, message: l10n.settingInProgress);
       final error = await vm.setTorrentLocation(widget.hash, location);
       if (!widget.pageContext.mounted) return;
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
       ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text('设置保存位置失败：$error')),
+        SnackBar(content: Text(l10n.setLocationFailed(error))),
       );
     });
   }
@@ -560,29 +572,37 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     required bool enabled,
     required HomePageViewModel vm,
   }) {
+    final l10n = widget.pageContext.l10n;
     Navigator.pop(context);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!widget.pageContext.mounted) return;
       if (!enabled) {
         final confirmed = await ConfirmDialog.show(
           widget.pageContext,
-          title: '开启自动种子管理',
-          message: '确定开启自动种子管理？种子可能会按分类的保存路径被移动。',
-          confirmText: '开启',
+          title: l10n.enableAutoTmmTitle,
+          message: l10n.enableAutoTmmMessage,
+          confirmText: l10n.actionEnable,
         );
         if (confirmed != true || !widget.pageContext.mounted) return;
       }
       final enable = !enabled;
       LoadingDialog.show(
         widget.pageContext,
-        message: enable ? '开启中…' : '关闭中…',
+        message: enable ? l10n.enabling : l10n.disabling,
       );
       final error = await vm.setTorrentAutoTmm(widget.hash, enable: enable);
       if (!widget.pageContext.mounted) return;
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
       ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text('${enable ? '开启' : '关闭'}自动管理失败：$error')),
+        SnackBar(
+          content: Text(
+            l10n.autoTmmFailed(
+              enable ? l10n.actionEnable : l10n.actionDisable,
+              error,
+            ),
+          ),
+        ),
       );
     });
   }
@@ -591,13 +611,14 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     required bool enabled,
     required HomePageViewModel vm,
   }) {
+    final l10n = widget.pageContext.l10n;
     Navigator.pop(context);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!widget.pageContext.mounted) return;
       final enable = !enabled;
       LoadingDialog.show(
         widget.pageContext,
-        message: enable ? '开启中…' : '关闭中…',
+        message: enable ? l10n.enabling : l10n.disabling,
       );
       final error = await vm.setTorrentSuperSeeding(
         widget.hash,
@@ -607,7 +628,14 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
       ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text('${enable ? '开启' : '关闭'}超级做种失败：$error')),
+        SnackBar(
+          content: Text(
+            l10n.superSeedingFailed(
+              enable ? l10n.actionEnable : l10n.actionDisable,
+              error,
+            ),
+          ),
+        ),
       );
     });
   }
@@ -616,6 +644,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     required String name,
     required HomePageViewModel vm,
   }) {
+    final l10n = widget.pageContext.l10n;
     final sheetContext = context;
     Navigator.pop(sheetContext);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -623,8 +652,8 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       var deleteFiles = false;
       final confirmed = await ConfirmDialog.show(
         widget.pageContext,
-        title: '删除种子',
-        confirmText: '删除',
+        title: l10n.deleteTorrentTitle,
+        confirmText: l10n.actionDelete,
         destructive: true,
         content: StatefulBuilder(
           builder: (context, setState) {
@@ -635,14 +664,16 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  name.isEmpty ? '确定删除该种子？' : '确定删除「$name」？',
+                  name.isEmpty
+                      ? l10n.confirmDeleteTorrent
+                      : l10n.confirmDeleteTorrentNamed(name),
                   style: textTheme.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 4),
                 CheckRow(
-                  label: '同时删除文件',
+                  label: l10n.deleteFilesToo,
                   value: deleteFiles,
                   onChanged: (value) {
                     setState(() => deleteFiles = value);
@@ -654,7 +685,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
         ),
       );
       if (confirmed != true || !widget.pageContext.mounted) return;
-      LoadingDialog.show(widget.pageContext, message: '删除中…');
+      LoadingDialog.show(widget.pageContext, message: l10n.deleting);
       final error = await vm.deleteTorrent(
         widget.hash,
         deleteFiles: deleteFiles,
@@ -663,7 +694,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
       ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text('删除失败：$error')),
+        SnackBar(content: Text(l10n.deleteFailed(error))),
       );
     });
   }

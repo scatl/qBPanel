@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class AddTorrentLinkDialog extends StatefulWidget {
@@ -62,11 +63,11 @@ class _AddTorrentLinkDialogState extends State<AddTorrentLinkDialog> {
     FocusScope.of(context).unfocus();
     final urls = _parseUrls(_controller.text);
     if (urls.isEmpty) {
-      setState(() => _error = '请输入磁力链接或 HTTP(S) 地址');
+      setState(() => _error = context.l10n.enterMagnetOrUrl);
       return;
     }
     if (urls.length > 1) {
-      setState(() => _error = '一次只能导入一个种子');
+      setState(() => _error = context.l10n.importOneTorrentOnly);
       return;
     }
     Navigator.of(context).pop(urls.single);
@@ -74,6 +75,7 @@ class _AddTorrentLinkDialogState extends State<AddTorrentLinkDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.86;
@@ -89,7 +91,7 @@ class _AddTorrentLinkDialogState extends State<AddTorrentLinkDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '从磁力链接导入',
+              l10n.importMagnet,
               style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
             ),
             const SizedBox(height: 16),
@@ -103,7 +105,7 @@ class _AddTorrentLinkDialogState extends State<AddTorrentLinkDialog> {
                 if (_error != null) setState(() => _error = null);
               },
               decoration: InputDecoration(
-                labelText: '磁力链接或 URL',
+                labelText: l10n.magnetOrUrl,
                 alignLabelWithHint: true,
                 errorText: _error,
               ),
@@ -114,12 +116,12 @@ class _AddTorrentLinkDialogState extends State<AddTorrentLinkDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                  child: Text(l10n.actionCancel),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
                   onPressed: _onConfirm,
-                  child: const Text('导入'),
+                  child: Text(l10n.actionImport),
                 ),
               ],
             ),

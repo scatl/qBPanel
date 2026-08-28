@@ -1,3 +1,5 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
+
 /// 分类筛选。父路径包含子孙（`1` 能匹配 `1/1`）。
 class TorrentCategoryFilter {
   const TorrentCategoryFilter._({this.isUncategorized = false}) : path = null;
@@ -15,9 +17,9 @@ class TorrentCategoryFilter {
 
   bool get isAll => path == null && !isUncategorized;
 
-  String get displayText {
-    if (isAll) return '全部';
-    if (isUncategorized) return '未分类';
+  String displayText(AppLocalizations l10n) {
+    if (isAll) return l10n.filterAll;
+    if (isUncategorized) return l10n.filterUncategorized;
     return path!;
   }
 

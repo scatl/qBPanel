@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -21,34 +22,35 @@ class ServerSettingsPage extends StatefulWidget {
 class _ServerSettingsPageState extends State<ServerSettingsPage> {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final groups = [
       _ServerSettingGroup(
         icon: Icons.tune,
-        title: '行为',
+        title: l10n.qbSetBehavior,
         onTap: () => context.push(
           RouterPath.serverSettingsBehaviorWithParams(widget.serverId),
         ),
       ),
       _ServerSettingGroup(
         icon: Icons.download_outlined,
-        title: '下载',
+        title: l10n.qbSetDownloads,
         onTap: () => context.push(
           RouterPath.serverSettingsDownloadsWithParams(widget.serverId),
         ),
       ),
       _ServerSettingGroup(
         icon: Icons.lan_outlined,
-        title: '连接',
+        title: l10n.qbSetConnection,
         onTap: () => context.push(
           RouterPath.serverSettingsConnectionWithParams(widget.serverId),
         ),
       ),
       _ServerSettingGroup(
         icon: Icons.speed,
-        title: '速度',
+        title: l10n.qbSetSpeed,
         onTap: () => context.push(
           RouterPath.serverSettingsSpeedWithParams(widget.serverId),
         ),
@@ -70,7 +72,7 @@ class _ServerSettingsPageState extends State<ServerSettingsPage> {
       ),
       _ServerSettingGroup(
         icon: Icons.build_outlined,
-        title: '高级',
+        title: l10n.qbSetAdvanced,
         onTap: () => context.push(
           RouterPath.serverSettingsAdvancedWithParams(widget.serverId),
         ),
@@ -79,7 +81,7 @@ class _ServerSettingsPageState extends State<ServerSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('服务器设置'),
+        title: Text(l10n.settingsServerSettings),
       ),
       body: ListView(
         padding: EdgeInsets.fromLTRB(0, 8, 0, 24 + bottomSafe),
@@ -97,8 +99,7 @@ class _ServerSettingsPageState extends State<ServerSettingsPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    '此处修改的是当前 qBittorrent 服务器的选项。'
-                    '部分设置仅作用于服务器或 WebUI，不会影响本 App 的界面与行为。',
+                    l10n.qbSetDisclaimer,
                     style: textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),

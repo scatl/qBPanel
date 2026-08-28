@@ -1,3 +1,4 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/log/model/log_day_section.dart';
 import 'package:qbpanel/log/util/log_date_label.dart';
 
@@ -5,6 +6,7 @@ import 'package:qbpanel/log/util/log_date_label.dart';
 List<LogDaySection<T>> groupLogEntriesByDay<T>(
   List<T> entries,
   int Function(T entry) timestampSeconds,
+  AppLocalizations l10n,
 ) {
   if (entries.isEmpty) return const [];
 
@@ -19,7 +21,7 @@ List<LogDaySection<T>> groupLogEntriesByDay<T>(
     for (final day in days)
       LogDaySection(
         day: day,
-        dateLabel: formatLogDateLabel(day),
+        dateLabel: formatLogDateLabel(day, l10n),
         entries: buckets[day]!,
       ),
   ];

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_share_limit.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/check_row.dart';
 
 class TorrentShareLimitPage extends ConsumerStatefulWidget {
@@ -61,6 +62,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
@@ -75,14 +77,14 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
             child: Row(
               children: [
                 IconButton(
-                  tooltip: '返回',
+                  tooltip: l10n.actionBack,
                   visualDensity: VisualDensity.compact,
                   onPressed: _saving ? null : widget.onBack,
                   icon: const Icon(Icons.arrow_back),
                 ),
                 Expanded(
                   child: Text(
-                    '分享率限制',
+                    l10n.shareLimit,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.titleMedium,
@@ -96,7 +98,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
               shrinkWrap: true,
               children: [
                 _ModeTile(
-                  label: '使用全局设置',
+                  label: l10n.shareLimitUseDefault,
                   selected: _mode == TorrentShareLimitMode.global,
                   enabled: !_saving,
                   onTap: () => setState(() {
@@ -105,7 +107,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
                   }),
                 ),
                 _ModeTile(
-                  label: '无限制',
+                  label: l10n.unlimited,
                   selected: _mode == TorrentShareLimitMode.unlimited,
                   enabled: !_saving,
                   onTap: () => setState(() {
@@ -114,7 +116,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
                   }),
                 ),
                 _ModeTile(
-                  label: '自定义',
+                  label: l10n.custom,
                   selected: _mode == TorrentShareLimitMode.custom,
                   enabled: !_saving,
                   onTap: () => setState(() {
@@ -125,22 +127,22 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
                 if (_mode == TorrentShareLimitMode.custom) ...[
                   const SizedBox(height: 4),
                   _ShareLimitRow(
-                    label: '分享率',
+                    label: l10n.sortRatio,
                     field: _ratio,
                     enabled: !_saving,
                     onChanged: () => setState(() => _error = null),
                   ),
                   _ShareLimitRow(
-                    label: '做种时间',
+                    label: l10n.seedingTime,
                     field: _seeding,
-                    suffix: '分钟',
+                    suffix: l10n.minutes,
                     enabled: !_saving,
                     onChanged: () => setState(() => _error = null),
                   ),
                   _ShareLimitRow(
-                    label: '不活跃',
+                    label: l10n.inactive,
                     field: _inactive,
-                    suffix: '分钟',
+                    suffix: l10n.minutes,
                     enabled: !_saving,
                     onChanged: () => setState(() => _error = null),
                   ),
@@ -151,8 +153,8 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
                     child: DropdownButtonFormField<TorrentShareLimitAction>(
                       initialValue: _action,
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: '达到上限后',
+                      decoration: InputDecoration(
+                        labelText: l10n.afterLimitReached,
                         isDense: true,
                       ),
                       onChanged: _saving
@@ -168,7 +170,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
                         for (final action in TorrentShareLimitAction.values)
                           DropdownMenuItem(
                             value: action,
-                            child: Text(action.displayText),
+                            child: Text(action.label(context.l10n)),
                           ),
                       ],
                     ),
@@ -197,7 +199,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
                         color: scheme.onPrimary,
                       ),
                     )
-                  : const Text('确定'),
+                  : Text(l10n.actionOk),
             ),
           ),
         ],
@@ -225,7 +227,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
         if (ratio == _ShareLimitField.invalid ||
             seeding == _ShareLimitField.invalid ||
             inactive == _ShareLimitField.invalid) {
-          setState(() => _error = '请输入有效的限制');
+          setState(() => _error = context.l10n.enterValidLimit);
           return;
         }
         ratioLimit = ratio;
@@ -255,7 +257,7 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
     widget.onBack();
     if (!widget.pageContext.mounted) return;
     ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-      const SnackBar(content: Text('已保存分享率限制')),
+      SnackBar(content: Text(widget.pageContext.l10n.shareLimitSaved)),
     );
   }
 }

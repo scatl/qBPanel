@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/bittorrent/bittorrent_settings_ui_state.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
@@ -36,7 +37,7 @@ class BittorrentSettingsViewModel
 
     if (prefs == null) {
       state = state.copyWith(
-        emptyState: EmptyState.error(error ?? '加载设置失败'),
+        emptyState: EmptyState.error(error ?? ref.read(appLocalizationsProvider).loadSettingsFailed),
       );
       return false;
     }
@@ -178,37 +179,37 @@ class BittorrentSettingsViewModel
     if (state.saving) return null;
 
     if (state.maxActiveCheckingTorrents < -1) {
-      return '最大活跃检查 Torrent 数必须大于 -1';
+      return ref.read(appLocalizationsProvider).invalidMaxActiveChecking;
     }
     if (state.queueingEnabled) {
       if (state.maxActiveDownloads < -1) {
-        return '最大活动的下载数必须大于 -1';
+        return ref.read(appLocalizationsProvider).invalidMaxActiveDownloads;
       }
       if (state.maxActiveUploads < -1) {
-        return '最大活动的上传数必须大于 -1';
+        return ref.read(appLocalizationsProvider).invalidMaxActiveUploads;
       }
       if (state.maxActiveTorrents < -1) {
-        return '最大活动的 torrent 数必须大于 -1';
+        return ref.read(appLocalizationsProvider).invalidMaxActiveTorrents;
       }
       if (state.slowTorrentDlRateThreshold < 1) {
-        return '下载速度阈值必须大于 0';
+        return ref.read(appLocalizationsProvider).invalidDownloadRateThreshold;
       }
       if (state.slowTorrentUlRateThreshold < 1) {
-        return '上传速度阈值必须大于 0';
+        return ref.read(appLocalizationsProvider).invalidUploadRateThreshold;
       }
       if (state.slowTorrentInactiveTimer < 1) {
-        return 'Torrent 非活动计时器必须大于 0';
+        return ref.read(appLocalizationsProvider).invalidTorrentInactivityTimer;
       }
     }
     if (state.maxRatioEnabled && state.maxRatio < 0) {
-      return '分享率限制不能为负数';
+      return ref.read(appLocalizationsProvider).invalidShareRatio;
     }
     if (state.maxSeedingTimeEnabled && state.maxSeedingTime < 0) {
-      return '做种时间限制不能为负数';
+      return ref.read(appLocalizationsProvider).invalidSeedingTime;
     }
     if (state.maxInactiveSeedingTimeEnabled &&
         state.maxInactiveSeedingTime < 0) {
-      return '不活跃做种时间限制不能为负数';
+      return ref.read(appLocalizationsProvider).invalidInactiveSeedingTime;
     }
 
     state = state.copyWith(saving: true);

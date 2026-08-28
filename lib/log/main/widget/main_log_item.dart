@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/log/model/log_level_colors.dart';
 import 'package:qbpanel/log/model/log_main_entry.dart';
 import 'package:qbpanel/log/widget/log_item_meta_row.dart';
@@ -35,7 +36,7 @@ class MainLogItem extends StatelessWidget {
                 id: entry.id,
                 timestamp: entry.timestamp,
                 trailing: Text(
-                  entry.level.label,
+                  entry.level.label(context.l10n),
                   style: textTheme.labelSmall?.copyWith(
                     color: levelColor,
                     fontWeight: FontWeight.w600,

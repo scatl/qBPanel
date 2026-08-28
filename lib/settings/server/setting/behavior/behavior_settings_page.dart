@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/setting/behavior/behavior_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/behavior/behavior_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
@@ -61,7 +62,7 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
     vm.setFileLogMaxSizeText(_fileLogMaxSizeController.text);
     vm.setFileLogAgeText(_fileLogAgeController.text);
 
-    LoadingDialog.show(context, message: '保存中…');
+    LoadingDialog.show(context, message: context.l10n.saving);
     await Future<void>.delayed(Duration.zero);
 
     final error = await vm.save();
@@ -71,7 +72,7 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(error == null ? '已保存' : '保存失败：$error'),
+        content: Text(error == null ? context.l10n.saved : context.l10n.saveFailed(error)),
       ),
     );
   }
@@ -88,10 +89,10 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('行为'),
+        title: Text(context.l10n.qbSetBehavior),
         actions: [
           IconButton(
-            tooltip: '保存',
+            tooltip: context.l10n.actionSave,
             icon: const Icon(Icons.save),
             onPressed: canEdit ? _onSave : null,
           ),
@@ -105,10 +106,10 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                   padding: EdgeInsets.fromLTRB(0, 8, 0, 24 + bottomSafe),
                   children: [
                     SettingsGroupCard(
-                      title: '语言',
+                      title: context.l10n.settingsLanguage,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: DropdownField<String>(
-                        label: '用户界面语言',
+                        label: context.l10n.qbWebUiLanguage,
                         value: ui.locale,
                         enabled: canEdit,
                         items: [
@@ -128,10 +129,10 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '传输列表',
+                      title: context.l10n.transferList,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: SettingsSwitchTile(
-                        title: '删除 Torrent 时提示确认',
+                        title: context.l10n.confirmTorrentDeletion,
                         value: ui.confirmTorrentDeletion,
                         onChanged:
                             canEdit ? vm.setConfirmTorrentDeletion : null,
@@ -141,20 +142,20 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                     SettingsGroupCard(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: SettingsSwitchTile(
-                        title: '在状态栏展示外部 IP',
+                        title: context.l10n.showExternalIp,
                         value: ui.statusBarExternalIp,
                         onChanged: canEdit ? vm.setStatusBarExternalIp : null,
                       ),
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '日志文件',
+                      title: context.l10n.logFile,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '启用日志文件',
+                            title: context.l10n.enableLogFile,
                             value: ui.fileLogEnabled,
                             onChanged: canEdit ? vm.setFileLogEnabled : null,
                           ),
@@ -164,13 +165,13 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                             minLines: 1,
                             maxLines: 3,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: '保存路径',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.savePath,
                             ),
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '当大于指定大小时备份日志文件',
+                            title: context.l10n.backupLogWhenLarger,
                             value: ui.fileLogBackupEnabled,
                             onChanged: canEdit && logEnabled
                                 ? vm.setFileLogBackupEnabled
@@ -185,13 +186,13 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               suffixText: 'KiB',
                             ),
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '删除早于指定时间的备份日志文件',
+                            title: context.l10n.deleteOldBackupLogs,
                             value: ui.fileLogDeleteOld,
                             onChanged: canEdit && logEnabled
                                 ? vm.setFileLogDeleteOld
@@ -209,8 +210,8 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                   ],
-                                  decoration: const InputDecoration(
-                                    labelText: '时间',
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.logAge,
                                   ),
                                 ),
                               ),
@@ -229,7 +230,7 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                                         in BehaviorLogAgeType.values)
                                       DropdownMenuItem(
                                         value: item,
-                                        child: Text(item.label),
+                                        child: Text(item.label(context.l10n)),
                                       ),
                                   ],
                                   onChanged: canEdit &&
@@ -251,7 +252,7 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                     SettingsGroupCard(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: SettingsSwitchTile(
-                        title: '记录性能警报',
+                        title: context.l10n.logPerformanceWarning,
                         value: ui.performanceWarning,
                         onChanged: canEdit ? vm.setPerformanceWarning : null,
                       ),

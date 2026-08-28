@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/app_build_info_response.dart';
 import 'package:qbpanel/api/entity/response/connection_status.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 import 'package:qbpanel/widget/sheet/blur_modal_bottom_sheet.dart';
 import 'package:qbpanel/util/byte_format.dart';
@@ -19,6 +21,7 @@ class ServerStateSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final serverState = ref.watch(homePageProvider.select((s) => s.serverState));
     final activeServer = ref.watch(
       homePageProvider.select((s) => s.activeServer),
@@ -35,149 +38,153 @@ class ServerStateSheet extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text('服务器状态', style: textTheme.titleMedium),
+            child: Text(l10n.homeServerStatus, style: textTheme.titleMedium),
           ),
           Flexible(
             child: serverState == null
-                ? const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 24),
-                    child: Text('暂无数据', textAlign: TextAlign.center),
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                    child: Text(l10n.emptyNoData, textAlign: TextAlign.center),
                   )
                 : ListView(
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(bottom: 16),
                     children: [
                       _Section(
-                        title: '连接',
+                        title: l10n.connection,
                         rows: [
                           _Kv(
-                            '连接状态',
-                            serverState.connectionStatus?.displayText ?? '—',
+                            l10n.ssConnectionStatus,
+                            serverState.connectionStatus?.label(l10n) ??
+                                '—',
                             valueColor: _connectionColor(
                               Theme.of(context).colorScheme,
                               serverState.connectionStatus,
                             ),
                           ),
-                          _Kv('DHT 节点', _count(serverState.dhtNodes)),
+                          _Kv(l10n.ssDhtNodes, _count(serverState.dhtNodes)),
                           _Kv(
-                            'Peer 连接',
+                            l10n.ssPeerConnections,
                             _count(serverState.totalPeerConnections),
                           ),
                           _Kv(
-                            '外网 IPv4',
+                            l10n.ssExternalIpv4,
                             _text(serverState.lastExternalAddressV4),
                           ),
                           _Kv(
-                            '外网 IPv6',
+                            l10n.ssExternalIpv6,
                             _text(serverState.lastExternalAddressV6),
                           ),
                         ],
                       ),
                       _Section(
-                        title: '传输',
+                        title: l10n.transfer,
                         rows: [
                           _Kv(
-                            '下载速度',
+                            l10n.sortDownloadSpeed,
                             formatSpeed(serverState.dlInfoSpeed),
                           ),
                           _Kv(
-                            '上传速度',
+                            l10n.sortUploadSpeed,
                             formatSpeed(serverState.upInfoSpeed),
                           ),
                           _Kv(
-                            '本次下载',
+                            l10n.ssSessionDownload,
                             _bytes(serverState.dlInfoData),
                           ),
                           _Kv(
-                            '本次上传',
+                            l10n.ssSessionUpload,
                             _bytes(serverState.upInfoData),
                           ),
                           _Kv(
-                            '累计下载',
+                            l10n.ssAllTimeDownload,
                             _bytes(serverState.alltimeDl),
                           ),
                           _Kv(
-                            '累计上传',
+                            l10n.ssAllTimeUpload,
                             _bytes(serverState.alltimeUl),
                           ),
-                          _Kv('分享率', _ratio(serverState.globalRatio)),
+                          _Kv(l10n.sortRatio, _ratio(serverState.globalRatio)),
                           _Kv(
-                            '本次丢弃',
+                            l10n.ssSessionWasted,
                             _bytes(serverState.totalWastedSession),
                           ),
                           _Kv(
-                            '下载限速',
-                            _rateLimit(serverState.dlRateLimit),
+                            l10n.ssDlRateLimit,
+                            _rateLimit(serverState.dlRateLimit, l10n),
                           ),
                           _Kv(
-                            '上传限速',
-                            _rateLimit(serverState.upRateLimit),
+                            l10n.ssUpRateLimit,
+                            _rateLimit(serverState.upRateLimit, l10n),
                           ),
                           _Kv(
-                            '备用限速',
-                            _onOff(serverState.useAltSpeedLimits),
+                            l10n.ssAltSpeed,
+                            _onOff(serverState.useAltSpeedLimits, l10n),
                           ),
                         ],
                       ),
                       _Section(
-                        title: '磁盘与队列',
+                        title: l10n.ssDiskAndQueue,
                         rows: [
                           _Kv(
-                            '磁盘剩余',
+                            l10n.ssFreeSpace,
                             _bytes(serverState.freeSpaceOnDisk),
                           ),
-                          _Kv('种子排队', _onOff(serverState.queueing)),
                           _Kv(
-                            '磁盘队列',
+                            l10n.ssTorrentQueueing,
+                            _onOff(serverState.queueing, l10n),
+                          ),
+                          _Kv(
+                            l10n.ssDiskQueue,
                             _count(serverState.queuedIoJobs),
                           ),
                           _Kv(
-                            'Tracker 排队',
+                            l10n.ssTrackerQueue,
                             _count(serverState.queuedTrackerAnnounces),
                           ),
                           _Kv(
-                            '待写入',
+                            l10n.ssWritePending,
                             _bytes(serverState.totalQueuedSize),
                           ),
                           _Kv(
-                            '队列等待',
-                            _ms(serverState.averageTimeQueue),
+                            l10n.ssQueued,
+                            _ms(serverState.averageTimeQueue, l10n),
                           ),
                         ],
                       ),
                       _Section(
-                        title: '缓存',
+                        title: l10n.ssCache,
                         rows: [
                           _Kv(
-                            '缓存占用',
+                            l10n.ssCacheUsed,
                             _bytes(serverState.totalBuffersSize),
                           ),
                           _Kv(
-                            '读缓存命中',
+                            l10n.ssReadCacheHits,
                             _percent(serverState.readCacheHits),
                           ),
                           _Kv(
-                            '读缓存过载',
+                            l10n.ssReadCacheOverload,
                             _percent(serverState.readCacheOverload),
                           ),
                           _Kv(
-                            '写缓存过载',
+                            l10n.ssWriteCacheOverload,
                             _percent(serverState.writeCacheOverload),
                           ),
                         ],
                       ),
                       _Section(
-                        title: '应用',
+                        title: l10n.application,
                         rows: [
-                          _Kv('应用版本', _text(activeServer?.appVersion)),
-                          _Kv('API 版本', _text(activeServer?.apiVersion)),
+                          _Kv(l10n.ssAppVersion, _text(activeServer?.appVersion)),
+                          _Kv(l10n.ssApiVersion, _text(activeServer?.apiVersion)),
                           _Kv('Qt', _text(buildInfo?.qt)),
                           _Kv('libtorrent', _text(buildInfo?.libtorrent)),
                           _Kv('Boost', _text(buildInfo?.boost)),
                           _Kv('OpenSSL', _text(buildInfo?.openssl)),
                           _Kv('zlib', _text(buildInfo?.zlib)),
-                          _Kv('位数', _bitness(buildInfo?.bitness)),
-                          _Kv('平台', _text(buildInfo?.platform)),
+                          _Kv(l10n.ssBitness, _bitness(buildInfo?.bitness, l10n)),
+                          _Kv(l10n.ssPlatform, _text(buildInfo?.platform)),
                         ],
                       ),
                     ],
@@ -296,15 +303,16 @@ String _bytes(int? bytes) => formatBytes(bytes, fractionDigits: 2);
 
 String _count(int? n) => n == null ? '—' : '$n';
 
-String _ms(int? ms) => ms == null ? '—' : '$ms 毫秒';
+String _ms(int? ms, AppLocalizations l10n) =>
+    ms == null ? '—' : l10n.milliseconds(ms);
 
-String _onOff(bool? v) {
+String _onOff(bool? v, AppLocalizations l10n) {
   if (v == null) return '—';
-  return v ? '开' : '关';
+  return v ? l10n.onLabel : l10n.offLabel;
 }
 
-String _rateLimit(int? bytesPerSec) {
-  if (bytesPerSec == null || bytesPerSec <= 0) return '不限';
+String _rateLimit(int? bytesPerSec, AppLocalizations l10n) {
+  if (bytesPerSec == null || bytesPerSec <= 0) return l10n.unlimitedSpeed;
   return formatSpeed(bytesPerSec);
 }
 
@@ -313,9 +321,9 @@ String _text(String? raw) {
   return raw;
 }
 
-String _bitness(int? bitness) {
+String _bitness(int? bitness, AppLocalizations l10n) {
   if (bitness == null || bitness <= 0) return '—';
-  return '$bitness 位';
+  return l10n.bitnessValue(bitness);
 }
 
 String _ratio(String? raw) {

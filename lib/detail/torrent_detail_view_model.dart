@@ -8,6 +8,8 @@ import 'package:qbpanel/detail/torrent_detail_ui_state.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final torrentDetailProvider = NotifierProvider.autoDispose
@@ -22,6 +24,8 @@ class TorrentDetailViewModel extends Notifier<TorrentDetailUiState> {
 
   late PollLoop _poll;
 
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
+
   @override
   TorrentDetailUiState build() {
     _poll = PollLoop(ref: ref, onPoll: _onPoll)..attach();
@@ -32,7 +36,7 @@ class TorrentDetailViewModel extends Notifier<TorrentDetailUiState> {
 
   Future<void> _onPoll(PollTicket ticket) async {
     if (hash.isEmpty) {
-      state = state.copyWith(emptyState: EmptyState.error('无效的种子'));
+      state = state.copyWith(emptyState: EmptyState.error(_l10n.invalidTorrent));
       ticket.stopPolling();
       return;
     }
@@ -62,7 +66,7 @@ class TorrentDetailViewModel extends Notifier<TorrentDetailUiState> {
           })
           .onFail((e) {
             if (e.isCancel) return;
-            propsError = e.statusCode == 404 ? '种子不存在' : e.message;
+            propsError = e.statusCode == 404 ? _l10n.torrentNotFound : e.message;
           }),
       api
           .get(
@@ -97,7 +101,7 @@ class TorrentDetailViewModel extends Notifier<TorrentDetailUiState> {
     if (!ticket.isActive) return;
 
     if (state.properties == null) {
-      state = state.copyWith(emptyState: EmptyState.error(propsError ?? '加载失败'));
+      state = state.copyWith(emptyState: EmptyState.error(propsError ?? _l10n.loadFailed));
     }
   }
 

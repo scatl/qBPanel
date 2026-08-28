@@ -13,6 +13,7 @@ import 'package:qbpanel/detail/trackers/torrent_trackers_tab.dart';
 import 'package:qbpanel/detail/trackers/torrent_trackers_view_model.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_tab.dart';
 import 'package:qbpanel/detail/widget/detail_sort_dialog.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 
 class TorrentDetailPage extends ConsumerWidget {
   const TorrentDetailPage({super.key, required this.torrentHash});
@@ -42,24 +43,24 @@ class TorrentDetailPage extends ConsumerWidget {
                   tabs.index == _trackersTabIndex;
               return Scaffold(
                 appBar: AppBar(
-                  title: const Text('种子详情'),
+                  title: Text(context.l10n.torrentDetail),
                   actions: [
                     if (showSort)
                       IconButton(
-                        tooltip: '排序',
+                        tooltip: context.l10n.homeSort,
                         icon: const Icon(Icons.sort),
                         onPressed: () => _openSort(context, ref, tabs.index),
                       ),
                   ],
-                  bottom: const TabBar(
+                  bottom: TabBar(
                     isScrollable: true,
                     tabAlignment: TabAlignment.center,
                     tabs: [
-                      Tab(text: '普通'),
-                      Tab(text: '用户'),
-                      Tab(text: '内容'),
-                      Tab(text: 'Tracker'),
-                      Tab(text: 'HTTP 源'),
+                      Tab(text: context.l10n.tabGeneral),
+                      Tab(text: context.l10n.tabPeers),
+                      Tab(text: context.l10n.tabContent),
+                      Tab(text: context.l10n.tabTrackers),
+                      Tab(text: context.l10n.tabHttpSeeds),
                     ],
                   ),
                 ),
@@ -90,10 +91,10 @@ class TorrentDetailPage extends ConsumerWidget {
       final vm = ref.read(torrentPeersProvider(torrentHash).notifier);
       DetailSortDialog.show<PeerSortKey>(
         context: context,
-        title: '用户排序',
+        title: context.l10n.sortPeersTitle,
         options: [
           for (final key in PeerSortKey.values)
-            DetailSortOption(value: key, label: key.label),
+            DetailSortOption(value: key, label: key.label(context.l10n)),
         ],
         selected: ui.sortKey,
         ascending: ui.sortAscending,
@@ -106,10 +107,10 @@ class TorrentDetailPage extends ConsumerWidget {
       final vm = ref.read(torrentContentProvider(torrentHash).notifier);
       DetailSortDialog.show<ContentSortKey>(
         context: context,
-        title: '内容排序',
+        title: context.l10n.sortContent,
         options: [
           for (final key in ContentSortKey.values)
-            DetailSortOption(value: key, label: key.label),
+            DetailSortOption(value: key, label: key.label(context.l10n)),
         ],
         selected: ui.sortKey,
         ascending: ui.sortAscending,
@@ -122,10 +123,10 @@ class TorrentDetailPage extends ConsumerWidget {
       final vm = ref.read(torrentTrackersProvider(torrentHash).notifier);
       DetailSortDialog.show<TrackerSortKey>(
         context: context,
-        title: 'Tracker 排序',
+        title: context.l10n.sortTrackers,
         options: [
           for (final key in TrackerSortKey.values)
-            DetailSortOption(value: key, label: key.label),
+            DetailSortOption(value: key, label: key.label(context.l10n)),
         ],
         selected: ui.sortKey,
         ascending: ui.sortAscending,

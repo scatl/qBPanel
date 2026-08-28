@@ -1,3 +1,5 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
+
 /// 标签筛选。
 class TorrentTagFilter {
   const TorrentTagFilter._({this.isUntagged = false}) : name = null;
@@ -12,9 +14,9 @@ class TorrentTagFilter {
 
   bool get isAll => name == null && !isUntagged;
 
-  String get displayText {
-    if (isAll) return '全部';
-    if (isUntagged) return '无标签';
+  String displayText(AppLocalizations l10n) {
+    if (isAll) return l10n.filterAll;
+    if (isUntagged) return l10n.filterUntagged;
     return name!;
   }
 

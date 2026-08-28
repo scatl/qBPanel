@@ -1,0 +1,29 @@
+---
+description: 新增或改动用户可见文案时必须补中英翻译，不要硬编码。
+alwaysApply: true
+---
+
+# 多语言
+
+改 UI、空态、Dialog、SnackBar、tooltip、枚举标签、校验提示时，**同步**加翻译，不要先写死中文再补。
+
+- 文案：`l10n/app_zh.arb`（模板）、`l10n/app_zh_TW.arb`、`l10n/app_en.arb`，三边同一 key
+- 生成：改 ARB 后运行 `flutter gen-l10n`
+- Page：`context.l10n.xxx`（`lib/l10n/context_l10n.dart`）
+- ViewModel / HTTP：`ref.read(appLocalizationsProvider).xxx`
+- 枚举：`label(l10n)`，不要把文案写进构造函数
+- 语言模式：`appLocaleModeProvider`（跟随系统 / 简体中文 / 繁體中文 / English）
+- 接口返回的**固定 id**（如搜索分类 `anime`）按 id 映射 l10n；插件自定义名称可保留原文
+- 代码注释可以继续用中文
+
+```dart
+// ✅
+Text(context.l10n.homeFilter)
+item.label(context.l10n)
+
+// ❌
+Text('筛选')
+Text(option.name) // 已知分类 id 却直接显示 API 英文
+```
+
+**不要当应用语言翻译：** qB 服务器 WebUI 语言选项用语言本名；协议/品牌名（BitTorrent、WebUI、RSS、TCP、μTP）保持原样。

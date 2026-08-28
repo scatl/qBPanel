@@ -1,30 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 /// Web 侧栏「状态」14 项。id 与 qB WebUI `selected_filter` 一致。
 enum TorrentStatusFilter {
-  all('all', '全部', Icons.apps_outlined),
-  downloading('downloading', '下载', Icons.keyboard_double_arrow_down),
-  seeding('seeding', '做种', Icons.keyboard_double_arrow_up),
-  completed('completed', '完成', Icons.check),
-  running('running', '正运行', Icons.play_circle_outline),
-  stopped('stopped', '已停止', Icons.stop_circle_outlined),
-  active('active', '活动', Icons.swap_vert),
-  inactive('inactive', '空闲', Icons.swap_vert),
-  stalled('stalled', '暂停', Icons.pause),
-  stalledUploading('stalled_uploading', '上传已暂停', Icons.keyboard_double_arrow_up),
-  stalledDownloading('stalled_downloading', '下载已暂停', Icons.keyboard_double_arrow_down),
-  checking('checking', '正在检查', Icons.sync),
-  moving('moving', '正在移动', Icons.gps_fixed),
-  errored('errored', '错误', Icons.error_outline);
+  all('all', Icons.apps_outlined),
+  downloading('downloading', Icons.keyboard_double_arrow_down),
+  seeding('seeding', Icons.keyboard_double_arrow_up),
+  completed('completed', Icons.check),
+  running('running', Icons.play_circle_outline),
+  stopped('stopped', Icons.stop_circle_outlined),
+  active('active', Icons.swap_vert),
+  inactive('inactive', Icons.swap_vert),
+  stalled('stalled', Icons.pause),
+  stalledUploading('stalled_uploading', Icons.keyboard_double_arrow_up),
+  stalledDownloading('stalled_downloading', Icons.keyboard_double_arrow_down),
+  checking('checking', Icons.sync),
+  moving('moving', Icons.gps_fixed),
+  errored('errored', Icons.error_outline);
 
-  const TorrentStatusFilter(this.apiValue, this.displayText, this.icon);
+  const TorrentStatusFilter(this.apiValue, this.icon);
 
   /// WebUI / 后续筛选用的内部 id。
   final String apiValue;
-
-  final String displayText;
   final IconData icon;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        TorrentStatusFilter.all => l10n.filterAll,
+        TorrentStatusFilter.downloading => l10n.filterDownloading,
+        TorrentStatusFilter.seeding => l10n.filterSeeding,
+        TorrentStatusFilter.completed => l10n.filterCompleted,
+        TorrentStatusFilter.running => l10n.filterRunning,
+        TorrentStatusFilter.stopped => l10n.filterStopped,
+        TorrentStatusFilter.active => l10n.filterActive,
+        TorrentStatusFilter.inactive => l10n.filterInactive,
+        TorrentStatusFilter.stalled => l10n.filterStalled,
+        TorrentStatusFilter.stalledUploading => l10n.filterStalledUploading,
+        TorrentStatusFilter.stalledDownloading => l10n.filterStalledDownloading,
+        TorrentStatusFilter.checking => l10n.filterChecking,
+        TorrentStatusFilter.moving => l10n.filterMoving,
+        TorrentStatusFilter.errored => l10n.filterErrored,
+      };
 
   /// 对齐 WebUI `dynamicTable.js` 的 `applyFilter`（状态维）。
   bool matches(TorrentInfoResponse torrent) {

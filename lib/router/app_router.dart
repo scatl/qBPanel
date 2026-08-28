@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qbpanel/add/add_torrent_page.dart';
 import 'package:qbpanel/detail/torrent_detail_page.dart';
 import 'package:qbpanel/home/home_page.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/log/log_page.dart';
 import 'package:qbpanel/search/plugin/search_plugin_list_page.dart';
 import 'package:qbpanel/search/search_page.dart';
@@ -145,7 +146,7 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
   errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('页面不存在')),
+    appBar: AppBar(title: Text(context.l10n.pageNotFound)),
     body: Center(child: Text(state.error.toString())),
   ),
 );

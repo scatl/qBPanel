@@ -2,6 +2,7 @@ import 'package:qbpanel/api/entity/response/connection_status.dart';
 import 'package:qbpanel/api/entity/response/server_state_response.dart';
 import 'package:flutter/material.dart';
 import 'package:qbpanel/home/ui/torrent_item.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
 
 class HomeBottomBar extends StatelessWidget {
@@ -53,7 +54,8 @@ class HomeBottomBar extends StatelessWidget {
                 InkWell(
                   onTap: onStatusTap,
                   child: Tooltip(
-                    message: status?.displayText ?? '服务器状态',
+                    message: status?.label(context.l10n) ??
+                        context.l10n.homeServerStatus,
                     child: Icon(
                       _connectionIcon(status),
                       size: 20,
@@ -64,8 +66,8 @@ class HomeBottomBar extends StatelessWidget {
                 const SizedBox(width: 16),
                 IconButton(
                   tooltip: serverState.useAltSpeedLimits == true
-                      ? '关闭备用速度限制'
-                      : '开启备用速度限制',
+                      ? context.l10n.altSpeedOffTooltip
+                      : context.l10n.altSpeedOnTooltip,
                   visualDensity: VisualDensity.compact,
                   style: IconButton.styleFrom(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:qbpanel/api/entity/response/torrent_peer_response.dart';
 import 'package:qbpanel/detail/peers/dialog/add_peers_dialog.dart';
 import 'package:qbpanel/detail/peers/torrent_peers_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 
@@ -42,7 +43,7 @@ abstract final class PeerActionDialog {
               if (!context.mounted) return;
               ScaffoldMessenger.of(
                 context,
-              ).showSnackBar(const SnackBar(content: Text('已复制 IP 端口')));
+              ).showSnackBar(SnackBar(content: Text(context.l10n.copiedEndpoint)));
             },
             onBan: () {
               Navigator.of(ctx).pop();
@@ -63,11 +64,12 @@ Future<void> _banPeer(
   TorrentPeerResponse peer,
   TorrentPeersViewModel viewModel,
 ) async {
+  final l10n = context.l10n;
   final confirmed = await ConfirmDialog.show(
     context,
-    title: '永久禁止用户',
-    message: '确定永久禁止 ${peer.endpoint}？该用户将无法再连接。',
-    confirmText: '禁止',
+    title: l10n.banPeerTitle,
+    message: l10n.banPeerMessage(peer.endpoint),
+    confirmText: l10n.ban,
     destructive: true,
   );
   if (confirmed != true || !context.mounted) return;
@@ -77,12 +79,12 @@ Future<void> _banPeer(
   if (error == null) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('已禁止该用户')));
+    ).showSnackBar(SnackBar(content: Text(l10n.peerBanned)));
     return;
   }
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(SnackBar(content: Text('禁止失败：$error')));
+  ).showSnackBar(SnackBar(content: Text(l10n.banFailed(error))));
 }
 
 class _PeerActionContent extends StatelessWidget {
@@ -115,13 +117,13 @@ class _PeerActionContent extends StatelessWidget {
         ),
         _ActionTile(
           icon: Icons.person_add_outlined,
-          label: '添加对等节点',
+          label: context.l10n.addPeers,
           onTap: onAddPeers,
         ),
-        _ActionTile(icon: Icons.copy_outlined, label: '复制IP端口', onTap: onCopy),
+        _ActionTile(icon: Icons.copy_outlined, label: context.l10n.copyEndpoint, onTap: onCopy),
         _ActionTile(
           icon: Icons.block,
-          label: '永久禁止用户',
+          label: context.l10n.banPeer,
           foreground: scheme.error,
           onTap: onBan,
         ),

@@ -8,6 +8,8 @@ import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/torrent_metadata_response.dart';
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 final addTorrentProvider =
     NotifierProvider.autoDispose<AddTorrentViewModel, AddTorrentUiState>(
@@ -21,6 +23,8 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
   CancelToken? _cancelToken;
   int _generation = 0;
   Uint8List? _sourceFileBytes;
+
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
 
   /// 当前导入的 .torrent 文件字节（添加时上传用）。
   Uint8List? get sourceFileBytes => _sourceFileBytes;
@@ -162,16 +166,16 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
     required String upLimitKib,
   }) async {
     if (!state.canSubmit) {
-      if (!state.hasSource) return '请先导入种子';
-      if (state.isMetadataLoading) return '正在获取元数据，请稍候';
-      return '无法添加';
+      if (!state.hasSource) return _l10n.importTorrentFirst;
+      if (state.isMetadataLoading) return _l10n.fetchingMetadataWait;
+      return _l10n.cannotAdd;
     }
     if (state.isFromFile) {
       final bytes = _sourceFileBytes;
       final useCache =
           state.metadataStatus == AddTorrentMetadataStatus.ready;
       if (!useCache && (bytes == null || bytes.isEmpty)) {
-        return '无法读取种子文件';
+        return _l10n.cannotReadTorrentFile;
       }
     }
 

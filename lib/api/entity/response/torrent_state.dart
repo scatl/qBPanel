@@ -1,35 +1,58 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
+
 /// qBittorrent 5.0 种子 `state`（`/torrents/info` 与 `sync/maindata` 单项相同）。
 ///
 /// 取值见本地文档 [Get torrent list](docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md)。
 enum TorrentState {
-  error('error', '错误'),
-  missingFiles('missingFiles', '文件缺失'),
-  uploading('uploading', '做种中'),
-  stoppedUP('stoppedUP', '已完成'),
-  queuedUP('queuedUP', '排队做种'),
-  stalledUP('stalledUP', '做种已暂停'),
-  checkingUP('checkingUP', '校验中'),
-  forcedUP('forcedUP', '强制做种'),
-  allocating('allocating', '分配空间'),
-  downloading('downloading', '下载中'),
-  metaDL('metaDL', '获取元数据'),
-  forcedMetaDL('forcedMetaDL', '强制获取元数据'),
-  stoppedDL('stoppedDL', '已停止'),
-  queuedDL('queuedDL', '排队下载'),
-  stalledDL('stalledDL', '下载已暂停'),
-  checkingDL('checkingDL', '校验中'),
-  forcedDL('forcedDL', '强制下载'),
-  checkingResumeData('checkingResumeData', '检查恢复数据'),
-  moving('moving', '移动中'),
-  unknown('unknown', '未知');
+  error('error'),
+  missingFiles('missingFiles'),
+  uploading('uploading'),
+  stoppedUP('stoppedUP'),
+  queuedUP('queuedUP'),
+  stalledUP('stalledUP'),
+  checkingUP('checkingUP'),
+  forcedUP('forcedUP'),
+  allocating('allocating'),
+  downloading('downloading'),
+  metaDL('metaDL'),
+  forcedMetaDL('forcedMetaDL'),
+  stoppedDL('stoppedDL'),
+  queuedDL('queuedDL'),
+  stalledDL('stalledDL'),
+  checkingDL('checkingDL'),
+  forcedDL('forcedDL'),
+  checkingResumeData('checkingResumeData'),
+  moving('moving'),
+  unknown('unknown');
 
-  const TorrentState(this.apiValue, this.displayText);
+  const TorrentState(this.apiValue);
 
   /// 接口 JSON 字符串。
   final String apiValue;
 
-  /// 列表/详情展示用中文。
-  final String displayText;
+  /// 列表/详情展示文案。
+  String label(AppLocalizations l10n) => switch (this) {
+        TorrentState.error => l10n.torrentStateError,
+        TorrentState.missingFiles => l10n.torrentStateMissingFiles,
+        TorrentState.uploading => l10n.torrentStateUploading,
+        TorrentState.stoppedUP => l10n.torrentStateStoppedUp,
+        TorrentState.queuedUP => l10n.torrentStateQueuedUp,
+        TorrentState.stalledUP => l10n.torrentStateStalledUp,
+        TorrentState.checkingUP => l10n.torrentStateCheckingUp,
+        TorrentState.forcedUP => l10n.torrentStateForcedUp,
+        TorrentState.allocating => l10n.torrentStateAllocating,
+        TorrentState.downloading => l10n.torrentStateDownloading,
+        TorrentState.metaDL => l10n.torrentStateMetaDl,
+        TorrentState.forcedMetaDL => l10n.torrentStateForcedMetaDl,
+        TorrentState.stoppedDL => l10n.torrentStateStoppedDl,
+        TorrentState.queuedDL => l10n.torrentStateQueuedDl,
+        TorrentState.stalledDL => l10n.torrentStateStalledDl,
+        TorrentState.checkingDL => l10n.torrentStateCheckingDl,
+        TorrentState.forcedDL => l10n.torrentStateForcedDl,
+        TorrentState.checkingResumeData => l10n.torrentStateCheckingResumeData,
+        TorrentState.moving => l10n.torrentStateMoving,
+        TorrentState.unknown => l10n.torrentStateUnknown,
+      };
 
   /// 解析接口字段；缺省返回 `null`（便于增量 merge）；无法识别则为 [unknown]。
   static TorrentState? fromApi(String? raw) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 import 'package:qbpanel/widget/sheet/blur_modal_bottom_sheet.dart';
 
@@ -33,7 +34,7 @@ class TorrentSortSheet extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text('排序', style: textTheme.titleMedium),
+            child: Text(context.l10n.homeSort, style: textTheme.titleMedium),
           ),
           Flexible(
             child: ListView(
@@ -74,7 +75,7 @@ class TorrentSortSheet extends ConsumerWidget {
                         final key = keys[index];
                         final selected = key == sortKey;
                         return _SortCell(
-                          label: key.displayText,
+                          label: key.label(context.l10n),
                           selected: selected,
                           ascending: sortAscending,
                           onTap: () => ref

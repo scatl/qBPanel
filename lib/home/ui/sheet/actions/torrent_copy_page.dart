@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qbpanel/home/entity/torrent_action.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_action_tile.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 
 class TorrentCopyPage extends StatelessWidget {
   const TorrentCopyPage({
@@ -17,6 +18,7 @@ class TorrentCopyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     return Column(
@@ -28,14 +30,14 @@ class TorrentCopyPage extends StatelessWidget {
           child: Row(
             children: [
               IconButton(
-                tooltip: '返回',
+                tooltip: l10n.actionBack,
                 visualDensity: VisualDensity.compact,
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back),
               ),
               Expanded(
                 child: Text(
-                  '复制',
+                  l10n.copy,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium,
@@ -67,7 +69,7 @@ class TorrentCopyPage extends StatelessWidget {
     if (sheetContext.mounted) Navigator.pop(sheetContext);
     if (!pageContext.mounted) return;
     ScaffoldMessenger.of(pageContext).showSnackBar(
-      SnackBar(content: Text('已复制 ${item.label}')),
+      SnackBar(content: Text(pageContext.l10n.copiedWithLabel(item.label))),
     );
   }
 }

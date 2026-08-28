@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/search_plugin_response.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/search/plugin/search_plugin_list_view_model.dart';
 import 'package:qbpanel/search/plugin/ui/install_search_plugin_dialog.dart';
 import 'package:qbpanel/search/plugin/ui/search_plugin_item.dart';
@@ -17,6 +18,7 @@ class SearchPluginListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final ui = ref.watch(searchPluginListProvider);
     final vm = ref.read(searchPluginListProvider.notifier);
     final scheme = Theme.of(context).colorScheme;
@@ -24,7 +26,7 @@ class SearchPluginListPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('搜索插件'),
+        title: Text(l10n.searchPlugins),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -42,7 +44,7 @@ class SearchPluginListPage extends ConsumerWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => _installPlugin(context, vm),
                     icon: const Icon(Icons.add),
-                    label: const Text('安装插件'),
+                    label: Text(l10n.installPlugin),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -61,7 +63,7 @@ class SearchPluginListPage extends ConsumerWidget {
                             ),
                           )
                         : const Icon(Icons.system_update_alt_outlined),
-                    label: Text(ui.updating ? '检查中…' : '检查更新'),
+                    label: Text(ui.updating ? l10n.checkingUpdates : l10n.checkUpdates),
                   ),
                 ),
               ],
@@ -73,7 +75,7 @@ class SearchPluginListPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '警告：在下载来自这些搜索引擎的 torrent 时，请确认它符合您所在国家的版权法。',
+                  l10n.searchPluginCopyrightWarning,
                   style: textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
@@ -83,7 +85,7 @@ class SearchPluginListPage extends ConsumerWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      '你可以在这里获取新的搜索引擎插件：',
+                      l10n.searchPluginGetMore,
                       style: textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -109,8 +111,8 @@ class SearchPluginListPage extends ConsumerWidget {
             child: PagedRefreshList<SearchPluginResponse>(
               state: ui.list,
               enableLoadMore: false,
-              emptyTitle: '暂无搜索插件',
-              emptySubtitle: '点击「安装插件」或「检查更新」获取官方插件',
+              emptyTitle: l10n.noSearchPluginsList,
+              emptySubtitle: l10n.noSearchPluginsListHint,
               emptyIcon: Icons.extension_off_outlined,
               padding: const EdgeInsets.only(bottom: 24),
               onRefresh: vm.refresh,
@@ -136,7 +138,7 @@ class SearchPluginListPage extends ConsumerWidget {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!context.mounted || ok) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('无法打开链接')),
+      SnackBar(content: Text(context.l10n.cannotOpenLink)),
     );
   }
 
@@ -147,19 +149,20 @@ class SearchPluginListPage extends ConsumerWidget {
     final source = await InstallSearchPluginDialog.show(context);
     if (source == null || !context.mounted) return;
 
-    LoadingDialog.show(context, message: '安装中…');
+    final l10n = context.l10n;
+    LoadingDialog.show(context, message: l10n.installing);
     final error = await vm.installPlugin(source);
     if (context.mounted) LoadingDialog.dismiss(context);
     if (!context.mounted) return;
 
     if (error == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('插件已安装')),
+        SnackBar(content: Text(l10n.pluginInstalled)),
       );
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('安装失败：$error')),
+      SnackBar(content: Text(l10n.installFailed(error))),
     );
   }
 
@@ -169,15 +172,16 @@ class SearchPluginListPage extends ConsumerWidget {
   ) async {
     final error = await vm.checkForUpdates();
     if (!context.mounted) return;
+    final l10n = context.l10n;
 
     if (error == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('插件列表已更新')),
+        SnackBar(content: Text(l10n.pluginsUpdated)),
       );
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('检查更新失败：$error')),
+      SnackBar(content: Text(l10n.checkUpdatesFailed(error))),
     );
   }
 
@@ -190,7 +194,7 @@ class SearchPluginListPage extends ConsumerWidget {
     final error = await vm.setPluginEnabled(plugin.name, enabled);
     if (!context.mounted || error == null) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('操作失败：$error')),
+      SnackBar(content: Text(context.l10n.operationFailed(error))),
     );
   }
 
@@ -201,28 +205,29 @@ class SearchPluginListPage extends ConsumerWidget {
   ) async {
     final title =
         plugin.fullName.isNotEmpty ? plugin.fullName : plugin.name;
+    final l10n = context.l10n;
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '删除插件',
-      message: '确定卸载 $title？',
-      confirmText: '删除',
+      title: l10n.deletePlugin,
+      message: l10n.confirmUninstallPlugin(title),
+      confirmText: l10n.actionDelete,
       destructive: true,
     );
     if (confirmed != true || !context.mounted) return;
 
-    LoadingDialog.show(context, message: '删除中…');
+    LoadingDialog.show(context, message: l10n.deleting);
     final error = await vm.uninstallPlugin(plugin.name);
     if (context.mounted) LoadingDialog.dismiss(context);
     if (!context.mounted) return;
 
     if (error == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('插件已删除')),
+        SnackBar(content: Text(l10n.pluginDeleted)),
       );
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('删除失败：$error')),
+      SnackBar(content: Text(l10n.deleteFailed(error))),
     );
   }
 }

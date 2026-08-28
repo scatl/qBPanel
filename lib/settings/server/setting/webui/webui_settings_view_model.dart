@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_ui_state.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
@@ -38,7 +39,7 @@ class WebUiSettingsViewModel extends Notifier<WebUiSettingsUiState> {
 
     if (prefs == null) {
       state = state.copyWith(
-        emptyState: EmptyState.error(error ?? '加载设置失败'),
+        emptyState: EmptyState.error(error ?? ref.read(appLocalizationsProvider).loadSettingsFailed),
       );
       return false;
     }
@@ -227,7 +228,7 @@ class WebUiSettingsViewModel extends Notifier<WebUiSettingsUiState> {
     final key = newKey?.trim() ?? '';
     if (key.isEmpty) {
       state = state.copyWith(apiKeyBusy: false);
-      return error ?? '无法重置 API key';
+      return error ?? ref.read(appLocalizationsProvider).cannotResetApiKey;
     }
 
     await _syncLocalApiKey(serverId, key);
@@ -256,7 +257,7 @@ class WebUiSettingsViewModel extends Notifier<WebUiSettingsUiState> {
 
     if (!ok) {
       state = state.copyWith(apiKeyBusy: false);
-      return error ?? '无法删除 API 密钥。';
+      return error ?? ref.read(appLocalizationsProvider).cannotDeleteApiKey;
     }
 
     await _syncLocalApiKey(serverId, '');
@@ -289,30 +290,30 @@ class WebUiSettingsViewModel extends Notifier<WebUiSettingsUiState> {
 
     final port = state.webUiPort;
     if (port < 1 || port > 65535) {
-      return 'WebUI 端口必须在 1 到 65535 之间';
+      return ref.read(appLocalizationsProvider).webUiPortRange;
     }
     if (state.useHttps) {
       if (state.webUiHttpsCertPath.trim().isEmpty) {
-        return 'HTTPS 证书路径不能为空';
+        return ref.read(appLocalizationsProvider).httpsCertPathRequired;
       }
       if (state.webUiHttpsKeyPath.trim().isEmpty) {
-        return 'HTTPS 密钥路径不能为空';
+        return ref.read(appLocalizationsProvider).httpsKeyPathRequired;
       }
     }
     final username = state.webUiUsername.trim();
     if (username.length < 3) {
-      return 'WebUI 用户名至少需要 3 个字符';
+      return ref.read(appLocalizationsProvider).webUiUsernameMinLength;
     }
     if (username.contains(':')) {
-      return 'WebUI 用户名不能包含冒号';
+      return ref.read(appLocalizationsProvider).webUiUsernameNoColon;
     }
     final password = state.webUiPassword;
     if (password.isNotEmpty && password.length < 6) {
-      return 'WebUI 密码至少需要 6 个字符';
+      return ref.read(appLocalizationsProvider).webUiPasswordMinLength;
     }
     if (state.alternativeWebuiEnabled &&
         state.alternativeWebuiPath.trim().isEmpty) {
-      return '备选 WebUI 文件路径不能为空';
+      return ref.read(appLocalizationsProvider).altWebUiPathRequired;
     }
 
     state = state.copyWith(saving: true);

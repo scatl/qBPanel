@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
 import 'package:qbpanel/detail/general/torrent_general_format.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -40,6 +41,7 @@ class TorrentContentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final node = row.node;
@@ -151,16 +153,16 @@ class TorrentContentItem extends StatelessWidget {
                             runSpacing: 6,
                             children: [
                               _StatText(
-                                label: '大小',
+                                label: l10n.sortSize,
                                 value: formatBytes(node.size),
                               ),
                               if (showTransferStats) ...[
                                 _StatText(
-                                  label: '剩余',
+                                  label: l10n.remaining,
                                   value: formatBytes(node.remaining),
                                 ),
                                 _StatText(
-                                  label: '可用性',
+                                  label: l10n.availability,
                                   value: node.availability < 0
                                       ? '—'
                                       : formatAvailability(node.availability),
@@ -282,7 +284,7 @@ class _PrioritySegmentedButton extends StatelessWidget {
             label: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                filePriorityLabel(value),
+                filePriorityLabel(value, context.l10n),
                 maxLines: 1,
                 softWrap: false,
               ),

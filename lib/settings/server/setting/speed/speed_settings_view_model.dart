@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/speed/speed_settings_ui_state.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
@@ -35,7 +36,7 @@ class SpeedSettingsViewModel extends Notifier<SpeedSettingsUiState> {
 
     if (prefs == null) {
       state = state.copyWith(
-        emptyState: EmptyState.error(error ?? '加载设置失败'),
+        emptyState: EmptyState.error(error ?? ref.read(appLocalizationsProvider).loadSettingsFailed),
       );
       return false;
     }
@@ -117,7 +118,7 @@ class SpeedSettingsViewModel extends Notifier<SpeedSettingsUiState> {
         state.dlLimitKib < 0 ||
         state.altUpLimitKib < 0 ||
         state.altDlLimitKib < 0) {
-      return '速度限制必须大于等于 0（0 为无限制）';
+      return ref.read(appLocalizationsProvider).invalidSpeedLimit;
     }
 
     state = state.copyWith(saving: true);

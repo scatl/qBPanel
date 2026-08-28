@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
@@ -102,14 +103,14 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
     if (!ui.ready || ui.saving || ui.testingEmail) return;
 
     _syncTextFieldsToVm();
-    LoadingDialog.show(context, message: '保存中…');
+    LoadingDialog.show(context, message: context.l10n.saving);
     await Future<void>.delayed(Duration.zero);
 
     final error = await ref.read(downloadsSettingsProvider.notifier).save();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error == null ? '已保存' : '保存失败：$error')),
+      SnackBar(content: Text(error == null ? context.l10n.saved : context.l10n.saveFailed(error))),
     );
   }
 
@@ -120,15 +121,14 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
 
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '发送测试邮件',
-      message: '测试邮件会使用服务器已保存的邮件设置发送。'
-          '继续前将先保存当前本页设置（含邮件相关项），确定继续吗？',
-      confirmText: '发送',
+      title: context.l10n.sendTestEmail,
+      message: context.l10n.confirmSendTestEmail,
+      confirmText: context.l10n.actionSend,
     );
     if (confirmed != true || !mounted) return;
 
     _syncTextFieldsToVm();
-    LoadingDialog.show(context, message: '发送中…');
+    LoadingDialog.show(context, message: context.l10n.sending);
     await Future<void>.delayed(Duration.zero);
 
     final error =
@@ -137,7 +137,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(error == null ? '测试邮件已发送' : '发送失败：$error'),
+        content: Text(error == null ? context.l10n.testEmailSent : context.l10n.sendFailed(error)),
       ),
     );
   }
@@ -154,10 +154,10 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('下载'),
+        title: Text(context.l10n.qbSetDownloads),
         actions: [
           IconButton(
-            tooltip: '保存',
+            tooltip: context.l10n.actionSave,
             icon: const Icon(Icons.save),
             onPressed: canEdit ? _onSave : null,
           ),
@@ -171,60 +171,60 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                   padding: EdgeInsets.fromLTRB(0, 8, 0, 24 + bottomSafe),
                   children: [
                     SettingsGroupCard(
-                      title: '添加 torrent 时',
+                      title: context.l10n.whenAddingTorrent,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           DropdownField<TorrentContentLayout>(
-                            label: 'Torrent 内容布局',
+                            label: context.l10n.torrentContentLayout,
                             value: ui.contentLayout,
                             enabled: canEdit,
                             items: [
                               for (final item in TorrentContentLayout.values)
                                 DropdownMenuItem(
                                   value: item,
-                                  child: Text(item.label),
+                                  child: Text(item.label(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setContentLayout,
                           ),
                           SettingsSwitchTile(
-                            title: '添加到队列顶部',
+                            title: context.l10n.addToTopOfQueue,
                             value: ui.addToTopOfQueue,
                             onChanged: canEdit ? vm.setAddToTopOfQueue : null,
                           ),
                           SettingsSwitchTile(
-                            title: '不要自动开始下载',
+                            title: context.l10n.doNotStartDownload,
                             value: ui.addStoppedEnabled,
                             onChanged:
                                 canEdit ? vm.setAddStoppedEnabled : null,
                           ),
                           DropdownField<TorrentStopCondition>(
-                            label: 'Torrent 停止条件',
+                            label: context.l10n.torrentStopCondition,
                             value: ui.stopCondition,
                             enabled: canEdit,
                             items: [
                               for (final item in TorrentStopCondition.values)
                                 DropdownMenuItem(
                                   value: item,
-                                  child: Text(item.label),
+                                  child: Text(item.label(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setStopCondition,
                           ),
                           SettingsNestedCard(
-                            title: '添加重复种子时',
+                            title: context.l10n.whenDuplicateTorrent,
                             child: Column(
                               children: [
                                 SettingsSwitchTile(
-                                  title: '合并 tracker 到现有 torrent',
+                                  title: context.l10n.mergeTrackers,
                                   value: ui.mergeTrackers,
                                   onChanged:
                                       canEdit ? vm.setMergeTrackers : null,
                                 ),
                                 SettingsSwitchTile(
-                                  title: '完成后删除 .torrent 文件',
+                                  title: context.l10n.deleteTorrentFileWhenDone,
                                   value: ui.autoDeleteTorrentFile,
                                   onChanged: canEdit
                                       ? vm.setAutoDeleteTorrentFile
@@ -242,18 +242,18 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                       child: Column(
                         children: [
                           SettingsSwitchTile(
-                            title: '为所有文件预分配磁盘空间',
+                            title: context.l10n.preallocateAll,
                             value: ui.preallocateAll,
                             onChanged: canEdit ? vm.setPreallocateAll : null,
                           ),
                           SettingsSwitchTile(
-                            title: '为不完整的文件添加扩展名 .!qB',
+                            title: context.l10n.appendIncompleteExt,
                             value: ui.incompleteFilesExt,
                             onChanged:
                                 canEdit ? vm.setIncompleteFilesExt : null,
                           ),
                           SettingsSwitchTile(
-                            title: '将未选中的文件保留在 ".unwanted" 文件夹中',
+                            title: context.l10n.keepUnwantedInFolder,
                             value: ui.useUnwantedFolder,
                             onChanged:
                                 canEdit ? vm.setUseUnwantedFolder : null,
@@ -263,68 +263,68 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '保存管理',
+                      title: context.l10n.saveManagement,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           DropdownField<bool>(
-                            label: '默认 Torrent 管理模式',
+                            label: context.l10n.defaultTmmMode,
                             value: ui.autoTmmEnabled,
                             enabled: canEdit,
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: false,
-                                child: Text('手动'),
+                                child: Text(context.l10n.addModeManual),
                               ),
                               DropdownMenuItem(
                                 value: true,
-                                child: Text('自动'),
+                                child: Text(context.l10n.addModeAutomatic),
                               ),
                             ],
                             onChanged: vm.setAutoTmmEnabled,
                           ),
                           DropdownField<bool>(
-                            label: '当 Torrent 分类修改时',
+                            label: context.l10n.whenTorrentCategoryChanged,
                             value: ui.torrentChangedTmmEnabled,
                             enabled: canEdit,
                             items: [
                               for (final item in DownloadsTmmAction.values)
                                 DropdownMenuItem(
                                   value: item.apiValue,
-                                  child: Text(item.torrentLabel),
+                                  child: Text(item.torrentLabel(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setTorrentChangedTmmEnabled,
                           ),
                           DropdownField<bool>(
-                            label: '当默认保存路径修改时',
+                            label: context.l10n.whenDefaultSavePathChanged,
                             value: ui.savePathChangedTmmEnabled,
                             enabled: canEdit,
                             items: [
                               for (final item in DownloadsTmmAction.values)
                                 DropdownMenuItem(
                                   value: item.apiValue,
-                                  child: Text(item.affectedLabel),
+                                  child: Text(item.affectedLabel(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setSavePathChangedTmmEnabled,
                           ),
                           DropdownField<bool>(
-                            label: '当分类保存路径修改时',
+                            label: context.l10n.whenCategorySavePathChanged,
                             value: ui.categoryChangedTmmEnabled,
                             enabled: canEdit,
                             items: [
                               for (final item in DownloadsTmmAction.values)
                                 DropdownMenuItem(
                                   value: item.apiValue,
-                                  child: Text(item.affectedLabel),
+                                  child: Text(item.affectedLabel(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setCategoryChangedTmmEnabled,
                           ),
                           SettingsSwitchTile(
-                            title: '在手动模式下使用分类路径',
+                            title: context.l10n.useCategoryPathsInManualMode,
                             value: ui.useCategoryPathsInManualMode,
                             onChanged: canEdit
                                 ? vm.setUseCategoryPathsInManualMode
@@ -336,13 +336,13 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             minLines: 1,
                             maxLines: 3,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: '默认保存路径',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.defaultSavePath,
                             ),
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '保存未完成的 torrent 到',
+                            title: context.l10n.saveIncompleteTorrentsTo,
                             value: ui.tempPathEnabled,
                             onChanged: canEdit ? vm.setTempPathEnabled : null,
                           ),
@@ -355,7 +355,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '复制 .torrent 文件到',
+                            title: context.l10n.copyTorrentFilesTo,
                             value: ui.exportDirEnabled,
                             onChanged: canEdit ? vm.setExportDirEnabled : null,
                           ),
@@ -368,7 +368,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '复制下载完成的 .torrent 文件到',
+                            title: context.l10n.copyFinishedTorrentFilesTo,
                             value: ui.exportDirFinEnabled,
                             onChanged:
                                 canEdit ? vm.setExportDirFinEnabled : null,
@@ -390,7 +390,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '排除的文件名',
+                            title: context.l10n.excludedFileNames,
                             value: ui.excludedFileNamesEnabled,
                             onChanged: canEdit
                                 ? vm.setExcludedFileNamesEnabled
@@ -401,8 +401,8 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             enabled: canEdit && ui.excludedFileNamesEnabled,
                             minLines: 4,
                             maxLines: 8,
-                            decoration: const InputDecoration(
-                              hintText: '每行一个规则',
+                            decoration: InputDecoration(
+                              hintText: context.l10n.oneRulePerLine,
                               alignLabelWithHint: true,
                             ),
                           ),
@@ -416,7 +416,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '下载完成时发送电子邮件通知',
+                            title: context.l10n.emailOnTorrentCompletion,
                             value: ui.mailNotificationEnabled,
                             onChanged: canEdit
                                 ? vm.setMailNotificationEnabled
@@ -426,8 +426,8 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             controller: _mailSenderController,
                             enabled: canEdit && mailEnabled,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: '发件人',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.mailSender,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -436,8 +436,8 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             enabled: canEdit && mailEnabled,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: '收件人',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.mailRecipient,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -445,13 +445,13 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             controller: _mailSmtpController,
                             enabled: canEdit && mailEnabled,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'SMTP 服务器',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.smtpServer,
                               hintText: 'smtp.example.com:465',
                             ),
                           ),
                           SettingsSwitchTile(
-                            title: '该服务器需要安全链接（SSL）',
+                            title: context.l10n.smtpRequiresSsl,
                             value: ui.mailNotificationSslEnabled,
                             onChanged: canEdit && mailEnabled
                                 ? vm.setMailNotificationSslEnabled
@@ -462,7 +462,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 SettingsSwitchTile(
-                                  title: '验证',
+                                  title: context.l10n.authentication,
                                   value: ui.mailNotificationAuthEnabled,
                                   onChanged: canEdit && mailEnabled
                                       ? vm.setMailNotificationAuthEnabled
@@ -474,8 +474,8 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                                       mailEnabled &&
                                       ui.mailNotificationAuthEnabled,
                                   textInputAction: TextInputAction.next,
-                                  decoration: const InputDecoration(
-                                    labelText: '用户名',
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.username,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -486,8 +486,8 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                                       ui.mailNotificationAuthEnabled,
                                   obscureText: true,
                                   textInputAction: TextInputAction.done,
-                                  decoration: const InputDecoration(
-                                    labelText: '密码',
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.password,
                                   ),
                                 ),
                               ],
@@ -500,7 +500,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                               onPressed: canEdit && mailEnabled
                                   ? _onSendTestEmail
                                   : null,
-                              child: const Text('发送测试邮件'),
+                              child: Text(context.l10n.sendTestEmail),
                             ),
                           ),
                         ],
@@ -508,13 +508,13 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '运行外部程序',
+                      title: context.l10n.runExternalProgram,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '新增 Torrent 时运行',
+                            title: context.l10n.runOnTorrentAdded,
                             value: ui.autorunOnTorrentAddedEnabled,
                             onChanged: canEdit
                                 ? vm.setAutorunOnTorrentAddedEnabled
@@ -526,13 +526,13 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                                 canEdit && ui.autorunOnTorrentAddedEnabled,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: const InputDecoration(
-                              hintText: '例如："%N"',
+                            decoration: InputDecoration(
+                              hintText: context.l10n.autorunExampleHint,
                             ),
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: 'torrent 完成时运行',
+                            title: context.l10n.runOnTorrentFinished,
                             value: ui.autorunEnabled,
                             onChanged: canEdit ? vm.setAutorunEnabled : null,
                           ),
@@ -541,18 +541,13 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             enabled: canEdit && ui.autorunEnabled,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: const InputDecoration(
-                              hintText: '例如："%N"',
+                            decoration: InputDecoration(
+                              hintText: context.l10n.autorunExampleHint,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '支持的参数（区分大小写）：\n'
-                            '%N：Torrent 名称，%L：分类，%G：标签（以逗号分隔），'
-                            '%F：内容路径，%R：根目录，%D：保存路径，'
-                            '%C：文件数，%Z：Torrent 大小（字节），'
-                            '%T：Tracker，%I/%J：Info hash，%K：ID，%M：备注\n'
-                            '提示：使用引号将参数扩起以防止文本被空白符分割（例如："%N"）',
+                            context.l10n.autorunParametersHint,
                             style: textTheme.bodySmall?.copyWith(
                               color: scheme.outline,
                             ),

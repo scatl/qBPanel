@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// 选项小标题：比「外观」更小、颜色更淡
+/// 选项小标题：比区块大标题更小、颜色更淡
 class SettingSubtitle extends StatelessWidget {
   const SettingSubtitle(
     this.text,

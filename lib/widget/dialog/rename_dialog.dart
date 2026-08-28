@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class RenameDialog extends StatefulWidget {
@@ -120,7 +121,7 @@ class _RenameDialogState extends State<RenameDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '重命名',
+              context.l10n.renameTitle,
               style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
             ),
             const SizedBox(height: 8),
@@ -158,7 +159,7 @@ class _RenameDialogState extends State<RenameDialog> {
                   onPressed: _submitting
                       ? null
                       : () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                  child: Text(context.l10n.actionCancel),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
@@ -172,7 +173,7 @@ class _RenameDialogState extends State<RenameDialog> {
                             color: scheme.onPrimary,
                           ),
                         )
-                      : const Text('确定'),
+                      : Text(context.l10n.actionOk),
                 ),
               ],
             ),

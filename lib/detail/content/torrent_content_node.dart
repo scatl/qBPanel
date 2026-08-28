@@ -1,4 +1,5 @@
 import 'package:qbpanel/api/entity/response/torrent_file_response.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 /// 文件夹优先级不一致时的展示值。
 const mixedFilePriority = -1;
@@ -232,17 +233,17 @@ Set<String> remapCollapsedPaths(
   };
 }
 
-String filePriorityLabel(int priority) {
+String filePriorityLabel(int priority, AppLocalizations l10n) {
   switch (priority) {
     case 0:
-      return '不下载';
+      return l10n.priorityDoNotDownload;
     case 6:
-      return '较高';
+      return l10n.priorityHigh;
     case 7:
-      return '最高';
+      return l10n.priorityMaximum;
     case mixedFilePriority:
-      return '混合';
+      return l10n.priorityMixed;
     default:
-      return '正常';
+      return l10n.priorityNormal;
   }
 }

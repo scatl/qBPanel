@@ -3,6 +3,7 @@ import 'package:qbpanel/detail/general/pieces_bar.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_chart.dart';
 import 'package:qbpanel/detail/general/torrent_general_format.dart';
 import 'package:qbpanel/detail/torrent_detail_ui_state.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -25,6 +26,7 @@ class TorrentGeneralTab extends StatelessWidget {
       state: ui.emptyState,
       onRetry: onRetry,
       builder: (context) {
+        final l10n = context.l10n;
         final props = ui.properties!;
         final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
 
@@ -39,13 +41,13 @@ class TorrentGeneralTab extends StatelessWidget {
             _BarTable(
               rows: [
                 (
-                  '进度',
+                  l10n.progress,
                   PiecesProgressBar(pieces: ui.pieceStates),
                   formatDetailProgress(props.progress),
                 ),
                 if (ui.showAvailability)
                   (
-                    '可用性',
+                    l10n.availability,
                     PiecesAvailabilityBar(availability: ui.pieceAvailability),
                     formatAvailability(props.availability),
                   ),
@@ -54,91 +56,95 @@ class TorrentGeneralTab extends StatelessWidget {
             const SizedBox(height: 28),
             TorrentSpeedChart(torrentHash: torrentHash),
             const SizedBox(height: 28),
-            const _SectionTitle('传输'),
+            _SectionTitle(l10n.transfer),
             const SizedBox(height: 16),
             _KvList(
               items: [
                 _KvItem(
-                  '活动时间',
-                  formatTimeActive(props.timeElapsed, props.seedingTime),
+                  l10n.timeActive,
+                  formatTimeActive(props.timeElapsed, props.seedingTime, l10n),
                 ),
-                _KvItem('剩余时间', formatDurationSeconds(props.eta)),
+                _KvItem(l10n.eta, formatDurationSeconds(props.eta, l10n)),
                 _KvItem(
-                  '连接',
+                  l10n.connections,
                   formatConnections(
                     props.nbConnections,
                     props.nbConnectionsLimit,
+                    l10n,
                   ),
                 ),
                 _KvItem(
-                  '已下载',
+                  l10n.sortDownloaded,
                   formatWithSession(
                     props.totalDownloaded,
                     props.totalDownloadedSession,
+                    l10n,
                   ),
                 ),
                 _KvItem(
-                  '已上传',
+                  l10n.sortUploaded,
                   formatWithSession(
                     props.totalUploaded,
                     props.totalUploadedSession,
+                    l10n,
                   ),
                 ),
-                _KvItem('种子', formatCountTotal(props.seeds, props.seedsTotal)),
+                _KvItem(l10n.seeds, formatCountTotal(props.seeds, props.seedsTotal, l10n)),
                 _KvItem(
-                  '下载速度',
-                  formatSpeedAvg(props.dlSpeed, props.dlSpeedAvg),
+                  l10n.sortDownloadSpeed,
+                  formatSpeedAvg(props.dlSpeed, props.dlSpeedAvg, l10n),
                 ),
                 _KvItem(
-                  '上传速度',
-                  formatSpeedAvg(props.upSpeed, props.upSpeedAvg),
+                  l10n.sortUploadSpeed,
+                  formatSpeedAvg(props.upSpeed, props.upSpeedAvg, l10n),
                 ),
-                _KvItem('用户', formatCountTotal(props.peers, props.peersTotal)),
-                _KvItem('下载限制', formatSpeedLimit(props.dlLimit)),
-                _KvItem('上传限制', formatSpeedLimit(props.upLimit)),
-                _KvItem('已丢弃', formatBytes(props.totalWasted)),
-                _KvItem('分享率', formatShareNumber(props.shareRatio)),
-                _KvItem('下次汇报', formatDurationSeconds(props.reannounce)),
+                _KvItem(l10n.peers, formatCountTotal(props.peers, props.peersTotal, l10n)),
+                _KvItem(l10n.dlLimit, formatSpeedLimit(props.dlLimit)),
+                _KvItem(l10n.upLimit, formatSpeedLimit(props.upLimit)),
+                _KvItem(l10n.wasted, formatBytes(props.totalWasted)),
+                _KvItem(l10n.sortRatio, formatShareNumber(props.shareRatio)),
+                _KvItem(l10n.nextAnnounce, formatDurationSeconds(props.reannounce, l10n)),
                 _KvItem(
-                  '最后完整可见',
-                  formatUnixDate(props.lastSeen, unknown: '从未'),
+                  l10n.lastSeen,
+                  formatUnixDate(props.lastSeen, unknown: l10n.never),
                 ),
-                _KvItem('流行度', formatShareNumber(props.popularity)),
+                _KvItem(l10n.popularity, formatShareNumber(props.popularity)),
               ],
             ),
             const SizedBox(height: 28),
-            const _SectionTitle('信息'),
+            _SectionTitle(l10n.info),
             const SizedBox(height: 16),
             _KvList(
               items: [
-                _KvItem('名称', props.name ?? '', true),
-                _KvItem('总大小', formatBytes(props.totalSize)),
+                _KvItem(l10n.sortName, props.name ?? '', true),
+                _KvItem(l10n.totalSize, formatBytes(props.totalSize)),
                 _KvItem(
-                  '区块',
+                  l10n.pieces,
                   formatPieces(
                     props.piecesNum,
                     props.pieceSize,
                     props.piecesHave,
+                    l10n,
                   ),
                 ),
-                _KvItem('创建', props.createdBy ?? ''),
+                _KvItem(l10n.createdBy, props.createdBy ?? ''),
                 _KvItem(
-                  '添加于',
-                  formatUnixDate(props.additionDate, unknown: '未知'),
+                  l10n.addedOn,
+                  formatUnixDate(props.additionDate, unknown: l10n.unknown),
                 ),
                 _KvItem(
-                  '完成于',
+                  l10n.completedOn,
                   formatUnixDate(props.completionDate, unknown: ''),
                 ),
-                _KvItem('创建于', formatUnixDate(props.creationDate, unknown: '')),
+                _KvItem(l10n.createdOn, formatUnixDate(props.creationDate, unknown: '')),
                 _KvItem(
-                  '私有',
-                  formatPrivate(props.hasMetadata, props.isPrivate),
+                  l10n.privateTorrent,
+                  formatPrivate(props.hasMetadata, props.isPrivate, l10n),
                 ),
-                _KvItem('信息哈希值 v1', formatInfoHash(props.infohashV1), true),
-                _KvItem('信息哈希值 v2', formatInfoHash(props.infohashV2), true),
-                _KvItem('保存路径', props.savePath ?? '', true),
-                _KvItem('注释', props.comment ?? '', true),
+                _KvItem(l10n.infohashV1, formatInfoHash(props.infohashV1, l10n), true),
+                _KvItem(l10n.infohashV2, formatInfoHash(props.infohashV2, l10n), true),
+                _KvItem(l10n.savePath, props.savePath ?? '', true),
+                _KvItem(l10n.comment, props.comment ?? '', true),
               ],
             ),
           ],

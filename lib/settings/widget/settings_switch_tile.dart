@@ -19,17 +19,39 @@ class SettingsSwitchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    return SwitchListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(title, style: textTheme.bodyLarge),
-      subtitle: subtitle == null
-          ? null
-          : Text(
-              subtitle!,
-              style: textTheme.bodySmall?.copyWith(color: scheme.outline),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: InkWell(
+            onTap: onChanged == null ? null : () => onChanged!(!value),
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: textTheme.bodyLarge),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: scheme.outline,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-      value: value,
-      onChanged: onChanged,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }

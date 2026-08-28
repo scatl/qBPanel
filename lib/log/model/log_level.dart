@@ -1,14 +1,22 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
+
 /// qBittorrent 日志级别（`/api/v2/log/main` 的 `type` 字段）。
 enum LogLevel {
-  normal(1, '普通'),
-  info(2, '信息'),
-  warning(4, '警告'),
-  critical(8, '严重');
+  normal(1),
+  info(2),
+  warning(4),
+  critical(8);
 
-  const LogLevel(this.typeValue, this.label);
+  const LogLevel(this.typeValue);
 
   final int typeValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        LogLevel.normal => l10n.logLevelNormal,
+        LogLevel.info => l10n.logLevelInfo,
+        LogLevel.warning => l10n.logLevelWarning,
+        LogLevel.critical => l10n.logLevelCritical,
+      };
 
   static const all = {LogLevel.normal, LogLevel.info, LogLevel.warning, LogLevel.critical};
 

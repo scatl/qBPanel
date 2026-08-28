@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/behavior/behavior_settings_ui_state.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
@@ -36,7 +37,7 @@ class BehaviorSettingsViewModel extends Notifier<BehaviorSettingsUiState> {
 
     if (prefs == null) {
       state = state.copyWith(
-        emptyState: EmptyState.error(error ?? '加载设置失败'),
+        emptyState: EmptyState.error(error ?? ref.read(appLocalizationsProvider).loadSettingsFailed),
       );
       return false;
     }
@@ -119,12 +120,12 @@ class BehaviorSettingsViewModel extends Notifier<BehaviorSettingsUiState> {
     if (state.fileLogEnabled &&
         state.fileLogBackupEnabled &&
         state.fileLogMaxSize < 1) {
-      return '请填写有效的日志备份大小';
+      return ref.read(appLocalizationsProvider).invalidLogBackupSize;
     }
     if (state.fileLogEnabled &&
         state.fileLogDeleteOld &&
         state.fileLogAge < 1) {
-      return '请填写有效的日志保留时间';
+      return ref.read(appLocalizationsProvider).invalidLogRetention;
     }
 
     state = state.copyWith(saving: true);

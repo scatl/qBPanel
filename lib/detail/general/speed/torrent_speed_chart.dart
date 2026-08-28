@@ -7,6 +7,7 @@ import 'package:qbpanel/detail/general/speed/speed_cumulative_average.dart';
 import 'package:qbpanel/detail/general/speed/speed_sample.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_history_view_model.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 
 const _downloadColor = Color(0xFF049C08);
 const _uploadColor = Color(0xFF3399FF);
@@ -36,7 +37,7 @@ class TorrentSpeedChart extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '速度',
+          context.l10n.speed,
           style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         _PeriodSelector(selected: historyUi.period),
@@ -46,11 +47,19 @@ class TorrentSpeedChart extends ConsumerWidget {
         Wrap(
           spacing: 12,
           runSpacing: 4,
-          children: const [
-            _LegendLine(color: _downloadColor, label: '下载'),
-            _LegendLine(color: _uploadColor, label: '上传'),
-            _LegendLine(color: _downloadColor, label: '下载平均', dashed: true),
-            _LegendLine(color: _uploadColor, label: '上传平均', dashed: true),
+          children: [
+            _LegendLine(color: _downloadColor, label: context.l10n.download),
+            _LegendLine(color: _uploadColor, label: context.l10n.upload),
+            _LegendLine(
+              color: _downloadColor,
+              label: context.l10n.downloadAvg,
+              dashed: true,
+            ),
+            _LegendLine(
+              color: _uploadColor,
+              label: context.l10n.uploadAvg,
+              dashed: true,
+            ),
           ],
         ),
       ],
@@ -139,7 +148,7 @@ class _SpeedChartCanvasState extends State<_SpeedChartCanvas> {
       child: samples.length < 2
           ? Center(
               child: Text(
-                '采样中…',
+                context.l10n.sampling,
                 style: textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
@@ -274,23 +283,23 @@ class _ScrubTooltip extends StatelessWidget {
                 const SizedBox(height: 4),
                 _ScrubValueRow(
                   color: _downloadColor,
-                  label: '下载',
+                  label: context.l10n.download,
                   value: formatChartSpeed(download),
                 ),
                 _ScrubValueRow(
                   color: _uploadColor,
-                  label: '上传',
+                  label: context.l10n.upload,
                   value: formatChartSpeed(upload),
                 ),
                 _ScrubValueRow(
                   color: _downloadColor,
-                  label: '下载平均',
+                  label: context.l10n.downloadAvg,
                   value: formatChartSpeed(downloadAvg),
                   dashed: true,
                 ),
                 _ScrubValueRow(
                   color: _uploadColor,
-                  label: '上传平均',
+                  label: context.l10n.uploadAvg,
                   value: formatChartSpeed(uploadAvg),
                   dashed: true,
                 ),
@@ -359,7 +368,7 @@ class _PeriodSelector extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(right: 4),
               child: ChoiceChip(
-                label: Text(period.label),
+                label: Text(period.label(context.l10n)),
                 visualDensity: VisualDensity.compact,
                 selected: selected == period,
                 onSelected: (_) {

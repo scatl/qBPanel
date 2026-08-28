@@ -4,6 +4,7 @@ import 'package:qbpanel/detail/content/rename_content_dialog.dart';
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
 import 'package:qbpanel/detail/content/torrent_content_view_model.dart';
 import 'package:qbpanel/detail/content/widget/torrent_content_tree.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 
 class TorrentContentTab extends ConsumerWidget {
@@ -20,8 +21,8 @@ class TorrentContentTab extends ConsumerWidget {
     return EmptyStateHost(
       state: ui.emptyState,
       onRetry: vm.retry,
-      emptyTitle: '暂无文件',
-      emptySubtitle: '还没有元数据，或种子里没有文件',
+      emptyTitle: context.l10n.noFiles,
+      emptySubtitle: context.l10n.noFilesHint,
       emptyIcon: Icons.folder_off_outlined,
       child: ListView(
         padding: EdgeInsets.fromLTRB(0, 8, 0, 24 + bottomSafe),
@@ -54,5 +55,5 @@ Future<void> _setPriority(
   if (error == null || !context.mounted) return;
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(SnackBar(content: Text('设置优先级失败：$error')));
+  ).showSnackBar(SnackBar(content: Text(context.l10n.priorityFailed(error))));
 }

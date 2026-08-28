@@ -21,6 +21,8 @@ import 'package:qbpanel/home/entity/torrent_tag.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_history_view_model.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
 import 'package:qbpanel/storage/db/app_database_provider.dart';
 import 'package:qbpanel/widget/refresh/paged_refresh_state.dart';
@@ -45,6 +47,8 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   bool _altSpeedBusy = false;
 
   late PollLoop _poll;
+
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
 
   @override
   HomePageUiState build() {
@@ -430,7 +434,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       hash,
       extra: {'category': category},
       errorOf: (e) => switch (e.statusCode) {
-        409 => '分类不存在',
+        409 => _l10n.categoryNotFound,
         _ => e.message,
       },
     );
@@ -460,7 +464,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       for (final torrent in state.pageListState.items)
         if (torrent.hash != null && torrent.hash!.isNotEmpty) torrent.hash!,
     ];
-    if (hashes.isEmpty) return Future.value('当前没有可操作的种子');
+    if (hashes.isEmpty) return Future.value(_l10n.noTorrentsToOperate);
     return _postTorrentHashes(path, hashes.join('|'));
   }
 
@@ -490,7 +494,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
 
   Future<String?> renameTorrent(String hash, String rawName) async {
     final name = rawName.trim();
-    if (name.isEmpty) return '请输入名称';
+    if (name.isEmpty) return _l10n.enterName;
     final current = _torrentsByHash[hash]?.name?.trim() ?? '';
     if (name == current) return null;
     final error = await _postTorrentHashes(
@@ -499,8 +503,8 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       extra: {'name': name},
       hashKey: 'hash',
       errorOf: (e) => switch (e.statusCode) {
-        400 => '请输入名称',
-        409 => '名称无效',
+        400 => _l10n.enterName,
+        409 => _l10n.nameInvalid,
         _ => e.message,
       },
     );
@@ -514,7 +518,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   exportTorrentFile(String hash, {String? name}) async {
     final trimmed = hash.trim();
     if (trimmed.isEmpty) {
-      return (filePath: null, fileName: null, error: '无效的种子');
+      return (filePath: null, fileName: null, error: _l10n.invalidTorrent);
     }
     Uint8List? bytes;
     String? error;
@@ -527,14 +531,14 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
           parser: (data) {
             if (data is Uint8List) return data;
             if (data is List<int>) return Uint8List.fromList(data);
-            throw StateError('无效的种子文件');
+            throw StateError(_l10n.invalidTorrentFile);
           },
         )
         .onSuccess((data) => bytes = data)
         .onFail((e) {
           error = switch (e.statusCode) {
-            404 => '种子不存在',
-            409 => '种子文件尚未就绪',
+            404 => _l10n.torrentNotFound,
+            409 => _l10n.torrentFileNotReady,
             _ => e.message,
           };
         });
@@ -542,7 +546,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       return (filePath: null, fileName: null, error: error);
     }
     if (bytes == null || bytes!.isEmpty) {
-      return (filePath: null, fileName: null, error: '分享内容为空');
+      return (filePath: null, fileName: null, error: _l10n.shareContentEmpty);
     }
     try {
       final fileName = _torrentExportFileName(name, trimmed);
@@ -551,21 +555,21 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       await file.writeAsBytes(bytes!, flush: true);
       return (filePath: file.path, fileName: fileName, error: null);
     } catch (_) {
-      return (filePath: null, fileName: null, error: '准备分享文件失败');
+      return (filePath: null, fileName: null, error: _l10n.prepareShareFailed);
     }
   }
 
   Future<String?> setTorrentLocation(String hash, String location) {
     final path = location.trim();
-    if (path.isEmpty) return Future.value('保存路径不能为空');
+    if (path.isEmpty) return Future.value(_l10n.savePathRequired);
     return _postTorrentHashes(
       ApiPath.torrentManagement.setLocation,
       hash,
       extra: {'location': path},
       errorOf: (e) => switch (e.statusCode) {
-        400 => '保存路径不能为空',
-        403 => '没有该目录的写入权限',
-        409 => '无法创建保存路径',
+        400 => _l10n.savePathRequired,
+        403 => _l10n.savePathNoPermission,
+        409 => _l10n.savePathCreateFailed,
         _ => e.message,
       },
     );
@@ -630,7 +634,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       path,
       hash,
       errorOf: (e) => switch (e.statusCode) {
-        409 => '未开启种子排队',
+        409 => _l10n.queueingDisabled,
         _ => e.message,
       },
     );
@@ -703,7 +707,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
         'shareLimitAction': ?shareLimitAction,
       },
       errorOf: (e) => switch (e.statusCode) {
-        400 => '参数无效',
+        400 => _l10n.invalidParam,
         _ => e.message,
       },
     );
@@ -772,7 +776,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     String hashKey = 'hashes',
   }) async {
     final trimmed = hash.trim();
-    if (trimmed.isEmpty) return '无效的种子';
+    if (trimmed.isEmpty) return _l10n.invalidTorrent;
     String? error;
     final api = ref.read(apiClientProvider);
     await api

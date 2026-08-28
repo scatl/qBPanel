@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:qbpanel/http/api_failure.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 /// 一次 API 调用。链式注册回调后 `await`，或只靠回调（同一同步块内注册即可）。
 ///
@@ -14,13 +15,18 @@ class ApiCall<T> implements Future<T?> {
   ApiCall({
     required Future<Response<dynamic>> Function() send,
     T Function(dynamic data)? parser,
+    AppLocalizations Function()? l10n,
   })  : _send = send,
-        _parser = parser {
+        _parser = parser,
+        _l10n = l10n {
     scheduleMicrotask(_ensureStarted);
   }
 
   final Future<Response<dynamic>> Function() _send;
   final T Function(dynamic data)? _parser;
+  final AppLocalizations Function()? _l10n;
+
+  AppLocalizations? get _loc => _l10n?.call();
 
   FutureOr<void> Function(T data)? _onSuccess;
   FutureOr<void> Function(ApiFailure failure)? _onFail;
@@ -51,7 +57,10 @@ class ApiCall<T> implements Future<T?> {
       final code = response.statusCode ?? 0;
       if (code < 200 || code >= 300) {
         await _emitFail(
-          ApiFailure(message: '服务器返回 $code', statusCode: code),
+          ApiFailure(
+            message: _loc?.apiHttpStatus(code) ?? 'HTTP $code',
+            statusCode: code,
+          ),
         );
         return null;
       }
@@ -61,7 +70,7 @@ class ApiCall<T> implements Future<T?> {
       await _onSuccess?.call(data);
       return data;
     } catch (e) {
-      await _emitFail(ApiFailure.from(e));
+      await _emitFail(ApiFailure.from(e, l10n: _loc));
       return null;
     } finally {
       await _onComplete?.call();

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 /// 通用确认对话框：可自定义标题 / 内容 / 按钮文案，进入动画 + 背景模糊。
@@ -15,8 +16,8 @@ abstract final class ConfirmDialog {
     required String title,
     String? message,
     Widget? content,
-    String cancelText = '取消',
-    String confirmText = '确定',
+    String? cancelText,
+    String? confirmText,
     bool barrierDismissible = true,
     /// 确认按钮使用 error 色（删除等危险操作）
     bool destructive = false,
@@ -35,6 +36,7 @@ abstract final class ConfirmDialog {
       barrierColor: Colors.transparent,
       transitionDuration: BlurDialogMotion.duration,
       pageBuilder: (ctx, animation, secondaryAnimation) {
+        final l10n = ctx.l10n;
         return BlurDialogScaffold(
           animation: animation,
           onBarrierTap: barrierDismissible
@@ -49,8 +51,8 @@ abstract final class ConfirmDialog {
             title: title,
             message: message,
             content: content,
-            cancelText: cancelText,
-            confirmText: confirmText,
+            cancelText: cancelText ?? l10n.actionCancel,
+            confirmText: confirmText ?? l10n.actionOk,
             destructive: destructive,
             confirmCountdownSeconds: confirmCountdownSeconds,
           ),

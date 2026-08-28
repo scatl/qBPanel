@@ -26,11 +26,11 @@ class EmptyState {
     this.loading = false,
     this.isEmpty = false,
     this.errorMessage,
-    this.emptyTitle = '暂无数据',
+    this.emptyTitle,
     this.emptySubtitle,
     this.emptyIcon,
     this.emptyActionText,
-    this.errorActionText = '重试',
+    this.errorActionText,
   });
 
   /// 首屏加载中。
@@ -38,27 +38,27 @@ class EmptyState {
       : loading = true,
         isEmpty = true,
         errorMessage = null,
-        emptyTitle = '暂无数据',
+        emptyTitle = null,
         emptySubtitle = null,
         emptyIcon = null,
         emptyActionText = null,
-        errorActionText = '重试';
+        errorActionText = null;
 
   /// 有业务内容（不展示占位）。
   const EmptyState.content()
       : loading = false,
         isEmpty = false,
         errorMessage = null,
-        emptyTitle = '暂无数据',
+        emptyTitle = null,
         emptySubtitle = null,
         emptyIcon = null,
         emptyActionText = null,
-        errorActionText = '重试';
+        errorActionText = null;
 
   /// 仅错误占位（无数据）。
   factory EmptyState.error(
     String message, {
-    String errorActionText = '重试',
+    String? errorActionText,
   }) {
     return EmptyState(
       isEmpty: true,
@@ -69,7 +69,7 @@ class EmptyState {
 
   /// 仅空数据占位（非加载、非错误）。
   factory EmptyState.empty({
-    String title = '暂无数据',
+    String? title,
     String? subtitle,
     IconData? icon,
     String? actionText,
@@ -88,11 +88,11 @@ class EmptyState {
     required bool loading,
     required bool isEmpty,
     String? error,
-    String emptyTitle = '暂无数据',
+    String? emptyTitle,
     String? emptySubtitle,
     IconData? emptyIcon,
     String? emptyActionText,
-    String errorActionText = '重试',
+    String? errorActionText,
   }) {
     return EmptyState(
       loading: loading,
@@ -134,8 +134,8 @@ class EmptyState {
   /// 非空表示加载失败 / 网络异常等。
   final String? errorMessage;
 
-  /// 空数据标题（非错误态）。
-  final String emptyTitle;
+  /// 空数据标题（非错误态）；null 时由 [EmptyStateView] 使用 l10n 默认文案。
+  final String? emptyTitle;
 
   /// 空数据副标题（非错误态）。
   final String? emptySubtitle;
@@ -146,8 +146,8 @@ class EmptyState {
   /// 空数据按钮文案；与 [EmptyStateView.onEmptyAction] 同时有值才显示。
   final String? emptyActionText;
 
-  /// 错误态按钮文案。
-  final String errorActionText;
+  /// 错误态按钮文案；null 时由 [EmptyStateView] 使用 l10n「重试」。
+  final String? errorActionText;
 
   bool get hasError =>
       errorMessage != null && errorMessage!.trim().isNotEmpty;

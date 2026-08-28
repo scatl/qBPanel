@@ -1,3 +1,4 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 /// WebUI「BitTorrent」页状态。
@@ -142,13 +143,18 @@ class BittorrentSettingsUiState {
 
 /// `encryption`
 enum BittorrentEncryption {
-  allow('允许加密', 0),
-  require('强制加密', 1),
-  disable('禁用加密', 2);
+  allow(0),
+  require(1),
+  disable(2);
 
-  const BittorrentEncryption(this.label, this.apiValue);
-  final String label;
+  const BittorrentEncryption(this.apiValue);
   final int apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        BittorrentEncryption.allow => l10n.btEncryptAllow,
+        BittorrentEncryption.require => l10n.btEncryptRequire,
+        BittorrentEncryption.disable => l10n.btEncryptDisable,
+      };
 
   static BittorrentEncryption fromApi(int? value) {
     for (final item in values) {
@@ -160,14 +166,20 @@ enum BittorrentEncryption {
 
 /// `max_ratio_act`（选项顺序与 WebUI 一致）
 enum BittorrentMaxRatioAct {
-  stop('停止 torrent', 0),
-  remove('删除 torrent', 1),
-  removeAndFiles('删除 torrent 及所属文件', 3),
-  superSeeding('为 torrent 启用超级做种', 2);
+  stop(0),
+  remove(1),
+  removeAndFiles(3),
+  superSeeding(2);
 
-  const BittorrentMaxRatioAct(this.label, this.apiValue);
-  final String label;
+  const BittorrentMaxRatioAct(this.apiValue);
   final int apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        BittorrentMaxRatioAct.stop => l10n.btRatioStop,
+        BittorrentMaxRatioAct.remove => l10n.btRatioRemove,
+        BittorrentMaxRatioAct.removeAndFiles => l10n.btRatioRemoveAndFiles,
+        BittorrentMaxRatioAct.superSeeding => l10n.btRatioSuperSeeding,
+      };
 
   static BittorrentMaxRatioAct fromApi(int? value) {
     for (final item in values) {

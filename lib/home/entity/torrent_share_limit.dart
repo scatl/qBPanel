@@ -1,19 +1,29 @@
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 /// 分享率限制：`-2` 用全局，`-1` 不限。
 enum TorrentShareLimitMode { global, unlimited, custom }
 
 enum TorrentShareLimitAction {
-  useDefault('Default', '使用全局设置'),
-  stop('Stop', '停止种子'),
-  remove('Remove', '删除种子'),
-  removeWithContent('RemoveWithContent', '删除种子和文件'),
-  enableSuperSeeding('EnableSuperSeeding', '开启超级做种');
+  useDefault('Default'),
+  stop('Stop'),
+  remove('Remove'),
+  removeWithContent('RemoveWithContent'),
+  enableSuperSeeding('EnableSuperSeeding');
 
-  const TorrentShareLimitAction(this.apiValue, this.displayText);
+  const TorrentShareLimitAction(this.apiValue);
 
   final String apiValue;
-  final String displayText;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        TorrentShareLimitAction.useDefault => l10n.shareLimitUseDefault,
+        TorrentShareLimitAction.stop => l10n.shareLimitStop,
+        TorrentShareLimitAction.remove => l10n.shareLimitRemove,
+        TorrentShareLimitAction.removeWithContent =>
+          l10n.shareLimitRemoveWithContent,
+        TorrentShareLimitAction.enableSuperSeeding =>
+          l10n.shareLimitSuperSeeding,
+      };
 
   static TorrentShareLimitAction parse(String? raw) {
     switch (raw) {

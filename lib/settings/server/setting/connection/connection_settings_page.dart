@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/setting/connection/connection_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/connection/connection_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
@@ -125,14 +126,14 @@ class _ConnectionSettingsPageState
     if (!ui.ready || ui.saving) return;
 
     _syncTextFieldsToVm();
-    LoadingDialog.show(context, message: '保存中…');
+    LoadingDialog.show(context, message: context.l10n.saving);
     await Future<void>.delayed(Duration.zero);
 
     final error = await ref.read(connectionSettingsProvider.notifier).save();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error == null ? '已保存' : '保存失败：$error')),
+      SnackBar(content: Text(error == null ? context.l10n.saved : context.l10n.saveFailed(error))),
     );
   }
 
@@ -150,10 +151,10 @@ class _ConnectionSettingsPageState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('连接'),
+        title: Text(context.l10n.qbSetConnection),
         actions: [
           IconButton(
-            tooltip: '保存',
+            tooltip: context.l10n.actionSave,
             icon: const Icon(Icons.save),
             onPressed: canEdit ? _onSave : null,
           ),
@@ -169,14 +170,14 @@ class _ConnectionSettingsPageState
                     SettingsGroupCard(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: DropdownField<ConnectionPeerProtocol>(
-                        label: '对等节点连接协议',
+                        label: context.l10n.peerConnectionProtocol,
                         value: ui.peerProtocol,
                         enabled: canEdit,
                         items: [
                           for (final item in ConnectionPeerProtocol.values)
                             DropdownMenuItem(
                               value: item,
-                              child: Text(item.label),
+                              child: Text(item.label(context.l10n)),
                             ),
                         ],
                         onChanged: vm.setPeerProtocol,
@@ -184,13 +185,13 @@ class _ConnectionSettingsPageState
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '监听端口',
+                      title: context.l10n.listeningPort,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            '用于传入连接的端口',
+                            context.l10n.incomingConnectionsPort,
                             style: textTheme.bodyLarge,
                           ),
                           const SizedBox(height: 4),
@@ -218,12 +219,12 @@ class _ConnectionSettingsPageState
                                     vertical: 4,
                                   ),
                                 ),
-                                child: const Text('随机'),
+                                child: Text(context.l10n.actionRandom),
                               ),
                             ],
                           ),
                           SettingsSwitchTile(
-                            title: '使用我的路由器的 UPnP / NAT-PMP 端口转发',
+                            title: context.l10n.upnpPortForward,
                             value: ui.upnp,
                             onChanged: canEdit ? vm.setUpnp : null,
                           ),
@@ -232,13 +233,13 @@ class _ConnectionSettingsPageState
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '连接限制',
+                      title: context.l10n.connectionLimits,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '全局最大连接数',
+                            title: context.l10n.maxConnectionsGlobal,
                             value: ui.maxConnecEnabled,
                             onChanged:
                                 canEdit ? vm.setMaxConnecEnabled : null,
@@ -253,7 +254,7 @@ class _ConnectionSettingsPageState
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '每 torrent 最大连接数',
+                            title: context.l10n.maxConnectionsPerTorrent,
                             value: ui.maxConnecPerTorrentEnabled,
                             onChanged: canEdit
                                 ? vm.setMaxConnecPerTorrentEnabled
@@ -270,7 +271,7 @@ class _ConnectionSettingsPageState
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '全局上传窗口数上限',
+                            title: context.l10n.maxUploadsGlobal,
                             value: ui.maxUploadsEnabled,
                             onChanged:
                                 canEdit ? vm.setMaxUploadsEnabled : null,
@@ -285,7 +286,7 @@ class _ConnectionSettingsPageState
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '每个 torrent 上传窗口数上限',
+                            title: context.l10n.maxUploadsPerTorrent,
                             value: ui.maxUploadsPerTorrentEnabled,
                             onChanged: canEdit
                                 ? vm.setMaxUploadsPerTorrentEnabled
@@ -310,7 +311,7 @@ class _ConnectionSettingsPageState
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: 'I2P（实验性）',
+                            title: context.l10n.i2pExperimental,
                             value: ui.i2pEnabled,
                             onChanged: canEdit ? vm.setI2pEnabled : null,
                           ),
@@ -318,8 +319,8 @@ class _ConnectionSettingsPageState
                             controller: _i2pAddressController,
                             enabled: i2pOn,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: '主机',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.host,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -330,12 +331,12 @@ class _ConnectionSettingsPageState
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration: const InputDecoration(
-                              labelText: '端口',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.port,
                             ),
                           ),
                           SettingsSwitchTile(
-                            title: '混合模式',
+                            title: context.l10n.mixedMode,
                             value: ui.i2pMixedMode,
                             onChanged: i2pOn ? vm.setI2pMixedMode : null,
                           ),
@@ -344,20 +345,20 @@ class _ConnectionSettingsPageState
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '代理服务器',
+                      title: context.l10n.proxyServer,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           DropdownField<ConnectionProxyType>(
-                            label: '类型',
+                            label: context.l10n.proxyType,
                             value: ui.proxyType,
                             enabled: canEdit,
                             items: [
                               for (final item in ConnectionProxyType.values)
                                 DropdownMenuItem(
                                   value: item,
-                                  child: Text(item.label),
+                                  child: Text(item.label(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setProxyType,
@@ -366,8 +367,8 @@ class _ConnectionSettingsPageState
                             controller: _proxyHostController,
                             enabled: proxyEnabled,
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: '主机',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.host,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -378,12 +379,12 @@ class _ConnectionSettingsPageState
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration: const InputDecoration(
-                              labelText: '端口',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.port,
                             ),
                           ),
                           SettingsSwitchTile(
-                            title: '通过代理查找主机名',
+                            title: context.l10n.proxyHostnameLookup,
                             value: ui.proxyHostnameLookup,
                             onChanged: proxyAuthCapable
                                 ? vm.setProxyHostnameLookup
@@ -394,7 +395,7 @@ class _ConnectionSettingsPageState
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 SettingsSwitchTile(
-                                  title: '验证',
+                                  title: context.l10n.authentication,
                                   value: ui.proxyAuthEnabled,
                                   onChanged: proxyAuthCapable
                                       ? vm.setProxyAuthEnabled
@@ -405,8 +406,8 @@ class _ConnectionSettingsPageState
                                   enabled: proxyAuthCapable &&
                                       ui.proxyAuthEnabled,
                                   textInputAction: TextInputAction.next,
-                                  decoration: const InputDecoration(
-                                    labelText: '用户名',
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.username,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -416,13 +417,13 @@ class _ConnectionSettingsPageState
                                       ui.proxyAuthEnabled,
                                   obscureText: true,
                                   textInputAction: TextInputAction.done,
-                                  decoration: const InputDecoration(
-                                    labelText: '密码',
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.password,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  '注意：密码以非加密形式保存',
+                                  context.l10n.passwordStoredUnencrypted,
                                   style: textTheme.bodySmall?.copyWith(
                                     color: scheme.outline,
                                   ),
@@ -431,26 +432,26 @@ class _ConnectionSettingsPageState
                             ),
                           ),
                           SettingsSwitchTile(
-                            title: '对 BitTorrent 目的使用代理',
+                            title: context.l10n.proxyForBittorrent,
                             value: ui.proxyBittorrent,
                             onChanged:
                                 proxyEnabled ? vm.setProxyBittorrent : null,
                           ),
                           SettingsSwitchTile(
-                            title: '使用代理服务器进行用户连接',
+                            title: context.l10n.proxyForPeerConnections,
                             value: ui.proxyPeerConnections,
                             onChanged: proxyEnabled && ui.proxyBittorrent
                                 ? vm.setProxyPeerConnections
                                 : null,
                           ),
                           SettingsSwitchTile(
-                            title: '对 RSS 目的使用代理',
+                            title: context.l10n.proxyForRss,
                             value: ui.proxyRss,
                             onChanged:
                                 proxyAuthCapable ? vm.setProxyRss : null,
                           ),
                           SettingsSwitchTile(
-                            title: '对常规目的使用代理',
+                            title: context.l10n.proxyForGeneral,
                             value: ui.proxyMisc,
                             onChanged:
                                 proxyAuthCapable ? vm.setProxyMisc : null,
@@ -465,7 +466,7 @@ class _ConnectionSettingsPageState
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: 'IP 过滤',
+                            title: context.l10n.ipFiltering,
                             value: ui.ipFilterEnabled,
                             onChanged:
                                 canEdit ? vm.setIpFilterEnabled : null,
@@ -475,12 +476,12 @@ class _ConnectionSettingsPageState
                             enabled: canEdit && ui.ipFilterEnabled,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '过滤规则路径 (.dat, .p2p, .p2b)',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.ipFilterPath,
                             ),
                           ),
                           SettingsSwitchTile(
-                            title: '匹配 tracker',
+                            title: context.l10n.filterTrackers,
                             value: ui.ipFilterTrackers,
                             onChanged: canEdit && ui.ipFilterEnabled
                                 ? vm.setIpFilterTrackers
@@ -492,10 +493,10 @@ class _ConnectionSettingsPageState
                             enabled: canEdit,
                             minLines: 4,
                             maxLines: 8,
-                            decoration: const InputDecoration(
-                              labelText: '手动屏蔽 IP 地址',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.manuallyBannedIps,
                               alignLabelWithHint: true,
-                              hintText: '每行一个 IP',
+                              hintText: context.l10n.oneIpPerLine,
                             ),
                           ),
                         ],

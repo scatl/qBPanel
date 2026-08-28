@@ -6,6 +6,8 @@ import 'package:qbpanel/detail/trackers/torrent_tracker_sort.dart';
 import 'package:qbpanel/detail/trackers/torrent_trackers_ui_state.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final torrentTrackersProvider = NotifierProvider.autoDispose
@@ -19,6 +21,8 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
   final String hash;
 
   late PollLoop _poll;
+
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
 
   @override
   TorrentTrackersUiState build() {
@@ -50,12 +54,12 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .join('\n');
-    if (urls.isEmpty) return '请输入至少一个 Tracker';
+    if (urls.isEmpty) return _l10n.enterTrackers;
     return _mutate(
       ApiPath.torrentManagement.addTrackers,
       {'hash': hash, 'urls': urls},
       errorOf: (code, message) => switch (code) {
-        404 => '种子不存在',
+        404 => _l10n.torrentNotFound,
         _ => message,
       },
     );
@@ -68,9 +72,9 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
     required int? tier,
   }) async {
     final nextUrl = newUrl.trim();
-    if (nextUrl.isEmpty) return '请输入 Tracker URL';
+    if (nextUrl.isEmpty) return _l10n.enterTrackerUrl;
     if (tier != null && (tier < 0 || tier > 255)) {
-      return '层级必须是 0–255';
+      return _l10n.tierRange;
     }
     return _mutate(
       ApiPath.torrentManagement.editTracker,
@@ -82,8 +86,8 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
       },
       errorOf: (code, message) => switch (code) {
         400 => 'URL 无效',
-        404 => '种子不存在',
-        409 => 'Tracker 不存在或新 URL 已被占用',
+        404 => _l10n.torrentNotFound,
+        409 => _l10n.trackerUrlTaken,
         _ => message,
       },
       onSuccess: () {
@@ -99,13 +103,13 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
   /// 成功为 `null`。
   Future<String?> removeTracker(String url) {
     final trimmed = url.trim();
-    if (trimmed.isEmpty) return Future.value('无效的 Tracker');
+    if (trimmed.isEmpty) return Future.value(_l10n.invalidTracker);
     return _mutate(
       ApiPath.torrentManagement.removeTrackers,
       {'hash': hash, 'urls': trimmed},
       errorOf: (code, message) => switch (code) {
-        404 => '种子不存在',
-        409 => 'Tracker 不存在',
+        404 => _l10n.torrentNotFound,
+        409 => _l10n.trackerNotFound,
         _ => message,
       },
       onSuccess: () {
@@ -149,7 +153,7 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
 
   Future<void> _onPoll(PollTicket ticket) async {
     if (hash.isEmpty) {
-      state = state.copyWith(emptyState: EmptyState.error('无效的种子'));
+      state = state.copyWith(emptyState: EmptyState.error(_l10n.invalidTorrent));
       ticket.stopPolling();
       return;
     }
@@ -169,14 +173,14 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
         })
         .onFail((e) {
           if (e.isCancel) return;
-          error = e.statusCode == 404 ? '种子不存在' : e.message;
+          error = e.statusCode == 404 ? _l10n.torrentNotFound : e.message;
         });
 
     if (!ticket.isActive) return;
 
     if (trackers == null) {
       if (state.trackers.isEmpty) {
-        state = state.copyWith(emptyState: EmptyState.error(error ?? '加载失败'));
+        state = state.copyWith(emptyState: EmptyState.error(error ?? _l10n.loadFailed));
       }
       return;
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/list/server_list_view_model.dart';
 import 'package:qbpanel/settings/server/modify/server_modify_view_model.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -50,7 +51,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
 
     if (server == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('服务器不存在或已删除')),
+        SnackBar(content: Text(context.l10n.serverNotFound)),
       );
       context.pop();
       return;
@@ -78,7 +79,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
     FocusScope.of(context).unfocus();
 
     // 不要 await：show 的 Future 会等到 dismiss 才完成
-    LoadingDialog.show(context, message: '校验中…');
+    LoadingDialog.show(context, message: context.l10n.validating);
     await Future<void>.delayed(Duration.zero);
 
     final vm = ref.read(serverModifyProvider.notifier);
@@ -115,6 +116,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
     final ui = ref.watch(serverModifyProvider);
@@ -123,7 +125,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? '编辑服务器' : '添加服务器'),
+        title: Text(_isEdit ? l10n.editServer : l10n.addServer),
       ),
       body: !_ready || ui.initializing
           ? const Center(child: CircularProgressIndicator())
@@ -136,7 +138,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
               ),
               children: [
                 SettingSubtitle(
-                  '服务器名称，例如：我的NAS',
+                  l10n.serverNameHint,
                   color: subtitleColor,
                 ),
                 const SizedBox(height: 8),
@@ -145,13 +147,13 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
                   textInputAction: TextInputAction.next,
                   onChanged: (_) => vm.clearFieldError(name: true),
                   decoration: _decoration(
-                    hintText: '服务器名称',
+                    hintText: l10n.serverName,
                     hasError: ui.nameError,
                   ),
                 ),
                 const SizedBox(height: 16),
                 SettingSubtitle(
-                  '域名或IP，例如：my.nas.com, 192.168.1.1',
+                  l10n.hostHint,
                   color: subtitleColor,
                 ),
                 const SizedBox(height: 8),
@@ -161,13 +163,13 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
                   textInputAction: TextInputAction.next,
                   onChanged: (_) => vm.clearFieldError(host: true),
                   decoration: _decoration(
-                    hintText: '域名或IP',
+                    hintText: l10n.host,
                     hasError: ui.hostError,
                   ),
                 ),
                 const SizedBox(height: 16),
                 SettingSubtitle(
-                  '端口，例如：8888',
+                  l10n.portHint,
                   color: subtitleColor,
                 ),
                 const SizedBox(height: 8),
@@ -180,26 +182,26 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
                     LengthLimitingTextInputFormatter(5),
                     const _PortRangeFormatter(),
                   ],
-                  decoration: const InputDecoration(
-                    hintText: '端口',
+                  decoration: InputDecoration(
+                    hintText: l10n.port,
                   ),
                 ),
                 const SizedBox(height: 16),
                 SettingSubtitle(
-                  '路径，不包含“/”符号，例如：nas/qb',
+                  l10n.pathHint,
                   color: subtitleColor,
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _pathController,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: '路径',
+                  decoration: InputDecoration(
+                    hintText: l10n.path,
                   ),
                 ),
                 const SizedBox(height: 16),
                 SettingSubtitle(
-                  'API密钥，请在WebUI上生成密钥',
+                  l10n.apiKeyHint,
                   color: subtitleColor,
                 ),
                 const SizedBox(height: 8),
@@ -209,7 +211,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
                   textInputAction: TextInputAction.done,
                   onChanged: (_) => vm.clearFieldError(apiKey: true),
                   decoration: _decoration(
-                    hintText: 'API密钥',
+                    hintText: l10n.apiKey,
                     hasError: ui.apiKeyError,
                   ),
                 ),
@@ -218,7 +220,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '使用HTTPS',
+                      l10n.useHttps,
                       style: TextStyle(color: subtitleColor),
                     ),
                     Switch(
@@ -242,7 +244,7 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
                     width: 160,
                     child: FilledButton(
                       onPressed: _onSave,
-                      child: const Text('保存'),
+                      child: Text(l10n.actionSave),
                     ),
                   ),
                 ),

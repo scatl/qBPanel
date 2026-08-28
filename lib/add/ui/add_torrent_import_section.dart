@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/add/ui/add_torrent_card.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 
 class AddTorrentImportSection extends StatelessWidget {
   const AddTorrentImportSection({
@@ -16,24 +17,25 @@ class AddTorrentImportSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AddTorrentCard(
       child: Column(
         children: [
           _ImportTile(
             icon: Icons.link,
-            title: '从磁力链接导入',
+            title: l10n.importMagnet,
             subtitle: ui.isFromMagnet
-                ? (ui.sourceUrl ?? '点击更换链接')
-                : '输入磁力链接或 HTTP(S) 地址',
+                ? (ui.sourceUrl ?? l10n.tapToChangeLink)
+                : l10n.enterMagnetOrHttp,
             onTap: onImportMagnet,
           ),
           const Divider(height: 1),
           _ImportTile(
             icon: Icons.insert_drive_file_outlined,
-            title: '从文件导入',
+            title: l10n.importFile,
             subtitle: ui.isFromFile
-                ? (ui.sourceFileName ?? '点击更换文件')
-                : '选择 .torrent 文件',
+                ? (ui.sourceFileName ?? l10n.tapToChangeFile)
+                : l10n.selectTorrentFile,
             onTap: onImportFile,
           ),
         ],

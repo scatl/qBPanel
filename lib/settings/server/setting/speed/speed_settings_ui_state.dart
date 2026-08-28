@@ -1,3 +1,4 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 /// WebUI「速度」页状态。速率单位为 KiB/s，`0` 表示无限制。
@@ -80,20 +81,32 @@ class SpeedSettingsUiState {
 
 /// `scheduler_days`
 enum SpeedSchedulerDays {
-  everyDay('每天', 0),
-  weekdays('工作日', 1),
-  weekends('周末', 2),
-  monday('周一', 3),
-  tuesday('周二', 4),
-  wednesday('周三', 5),
-  thursday('周四', 6),
-  friday('周五', 7),
-  saturday('周六', 8),
-  sunday('周日', 9);
+  everyDay(0),
+  weekdays(1),
+  weekends(2),
+  monday(3),
+  tuesday(4),
+  wednesday(5),
+  thursday(6),
+  friday(7),
+  saturday(8),
+  sunday(9);
 
-  const SpeedSchedulerDays(this.label, this.apiValue);
-  final String label;
+  const SpeedSchedulerDays(this.apiValue);
   final int apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        SpeedSchedulerDays.everyDay => l10n.schedulerEveryDay,
+        SpeedSchedulerDays.weekdays => l10n.schedulerWeekdays,
+        SpeedSchedulerDays.weekends => l10n.schedulerWeekends,
+        SpeedSchedulerDays.monday => l10n.schedulerMonday,
+        SpeedSchedulerDays.tuesday => l10n.schedulerTuesday,
+        SpeedSchedulerDays.wednesday => l10n.schedulerWednesday,
+        SpeedSchedulerDays.thursday => l10n.schedulerThursday,
+        SpeedSchedulerDays.friday => l10n.schedulerFriday,
+        SpeedSchedulerDays.saturday => l10n.schedulerSaturday,
+        SpeedSchedulerDays.sunday => l10n.schedulerSunday,
+      };
 
   static SpeedSchedulerDays fromApi(int? value) {
     for (final item in values) {

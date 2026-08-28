@@ -6,6 +6,7 @@ import 'package:qbpanel/detail/trackers/add_trackers_dialog.dart';
 import 'package:qbpanel/detail/trackers/torrent_trackers_view_model.dart';
 import 'package:qbpanel/detail/trackers/tracker_action_dialog.dart';
 import 'package:qbpanel/detail/trackers/widget/torrent_tracker_item.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -38,8 +39,8 @@ class TorrentTrackersTab extends ConsumerWidget {
           child: EmptyStateHost(
             state: ui.emptyState,
             onRetry: vm.retry,
-            emptyTitle: '暂无 Tracker',
-            emptySubtitle: '当前种子还没有 Tracker',
+            emptyTitle: context.l10n.noTrackers,
+            emptySubtitle: context.l10n.noTrackersHint,
             emptyIcon: Icons.dns_outlined,
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + bottomSafe),
@@ -86,7 +87,7 @@ class _TrackersHeader extends StatelessWidget {
         child: TextButton.icon(
           onPressed: onAdd,
           icon: const Icon(Icons.add, size: 20),
-          label: const Text('添加 Tracker'),
+          label: Text(context.l10n.addTracker),
         ),
       ),
     );

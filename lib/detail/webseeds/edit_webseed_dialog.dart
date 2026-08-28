@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_webseed_response.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class EditWebSeedDialog extends StatefulWidget {
@@ -83,6 +84,7 @@ class _EditWebSeedDialogState extends State<EditWebSeedDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.86;
@@ -98,7 +100,7 @@ class _EditWebSeedDialogState extends State<EditWebSeedDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '编辑 HTTP 源 URL',
+              l10n.editHttpSeed,
               style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
             ),
             const SizedBox(height: 16),
@@ -115,7 +117,7 @@ class _EditWebSeedDialogState extends State<EditWebSeedDialog> {
                 if (_error != null) setState(() => _error = null);
               },
               decoration: InputDecoration(
-                labelText: 'HTTP 源 URL',
+                labelText: l10n.httpSeedUrl,
                 errorText: _error,
               ),
             ),
@@ -127,7 +129,7 @@ class _EditWebSeedDialogState extends State<EditWebSeedDialog> {
                   onPressed: _submitting
                       ? null
                       : () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                  child: Text(l10n.actionCancel),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
@@ -141,7 +143,7 @@ class _EditWebSeedDialogState extends State<EditWebSeedDialog> {
                             color: scheme.onPrimary,
                           ),
                         )
-                      : const Text('确定'),
+                      : Text(l10n.actionOk),
                 ),
               ],
             ),

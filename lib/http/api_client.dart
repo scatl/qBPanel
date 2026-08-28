@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/http/api_call.dart';
 import 'package:qbpanel/http/api_failure.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
 import 'package:qbpanel/storage/db/app_database_provider.dart';
 
@@ -14,13 +16,17 @@ export 'package:qbpanel/http/api_failure.dart';
 /// - [getWithConfig]：用调用方传入的连接参数（保存前探测等）
 /// - 返回 [ApiCall]：`.onSuccess` / `.onFail`，不必再判断 [Response]
 final apiClientProvider = Provider<ApiClient>((ref) {
-  return ApiClient(ref.watch(appDatabaseProvider));
+  return ApiClient(
+    ref.watch(appDatabaseProvider),
+    l10n: () => ref.read(appLocalizationsProvider),
+  );
 });
 
 class ApiClient {
-  ApiClient(this._db);
+  ApiClient(this._db, {required AppLocalizations Function() l10n}) : _l10n = l10n;
 
   final AppDatabase _db;
+  final AppLocalizations Function() _l10n;
 
   final Dio dio = Dio(
     BaseOptions(
@@ -40,7 +46,7 @@ class ApiClient {
           ..where((t) => t.isActive.equals(true)))
         .getSingleOrNull();
     if (server == null) {
-      throw StateError('没有激活的服务器，请先在设置中添加并选中');
+      throw NoActiveServerError();
     }
     return server;
   }
@@ -129,6 +135,7 @@ class ApiClient {
         cancelToken: cancelToken,
       ),
       parser: parser,
+      l10n: _l10n,
     );
   }
 
@@ -152,6 +159,7 @@ class ApiClient {
         );
       },
       parser: parser,
+      l10n: _l10n,
     );
   }
 
@@ -179,9 +187,10 @@ class ApiClient {
         );
       },
       parser: parser,
+      l10n: _l10n,
     );
   }
 
-  /// 可读中文说明（不含业务前缀）。优先用 [ApiCall.onFail] 的 [ApiFailure.message]。
-  static String messageOf(Object e) => ApiFailure.from(e).message;
+  /// 可读说明（不含业务前缀）。优先用 [ApiCall.onFail] 的 [ApiFailure.message]。
+  String messageOf(Object e) => ApiFailure.from(e, l10n: _l10n()).message;
 }

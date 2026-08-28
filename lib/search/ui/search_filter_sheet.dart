@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/search/entity/search_result_filter.dart';
 import 'package:qbpanel/search/search_view_model.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -92,6 +93,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
       searchProvider.select((s) => s.resultFilter.isActive),
     );
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
@@ -101,11 +103,11 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
           child: Row(
             children: [
               Expanded(
-                child: Text('结果筛选', style: textTheme.titleMedium),
+                child: Text(l10n.resultFilter, style: textTheme.titleMedium),
               ),
               TextButton(
                 onPressed: filtering ? _clear : null,
-                child: const Text('清除'),
+                child: Text(l10n.actionClear),
               ),
             ],
           ),
@@ -113,7 +115,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
         Padding(
           padding: PageInsets.content,
           child: Text(
-            '对齐 Web 端：0 表示不限制。大小单位按 1024 进制换算。',
+            l10n.resultFilterHint,
             style: textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -121,13 +123,13 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
         ),
         const SizedBox(height: 8),
         _RangeSection(
-          title: '做种数',
+          title: l10n.seeders,
           minController: _minSeeders,
           maxController: _maxSeeders,
         ),
         const SizedBox(height: 16),
         _SizeRangeSection(
-          title: '大小',
+          title: l10n.sortSize,
           minController: _minSize,
           maxController: _maxSize,
           minUnit: _minSizeUnit,
@@ -139,7 +141,7 @@ class _SearchFilterSheetState extends ConsumerState<SearchFilterSheet> {
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
           child: FilledButton(
             onPressed: _apply,
-            child: const Text('应用'),
+            child: Text(l10n.actionApply),
           ),
         ),
       ],
@@ -174,24 +176,24 @@ class _RangeSection extends StatelessWidget {
                   controller: minController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: '最小',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.minValue,
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('至'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(context.l10n.rangeTo),
               ),
               Expanded(
                 child: TextField(
                   controller: maxController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: '最大',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.maxValue,
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),
@@ -241,8 +243,8 @@ class _SizeRangeSection extends StatelessWidget {
                   controller: minController,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(
-                    labelText: '最小',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.minValue,
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),
@@ -281,8 +283,8 @@ class _SizeRangeSection extends StatelessWidget {
                   controller: maxController,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(
-                    labelText: '最大',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.maxValue,
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),

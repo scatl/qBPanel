@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/add/ui/add_torrent_card.dart';
 import 'package:qbpanel/detail/general/torrent_general_format.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
 
 class AddTorrentInfoSection extends StatelessWidget {
@@ -11,47 +13,48 @@ class AddTorrentInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AddTorrentCard(
-      title: '种子信息',
+      title: l10n.torrentInfo,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _InfoRow(label: '名称', value: _text(ui.torrentName), selectable: true),
-          _InfoRow(label: '大小', value: _size(ui.totalSize)),
+          _InfoRow(label: l10n.sortName, value: _text(ui.torrentName, l10n), selectable: true),
+          _InfoRow(label: l10n.sortSize, value: _size(ui.totalSize, l10n)),
           _InfoRow(
-            label: '日期',
-            value: formatUnixDate(ui.creationDate, unknown: '暂不可用'),
+            label: l10n.date,
+            value: formatUnixDate(ui.creationDate, unknown: l10n.unavailable),
           ),
           _InfoRow(
             label: 'Info hash v1',
-            value: _hash(ui.infohashV1),
+            value: _hash(ui.infohashV1, l10n),
             selectable: true,
           ),
           _InfoRow(
             label: 'Info hash v2',
-            value: _hash(ui.infohashV2),
+            value: _hash(ui.infohashV2, l10n),
             selectable: true,
           ),
-          _InfoRow(label: '注释', value: _text(ui.comment), selectable: true),
+          _InfoRow(label: l10n.comment, value: _text(ui.comment, l10n), selectable: true),
         ],
       ),
     );
   }
 
-  String _text(String? value) {
-    if (value == null || value.isEmpty) return '暂不可用';
+  String _text(String? value, AppLocalizations l10n) {
+    if (value == null || value.isEmpty) return l10n.unavailable;
     return value;
   }
 
-  String _hash(String? value) {
-    if (value == null) return '暂不可用';
-    if (value.isEmpty) return 'N/A';
+  String _hash(String? value, AppLocalizations l10n) {
+    if (value == null) return l10n.unavailable;
+    if (value.isEmpty) return l10n.notAvailable;
     return value;
   }
 
-  String _size(int? bytes) {
-    if (bytes == null || bytes < 0) return '暂不可用';
+  String _size(int? bytes, AppLocalizations l10n) {
+    if (bytes == null || bytes < 0) return l10n.unavailable;
     return formatBytes(bytes);
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/inbound/inbound_torrent_open.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/router/app_router.dart';
 import 'package:qbpanel/theme/system_ui.dart';
 import 'package:qbpanel/theme/theme_builder.dart';
@@ -21,12 +23,14 @@ class QBPanelApp extends ConsumerStatefulWidget {
   ConsumerState<QBPanelApp> createState() => _QBPanelAppState();
 }
 
-class _QBPanelAppState extends ConsumerState<QBPanelApp> {
+class _QBPanelAppState extends ConsumerState<QBPanelApp>
+    with WidgetsBindingObserver {
   InboundTorrentOpen? _inboundOpen;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (!kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -39,13 +43,22 @@ class _QBPanelAppState extends ConsumerState<QBPanelApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _inboundOpen?.dispose();
     super.dispose();
   }
 
   @override
+  void didChangeLocales(List<Locale>? locales) {
+    final locale = locales?.firstOrNull ??
+        WidgetsBinding.instance.platformDispatcher.locale;
+    ref.read(platformLocaleProvider.notifier).setLocale(locale);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final settings = ref.watch(themeSettingProvider);
+    final locale = ref.watch(resolvedAppLocaleProvider);
 
     return ThemeBuilder(
       themeSettings: settings,
@@ -53,6 +66,9 @@ class _QBPanelAppState extends ConsumerState<QBPanelApp> {
         return MaterialApp.router(
           title: 'qBPanel',
           debugShowCheckedModeBanner: false,
+          locale: locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
           themeMode: settings.themeMode,
           theme: light,
           darkTheme: dark,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/detail/peers/model/peer_flags.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 abstract final class PeerFlagsHelpDialog {
@@ -22,7 +23,7 @@ abstract final class PeerFlagsHelpDialog {
             maxWidth: 280,
           ),
           panelPadding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-          child: const _PeerFlagsHelpContent(),
+          child: _PeerFlagsHelpContent(),
         );
       },
       transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
@@ -35,6 +36,7 @@ class _PeerFlagsHelpContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Column(
@@ -42,7 +44,7 @@ class _PeerFlagsHelpContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '标志说明',
+          l10n.flagsHelp,
           style: textTheme.titleMedium?.copyWith(color: scheme.onSurface),
         ),
         const SizedBox(height: 8),
@@ -54,7 +56,7 @@ class _PeerFlagsHelpContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final flag in peerFlagLegend)
+                for (final flag in peerFlagLegend(l10n))
                   Padding(
                     padding: const EdgeInsets.only(bottom: 3),
                     child: Text.rich(
@@ -86,7 +88,7 @@ class _PeerFlagsHelpContent extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('知道了'),
+            child: Text(l10n.actionGotIt),
           ),
         ),
       ],

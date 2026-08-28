@@ -1,4 +1,5 @@
 import 'package:qbpanel/api/entity/response/network_interface_item.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 /// WebUI「高级」页状态。
@@ -370,12 +371,16 @@ class AdvancedSettingsUiState {
 
 /// `resume_data_storage_type`
 enum AdvancedResumeDataStorage {
-  legacy('Legacy', 'Fastresume 文件'),
-  sqlite('SQLite', 'SQLite 数据库（实验性）');
+  legacy('Legacy'),
+  sqlite('SQLite');
 
-  const AdvancedResumeDataStorage(this.apiValue, this.label);
+  const AdvancedResumeDataStorage(this.apiValue);
   final String apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedResumeDataStorage.legacy => l10n.resumeFastresume,
+        AdvancedResumeDataStorage.sqlite => l10n.resumeSqlite,
+      };
 
   static AdvancedResumeDataStorage fromApi(String? value) {
     for (final item in values) {
@@ -387,12 +392,16 @@ enum AdvancedResumeDataStorage {
 
 /// `torrent_content_remove_option`
 enum AdvancedTorrentRemoveOption {
-  delete('Delete', '永久删除文件'),
-  moveToTrash('MoveToTrash', '移到回收站（如可能）');
+  delete('Delete'),
+  moveToTrash('MoveToTrash');
 
-  const AdvancedTorrentRemoveOption(this.apiValue, this.label);
+  const AdvancedTorrentRemoveOption(this.apiValue);
   final String apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedTorrentRemoveOption.delete => l10n.removeDeleteFiles,
+        AdvancedTorrentRemoveOption.moveToTrash => l10n.removeMoveToTrash,
+      };
 
   static AdvancedTorrentRemoveOption fromApi(String? value) {
     for (final item in values) {
@@ -404,15 +413,22 @@ enum AdvancedTorrentRemoveOption {
 
 /// `disk_io_type`
 enum AdvancedDiskIoType {
-  defaultType(0, '默认'),
-  memoryMapped(1, '内存映射文件'),
-  posix(2, 'POSIX 兼容'),
-  simplePreadPwrite(3, '简单 pread/pwrite'),
-  preadPwrite(4, 'pread/pwrite');
+  defaultType(0),
+  memoryMapped(1),
+  posix(2),
+  simplePreadPwrite(3),
+  preadPwrite(4);
 
-  const AdvancedDiskIoType(this.apiValue, this.label);
+  const AdvancedDiskIoType(this.apiValue);
   final int apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedDiskIoType.defaultType => l10n.defaultOption,
+        AdvancedDiskIoType.memoryMapped => l10n.diskIoMemoryMapped,
+        AdvancedDiskIoType.posix => l10n.diskIoPosix,
+        AdvancedDiskIoType.simplePreadPwrite => l10n.diskIoSimplePread,
+        AdvancedDiskIoType.preadPwrite => 'pread/pwrite',
+      };
 
   static AdvancedDiskIoType fromApi(int? value) {
     for (final item in values) {
@@ -424,12 +440,16 @@ enum AdvancedDiskIoType {
 
 /// `disk_io_read_mode`
 enum AdvancedDiskIoCacheMode {
-  disableOsCache(0, '禁用 OS 缓存'),
-  enableOsCache(1, '启用 OS 缓存');
+  disableOsCache(0),
+  enableOsCache(1);
 
-  const AdvancedDiskIoCacheMode(this.apiValue, this.label);
+  const AdvancedDiskIoCacheMode(this.apiValue);
   final int apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedDiskIoCacheMode.disableOsCache => l10n.osCacheDisable,
+        AdvancedDiskIoCacheMode.enableOsCache => l10n.osCacheEnable,
+      };
 
   static AdvancedDiskIoCacheMode fromApi(int? value) {
     for (final item in values) {
@@ -441,13 +461,18 @@ enum AdvancedDiskIoCacheMode {
 
 /// `disk_io_write_mode`
 enum AdvancedDiskIoWriteMode {
-  disableOsCache(0, '禁用 OS 缓存'),
-  enableOsCache(1, '启用 OS 缓存'),
-  writeThrough(2, '直写');
+  disableOsCache(0),
+  enableOsCache(1),
+  writeThrough(2);
 
-  const AdvancedDiskIoWriteMode(this.apiValue, this.label);
+  const AdvancedDiskIoWriteMode(this.apiValue);
   final int apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedDiskIoWriteMode.disableOsCache => l10n.osCacheDisable,
+        AdvancedDiskIoWriteMode.enableOsCache => l10n.osCacheEnable,
+        AdvancedDiskIoWriteMode.writeThrough => l10n.osCacheWriteThrough,
+      };
 
   static AdvancedDiskIoWriteMode fromApi(int? value) {
     for (final item in values) {
@@ -459,12 +484,16 @@ enum AdvancedDiskIoWriteMode {
 
 /// `utp_tcp_mixed_mode`
 enum AdvancedUtpTcpMixedMode {
-  preferTcp(0, '首选 TCP'),
-  peerProportional(1, '与 peer 成比例（限制 TCP）');
+  preferTcp(0),
+  peerProportional(1);
 
-  const AdvancedUtpTcpMixedMode(this.apiValue, this.label);
+  const AdvancedUtpTcpMixedMode(this.apiValue);
   final int apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedUtpTcpMixedMode.preferTcp => l10n.utpPreferTcp,
+        AdvancedUtpTcpMixedMode.peerProportional => l10n.utpPeerProportional,
+      };
 
   static AdvancedUtpTcpMixedMode fromApi(int? value) {
     for (final item in values) {
@@ -476,12 +505,16 @@ enum AdvancedUtpTcpMixedMode {
 
 /// `upload_slots_behavior`
 enum AdvancedUploadSlotsBehavior {
-  fixedSlots(0, '固定槽位'),
-  uploadRateBased(1, '基于上传速率');
+  fixedSlots(0),
+  uploadRateBased(1);
 
-  const AdvancedUploadSlotsBehavior(this.apiValue, this.label);
+  const AdvancedUploadSlotsBehavior(this.apiValue);
   final int apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedUploadSlotsBehavior.fixedSlots => l10n.uploadSlotsFixed,
+        AdvancedUploadSlotsBehavior.uploadRateBased => l10n.uploadSlotsRateBased,
+      };
 
   static AdvancedUploadSlotsBehavior fromApi(int? value) {
     for (final item in values) {
@@ -493,13 +526,18 @@ enum AdvancedUploadSlotsBehavior {
 
 /// `upload_choking_algorithm`
 enum AdvancedUploadChokingAlgorithm {
-  roundRobin(0, '轮询'),
-  fastestUpload(1, '最快上传'),
-  antiLeech(2, '反吸血');
+  roundRobin(0),
+  fastestUpload(1),
+  antiLeech(2);
 
-  const AdvancedUploadChokingAlgorithm(this.apiValue, this.label);
+  const AdvancedUploadChokingAlgorithm(this.apiValue);
   final int apiValue;
-  final String label;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        AdvancedUploadChokingAlgorithm.roundRobin => l10n.chokeRoundRobin,
+        AdvancedUploadChokingAlgorithm.fastestUpload => l10n.chokeFastestUpload,
+        AdvancedUploadChokingAlgorithm.antiLeech => l10n.chokeAntiLeech,
+      };
 
   static AdvancedUploadChokingAlgorithm fromApi(int? value) {
     for (final item in values) {
@@ -517,11 +555,11 @@ abstract final class AdvancedBindAddressOption {
   static const allIpv4 = '0.0.0.0';
   static const allIpv6 = '::';
 
-  static String labelOf(String value) {
+  static String labelOf(String value, AppLocalizations l10n) {
     return switch (value) {
-      all => '所有地址',
-      allIpv4 => '所有 IPv4 地址',
-      allIpv6 => '所有 IPv6 地址',
+      all => l10n.bindAllAddresses,
+      allIpv4 => l10n.bindAllIpv4,
+      allIpv6 => l10n.bindAllIpv6,
       _ => value,
     };
   }

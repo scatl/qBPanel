@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/ui/dialog/category_edit_dialog.dart';
 import 'package:qbpanel/home/ui/torrent_category_tree.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 
 class TorrentCategoryPage extends ConsumerStatefulWidget {
   const TorrentCategoryPage({
@@ -32,7 +33,9 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
     final selected = torrent?.category?.trim() ?? '';
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    final selectedLabel = selected.isEmpty ? '未分类' : selected;
+    final l10n = context.l10n;
+    final selectedLabel =
+        selected.isEmpty ? l10n.filterUncategorized : selected;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -43,7 +46,7 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
           child: Row(
             children: [
               IconButton(
-                tooltip: '返回',
+                tooltip: l10n.actionBack,
                 visualDensity: VisualDensity.compact,
                 onPressed: _busy ? null : widget.onBack,
                 icon: const Icon(Icons.arrow_back),
@@ -53,7 +56,7 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '分类',
+                      l10n.category,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.titleMedium,
@@ -70,7 +73,7 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
                 ),
               ),
               FilterIconButton(
-                tooltip: '添加分类',
+                tooltip: l10n.addCategory,
                 iconSize: 22,
                 icon: Icons.create_new_folder_outlined,
                 onPressed: _busy
@@ -82,7 +85,7 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
               ),
               const SizedBox(width: 16),
               FilterIconButton(
-                tooltip: '删除未使用的分类',
+                tooltip: l10n.deleteUnusedCategories,
                 iconSize: 22,
                 icon: Icons.folder_delete_outlined,
                 onPressed: _busy

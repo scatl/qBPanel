@@ -1,19 +1,30 @@
 import 'package:qbpanel/api/entity/response/torrent_tracker_response.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 enum TrackerSortKey {
-  url('URL'),
-  tier('层级'),
-  status('状态'),
-  seeds('种子'),
-  peers('用户'),
-  leeches('下载者'),
-  downloaded('完成次数'),
-  message('消息'),
-  nextAnnounce('下次宣告'),
-  minAnnounce('最短宣告间隔');
+  url,
+  tier,
+  status,
+  seeds,
+  peers,
+  leeches,
+  downloaded,
+  message,
+  nextAnnounce,
+  minAnnounce;
 
-  const TrackerSortKey(this.label);
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+        TrackerSortKey.url => l10n.sortUrl,
+        TrackerSortKey.tier => l10n.sortTier,
+        TrackerSortKey.status => l10n.sortStatus,
+        TrackerSortKey.seeds => l10n.sortSeeds,
+        TrackerSortKey.peers => l10n.sortPeers,
+        TrackerSortKey.leeches => l10n.sortLeeches,
+        TrackerSortKey.downloaded => l10n.sortDownloadCount,
+        TrackerSortKey.message => l10n.sortMessage,
+        TrackerSortKey.nextAnnounce => l10n.sortNextAnnounce,
+        TrackerSortKey.minAnnounce => l10n.sortMinAnnounce,
+      };
 }
 
 List<TorrentTrackerResponse> sortTrackers(

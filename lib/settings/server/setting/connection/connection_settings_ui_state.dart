@@ -1,3 +1,4 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 /// WebUI「连接」页状态。
@@ -159,13 +160,18 @@ class ConnectionSettingsUiState {
 
 /// `bittorrent_protocol`
 enum ConnectionPeerProtocol {
-  tcpAndUtp('TCP 和 μTP', 0),
-  tcp('TCP', 1),
-  utp('μTP', 2);
+  tcpAndUtp(0),
+  tcp(1),
+  utp(2);
 
-  const ConnectionPeerProtocol(this.label, this.apiValue);
-  final String label;
+  const ConnectionPeerProtocol(this.apiValue);
   final int apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        ConnectionPeerProtocol.tcpAndUtp => l10n.peerProtocolTcpAndUtp,
+        ConnectionPeerProtocol.tcp => 'TCP',
+        ConnectionPeerProtocol.utp => 'μTP',
+      };
 
   static ConnectionPeerProtocol fromApi(int? value) {
     for (final item in values) {
@@ -177,14 +183,20 @@ enum ConnectionPeerProtocol {
 
 /// 5.x `proxy_type` 字符串。
 enum ConnectionProxyType {
-  none('(无)', 'None'),
-  socks4('SOCKS4', 'SOCKS4'),
-  socks5('SOCKS5', 'SOCKS5'),
-  http('HTTP', 'HTTP');
+  none('None'),
+  socks4('SOCKS4'),
+  socks5('SOCKS5'),
+  http('HTTP');
 
-  const ConnectionProxyType(this.label, this.apiValue);
-  final String label;
+  const ConnectionProxyType(this.apiValue);
   final String apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        ConnectionProxyType.none => l10n.proxyTypeNone,
+        ConnectionProxyType.socks4 => 'SOCKS4',
+        ConnectionProxyType.socks5 => 'SOCKS5',
+        ConnectionProxyType.http => 'HTTP',
+      };
 
   static ConnectionProxyType fromApi(String? value) {
     final raw = value?.trim();

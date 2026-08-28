@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:qbpanel/api/entity/response/torrent_webseed_response.dart';
 import 'package:qbpanel/detail/webseeds/edit_webseed_dialog.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 
@@ -54,7 +55,7 @@ abstract final class WebSeedActionDialog {
               if (!context.mounted) return;
               ScaffoldMessenger.of(
                 context,
-              ).showSnackBar(const SnackBar(content: Text('已复制 HTTP 源 URL')));
+              ).showSnackBar(SnackBar(content: Text(context.l10n.copiedHttpSeed)));
             },
           ),
         );
@@ -69,11 +70,12 @@ Future<void> _removeWebSeed(
   TorrentWebSeedResponse webSeed,
   TorrentWebSeedsViewModel viewModel,
 ) async {
+  final l10n = context.l10n;
   final confirmed = await ConfirmDialog.show(
     context,
-    title: '删除 HTTP 源',
-    message: '确定删除 ${webSeed.url}？',
-    confirmText: '删除',
+    title: l10n.deleteHttpSeed,
+    message: l10n.confirmDeleteHttpSeed(webSeed.url),
+    confirmText: l10n.actionDelete,
     destructive: true,
   );
   if (confirmed != true || !context.mounted) return;
@@ -82,7 +84,7 @@ Future<void> _removeWebSeed(
   if (error == null) return;
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(SnackBar(content: Text('删除失败：$error')));
+  ).showSnackBar(SnackBar(content: Text(l10n.deleteFailed(error))));
 }
 
 class _WebSeedActionContent extends StatelessWidget {
@@ -115,18 +117,18 @@ class _WebSeedActionContent extends StatelessWidget {
         ),
         _ActionTile(
           icon: Icons.edit_outlined,
-          label: '编辑 HTTP 源 URL',
+          label: context.l10n.editHttpSeed,
           onTap: onEdit,
         ),
         _ActionTile(
           icon: Icons.delete_outline,
-          label: '删除 HTTP 源',
+          label: context.l10n.deleteHttpSeed,
           foreground: scheme.error,
           onTap: onRemove,
         ),
         _ActionTile(
           icon: Icons.copy_outlined,
-          label: '复制 HTTP 源 URL',
+          label: context.l10n.copyHttpSeed,
           onTap: onCopy,
         ),
       ],

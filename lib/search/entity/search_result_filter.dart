@@ -1,3 +1,5 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
+
 /// 客户端结果过滤（对齐 qB WebUI seeds / size 过滤器）。
 class SearchResultFilter {
   const SearchResultFilter({
@@ -67,11 +69,13 @@ enum SearchSizeUnit {
 
 /// 搜索插件选择（对应 `plugins` 参数）。
 enum SearchPluginMode {
-  enabled('已启用'),
-  all('全部'),
-  single('指定插件');
+  enabled,
+  all,
+  single;
 
-  const SearchPluginMode(this.label);
-
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+        SearchPluginMode.enabled => l10n.searchPluginEnabled,
+        SearchPluginMode.all => l10n.searchPluginAll,
+        SearchPluginMode.single => l10n.searchPluginSingle,
+      };
 }

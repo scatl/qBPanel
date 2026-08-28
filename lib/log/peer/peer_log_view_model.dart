@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/log/model/log_peer_entry.dart';
 import 'package:qbpanel/log/peer/peer_log_ui_state.dart';
 import 'package:qbpanel/log/util/log_grouping.dart';
@@ -101,7 +102,9 @@ class PeerLogViewModel extends Notifier<PeerLogUiState> {
       state = state.copyWith(refreshing: false);
       if (_entriesById.isEmpty) {
         state = state.copyWith(
-          emptyState: EmptyState.error(error ?? '加载失败'),
+          emptyState: EmptyState.error(
+            error ?? ref.read(appLocalizationsProvider).loadFailed,
+          ),
         );
       }
       return;
@@ -130,7 +133,12 @@ class PeerLogViewModel extends Notifier<PeerLogUiState> {
           .toList();
     }
 
-    final sections = groupLogEntriesByDay(entries, (e) => e.timestamp);
+    final l10n = ref.read(appLocalizationsProvider);
+    final sections = groupLogEntriesByDay(
+      entries,
+      (e) => e.timestamp,
+      l10n,
+    );
     final hasCache = _entriesById.isNotEmpty;
 
     if (!hasCache) {
@@ -138,8 +146,8 @@ class PeerLogViewModel extends Notifier<PeerLogUiState> {
         sections: sections,
         emptyState: _initialLoadDone
             ? EmptyState.empty(
-                title: '暂无封禁记录',
-                subtitle: '尚未有 Peer 被屏蔽或封禁',
+                title: l10n.noBanRecords,
+                subtitle: l10n.noBanRecordsHint,
                 icon: Icons.shield_outlined,
               )
             : state.emptyState,
@@ -152,8 +160,8 @@ class PeerLogViewModel extends Notifier<PeerLogUiState> {
       state = state.copyWith(
         sections: sections,
         emptyState: EmptyState.empty(
-          title: '无匹配记录',
-          subtitle: '试试调整搜索关键词',
+          title: l10n.noMatchingRecords,
+          subtitle: l10n.adjustSearchHint,
           icon: Icons.search_off_outlined,
         ),
         refreshing: false,

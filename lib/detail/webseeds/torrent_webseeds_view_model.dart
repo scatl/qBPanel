@@ -5,6 +5,8 @@ import 'package:qbpanel/api/entity/response/torrent_webseed_response.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_ui_state.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final torrentWebSeedsProvider = NotifierProvider.autoDispose
@@ -18,6 +20,8 @@ class TorrentWebSeedsViewModel extends Notifier<TorrentWebSeedsUiState> {
   final String hash;
 
   late PollLoop _poll;
+
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
 
   @override
   TorrentWebSeedsUiState build() {
@@ -34,13 +38,13 @@ class TorrentWebSeedsViewModel extends Notifier<TorrentWebSeedsUiState> {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .join('|');
-    if (urls.isEmpty) return '请输入至少一个 HTTP 源';
+    if (urls.isEmpty) return _l10n.enterHttpSeeds;
     return _mutate(
       ApiPath.torrentManagement.addWebSeeds,
       {'hash': hash, 'urls': urls},
       errorOf: (code, message) => switch (code) {
         400 => 'URL 无效',
-        404 => '种子不存在',
+        404 => _l10n.torrentNotFound,
         _ => message,
       },
     );
@@ -51,15 +55,15 @@ class TorrentWebSeedsViewModel extends Notifier<TorrentWebSeedsUiState> {
     required String newUrl,
   }) async {
     final nextUrl = newUrl.trim();
-    if (nextUrl.isEmpty) return '请输入 HTTP 源 URL';
+    if (nextUrl.isEmpty) return _l10n.enterHttpSeedUrl;
     if (nextUrl == origUrl) return null;
     return _mutate(
       ApiPath.torrentManagement.editWebSeed,
       {'hash': hash, 'origUrl': origUrl, 'newUrl': nextUrl},
       errorOf: (code, message) => switch (code) {
         400 => 'URL 无效',
-        404 => '种子不存在',
-        409 => 'HTTP 源不存在',
+        404 => _l10n.torrentNotFound,
+        409 => _l10n.httpSeedNotFound,
         _ => message,
       },
     );
@@ -67,13 +71,13 @@ class TorrentWebSeedsViewModel extends Notifier<TorrentWebSeedsUiState> {
 
   Future<String?> removeWebSeed(String url) {
     final trimmed = url.trim();
-    if (trimmed.isEmpty) return Future.value('无效的 HTTP 源');
+    if (trimmed.isEmpty) return Future.value(_l10n.invalidHttpSeed);
     return _mutate(
       ApiPath.torrentManagement.removeWebSeeds,
       {'hash': hash, 'urls': trimmed},
       errorOf: (code, message) => switch (code) {
         400 => 'URL 无效',
-        404 => '种子不存在',
+        404 => _l10n.torrentNotFound,
         _ => message,
       },
     );
@@ -102,7 +106,7 @@ class TorrentWebSeedsViewModel extends Notifier<TorrentWebSeedsUiState> {
 
   Future<void> _onPoll(PollTicket ticket) async {
     if (hash.isEmpty) {
-      state = state.copyWith(emptyState: EmptyState.error('无效的种子'));
+      state = state.copyWith(emptyState: EmptyState.error(_l10n.invalidTorrent));
       ticket.stopPolling();
       return;
     }
@@ -122,14 +126,14 @@ class TorrentWebSeedsViewModel extends Notifier<TorrentWebSeedsUiState> {
         })
         .onFail((e) {
           if (e.isCancel) return;
-          error = e.statusCode == 404 ? '种子不存在' : e.message;
+          error = e.statusCode == 404 ? _l10n.torrentNotFound : e.message;
         });
 
     if (!ticket.isActive) return;
 
     if (webSeeds == null) {
       if (state.webSeeds.isEmpty) {
-        state = state.copyWith(emptyState: EmptyState.error(error ?? '加载失败'));
+        state = state.copyWith(emptyState: EmptyState.error(error ?? _l10n.loadFailed));
       }
       return;
     }

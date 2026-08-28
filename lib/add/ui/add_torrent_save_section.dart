@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/add/add_torrent_view_model.dart';
 import 'package:qbpanel/add/ui/add_torrent_card.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/check_row.dart';
 
 class AddTorrentSaveSection extends StatelessWidget {
@@ -20,30 +21,31 @@ class AddTorrentSaveSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final autoTmm = ui.isAutoTmm;
     final incompleteEnabled = !autoTmm && ui.useIncompletePath;
 
     return AddTorrentCard(
-      title: '保存在',
+      title: l10n.saveTo,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('种子管理模式', style: textTheme.bodyMedium),
+          Text(l10n.torrentManagementMode, style: textTheme.bodyMedium),
           const SizedBox(height: 8),
           SegmentedButton<TorrentManagementMode>(
             showSelectedIcon: false,
             segments: [
               for (final mode in TorrentManagementMode.values)
-                ButtonSegment(value: mode, label: Text(mode.label)),
+                ButtonSegment(value: mode, label: Text(mode.label(context.l10n))),
             ],
             selected: {ui.managementMode},
             onSelectionChanged: (value) =>
                 viewModel.setManagementMode(value.first),
           ),
           const SizedBox(height: 16),
-          Text('保存文件到', style: textTheme.bodyMedium),
+          Text(l10n.saveFilesTo, style: textTheme.bodyMedium),
           const SizedBox(height: 8),
           TextField(
             controller: savePathController,
@@ -52,11 +54,11 @@ class AddTorrentSaveSection extends StatelessWidget {
             maxLines: 3,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-              hintText: autoTmm ? '由自动管理决定' : '保存路径',
+              hintText: autoTmm ? l10n.autoTmmDecides : l10n.savePath,
             ),
           ),
           CheckRow(
-            label: '对不完整的种子使用另一个路径',
+            label: l10n.incompleteTorrentPath,
             value: ui.useIncompletePath,
             enabled: !autoTmm,
             onChanged: viewModel.setUseIncompletePath,
@@ -68,7 +70,9 @@ class AddTorrentSaveSection extends StatelessWidget {
             maxLines: 3,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-              hintText: incompleteEnabled ? '不完整种子保存路径' : '未启用',
+              hintText: incompleteEnabled
+                  ? l10n.incompleteSavePath
+                  : l10n.notEnabled,
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_peer_response.dart';
 import 'package:qbpanel/detail/peers/widget/peer_country_flag.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -12,6 +13,7 @@ class TorrentPeerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final progress = (peer.progress ?? 0).clamp(0.0, 1.0);
@@ -91,7 +93,7 @@ class TorrentPeerItem extends StatelessWidget {
                     Expanded(
                       child: _SpeedStat(
                         icon: Icons.south_rounded,
-                        label: '下载',
+                        label: l10n.download,
                         value: formatSpeed(peer.dlSpeed),
                         total: formatBytes(peer.downloaded),
                         color: scheme.primary,
@@ -100,7 +102,7 @@ class TorrentPeerItem extends StatelessWidget {
                     Expanded(
                       child: _SpeedStat(
                         icon: Icons.north_rounded,
-                        label: '上传',
+                        label: l10n.upload,
                         value: formatSpeed(peer.upSpeed),
                         total: formatBytes(peer.uploaded),
                         color: scheme.tertiary,
@@ -114,14 +116,14 @@ class TorrentPeerItem extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     _InfoChip(
-                      label: '关联度',
+                      label: l10n.relevance,
                       value: formatPeerRatio(peer.relevance),
                     ),
                     _InfoChip(
-                      label: '贡献',
+                      label: l10n.contribution,
                       value: formatPeerRatio(peer.contribution),
                     ),
-                    _InfoChip(label: '标志', value: _text(peer.flags)),
+                    _InfoChip(label: l10n.flags, value: _text(peer.flags)),
                     _InfoChip(
                       label: 'Peer ID',
                       value: _text(peer.peerIdClient),
@@ -292,7 +294,9 @@ class _PeerFiles extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    names.length == 1 ? '正在下载' : '正在下载 ${names.length} 个文件',
+                    names.length == 1
+                        ? context.l10n.downloadingFile
+                        : context.l10n.downloadingFiles(names.length),
                     style: textTheme.labelSmall?.copyWith(
                       color: scheme.primary,
                     ),
