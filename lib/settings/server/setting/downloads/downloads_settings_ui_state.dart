@@ -1,5 +1,6 @@
-import 'package:qbpanel/widget/empty/empty_state.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
+import 'package:qbpanel/widget/empty/empty_state.dart';
 
 /// WebUI「下载」页状态。
 class DownloadsSettingsUiState {
@@ -190,29 +191,24 @@ class DownloadsSettingsUiState {
 
 /// TMM 变更后动作（分类变更 / 路径变更文案与 WebUI 一致）。
 enum DownloadsTmmAction {
-  relocate(
-    '重新定位 Torrent',
-    '重新定位受影响的 Torrent',
-    true,
-  ),
-  switchToManual(
-    '切换 Torrent 到手动模式',
-    '切换受影响的 torrent 至手动模式',
-    false,
-  );
+  relocate(true),
+  switchToManual(false);
 
-  const DownloadsTmmAction(
-    this.torrentLabel,
-    this.affectedLabel,
-    this.apiValue,
-  );
+  const DownloadsTmmAction(this.apiValue);
+
+  final bool apiValue;
 
   /// 「当 Torrent 分类修改时」选项文案。
-  final String torrentLabel;
+  String torrentLabel(AppLocalizations l10n) => switch (this) {
+        DownloadsTmmAction.relocate => l10n.tmmRelocateTorrent,
+        DownloadsTmmAction.switchToManual => l10n.tmmSwitchTorrentManual,
+      };
 
   /// 「当默认/分类保存路径修改时」选项文案。
-  final String affectedLabel;
-  final bool apiValue;
+  String affectedLabel(AppLocalizations l10n) => switch (this) {
+        DownloadsTmmAction.relocate => l10n.tmmRelocateAffected,
+        DownloadsTmmAction.switchToManual => l10n.tmmSwitchAffectedManual,
+      };
 
   static DownloadsTmmAction fromApi(bool? value) {
     return (value ?? false)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class TagEditDialog extends ConsumerStatefulWidget {
@@ -44,8 +45,8 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
   }
 
   String? _validateName(String name) {
-    if (name.isEmpty) return '请输入标签名称';
-    if (name.contains(',')) return '标签名称不能包含逗号';
+    if (name.isEmpty) return context.l10n.enterTagName;
+    if (name.contains(',')) return context.l10n.tagNameNoComma;
     return null;
   }
 
@@ -75,6 +76,7 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.8;
@@ -89,7 +91,7 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '添加标签',
+            l10n.addTag,
             style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
           ),
           const SizedBox(height: 16),
@@ -105,7 +107,7 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
               }
             },
             decoration: InputDecoration(
-              labelText: '标签名称',
+              labelText: l10n.tagName,
               errorText: _nameError,
             ),
           ),
@@ -123,7 +125,7 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
               TextButton(
                 onPressed:
                     _saving ? null : () => Navigator.of(context).pop(false),
-                child: const Text('取消'),
+                child: Text(l10n.actionCancel),
               ),
               const SizedBox(width: 8),
               FilledButton(
@@ -137,7 +139,7 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
                           color: scheme.onPrimary,
                         ),
                       )
-                    : const Text('确定'),
+                    : Text(l10n.actionOk),
               ),
             ],
           ),

@@ -4,6 +4,7 @@ import 'package:qbpanel/detail/peers/dialog/peer_action_dialog.dart';
 import 'package:qbpanel/detail/peers/dialog/peer_flags_help_dialog.dart';
 import 'package:qbpanel/detail/peers/torrent_peers_view_model.dart';
 import 'package:qbpanel/detail/peers/widget/torrent_peer_item.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -31,8 +32,8 @@ class TorrentPeersTab extends ConsumerWidget {
           child: EmptyStateHost(
             state: ui.emptyState,
             onRetry: vm.retry,
-            emptyTitle: '暂无用户',
-            emptySubtitle: '当前没有连上的 Peer',
+            emptyTitle: context.l10n.noPeers,
+            emptySubtitle: context.l10n.noPeersHint,
             emptyIcon: Icons.people_outline,
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + bottomSafe),
@@ -77,11 +78,13 @@ class _PeersHeader extends StatelessWidget {
           TextButton.icon(
             onPressed: onTogglePoll,
             icon: Icon(pollPaused ? Icons.play_arrow : Icons.pause, size: 20),
-            label: Text(pollPaused ? '开始刷新' : '暂停刷新'),
+            label: Text(
+              pollPaused ? context.l10n.startRefresh : context.l10n.pauseRefresh,
+            ),
           ),
           const Spacer(),
           IconButton(
-            tooltip: '标志说明',
+            tooltip: context.l10n.flagsHelp,
             icon: const Icon(Icons.help_outline),
             onPressed: () => PeerFlagsHelpDialog.show(context),
           ),

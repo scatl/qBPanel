@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/api/entity/response/torrent_state.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 /// 长按菜单里随种子状态变化的显隐。
 ///
@@ -82,7 +83,10 @@ class TorrentCopyItem {
   final IconData icon;
 }
 
-List<TorrentCopyItem> torrentCopyItems(TorrentInfoResponse torrent) {
+List<TorrentCopyItem> torrentCopyItems(
+  TorrentInfoResponse torrent,
+  AppLocalizations l10n,
+) {
   final items = <TorrentCopyItem>[];
   void add(String label, String? value, IconData icon) {
     final text = value?.trim() ?? '';
@@ -90,12 +94,12 @@ List<TorrentCopyItem> torrentCopyItems(TorrentInfoResponse torrent) {
     items.add(TorrentCopyItem(label: label, value: text, icon: icon));
   }
 
-  add('名称', torrent.name, Icons.drive_file_rename_outline);
-  add('磁力链接', torrent.magnetUri, Icons.link);
+  add(l10n.sortName, torrent.name, Icons.drive_file_rename_outline);
+  add(l10n.magnetLink, torrent.magnetUri, Icons.link);
   add('Hash v1', torrent.infohashV1, Icons.tag);
   add('Hash v2', torrent.infohashV2, Icons.tag);
   add('Torrent ID', torrent.hash, Icons.fingerprint);
-  add('注释', torrent.comment, Icons.notes_outlined);
-  add('内容路径', torrent.contentPath, Icons.folder_outlined);
+  add(l10n.comment, torrent.comment, Icons.notes_outlined);
+  add(l10n.contentPath, torrent.contentPath, Icons.folder_outlined);
   return items;
 }

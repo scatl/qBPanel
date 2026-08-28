@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/log/main/main_log_tab.dart';
 import 'package:qbpanel/log/main/main_log_view_model.dart';
 import 'package:qbpanel/log/peer/peer_log_tab.dart';
@@ -126,7 +127,7 @@ class _LogPageState extends ConsumerState<LogPage>
                     child: IgnorePointer(
                       ignoring: t > 0.01,
                       child: IconButton(
-                        tooltip: '搜索',
+                        tooltip: context.l10n.actionSearch,
                         icon: const Icon(Icons.search),
                         onPressed: _openSearch,
                       ),
@@ -138,9 +139,9 @@ class _LogPageState extends ConsumerState<LogPage>
             ],
             bottom: TabBar(
               controller: _tabController,
-              tabs: const [
-                Tab(text: '普通'),
-                Tab(text: '封禁 IP'),
+              tabs: [
+                Tab(text: context.l10n.logLevelNormal),
+                Tab(text: context.l10n.logTabBannedIp),
               ],
             ),
           ),
@@ -201,7 +202,7 @@ class _LogAppBarSearchTitle extends StatelessWidget {
               Opacity(
                 opacity: titleOpacity,
                 child: Text(
-                  '日志',
+                  context.l10n.homeLogs,
                   style: textTheme.titleLarge,
                 ),
               ),
@@ -227,7 +228,7 @@ class _LogAppBarSearchTitle extends StatelessWidget {
                               horizontal: 16,
                               vertical: 10,
                             ),
-                            hintText: '搜索日志…',
+                            hintText: context.l10n.searchLogsHint,
                             hintStyle: textTheme.bodyMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),
@@ -235,7 +236,7 @@ class _LogAppBarSearchTitle extends StatelessWidget {
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
                             suffixIcon: IconButton(
-                              tooltip: '关闭搜索',
+                              tooltip: context.l10n.closeSearch,
                               icon: Icon(
                                 Icons.close,
                                 size: 20,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -24,6 +25,7 @@ class EmptyStateView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     switch (state.kind) {
       case EmptyStateKind.loading:
         return const Center(child: CircularProgressIndicator());
@@ -33,8 +35,8 @@ class EmptyStateView extends StatelessWidget {
           padding: padding,
           icon: Icons.error_outline,
           useErrorColor: tone == EmptyStateTone.compact,
-          title: state.errorMessage ?? '加载失败',
-          actionText: state.errorActionText,
+          title: state.errorMessage ?? l10n.loadFailed,
+          actionText: state.errorActionText ?? l10n.actionRetry,
           onAction: onRetry,
         );
       case EmptyStateKind.empty:
@@ -43,7 +45,7 @@ class EmptyStateView extends StatelessWidget {
           padding: padding,
           icon: state.emptyIcon ?? Icons.inbox_outlined,
           useErrorColor: false,
-          title: state.emptyTitle,
+          title: state.emptyTitle ?? l10n.emptyNoData,
           subtitle: state.emptySubtitle,
           actionText: state.emptyActionText,
           onAction: onEmptyAction,
@@ -114,11 +116,11 @@ class EmptyStateHost extends StatelessWidget {
       loading: loading,
       isEmpty: isEmpty,
       error: error,
-      emptyTitle: emptyTitle ?? '暂无数据',
+      emptyTitle: emptyTitle,
       emptySubtitle: emptySubtitle,
       emptyIcon: emptyIcon,
       emptyActionText: emptyActionText,
-      errorActionText: errorActionText ?? '重试',
+      errorActionText: errorActionText,
     );
   }
 

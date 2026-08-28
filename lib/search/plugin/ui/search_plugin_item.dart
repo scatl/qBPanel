@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/search_plugin_response.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
 class SearchPluginItem extends StatelessWidget {
@@ -18,6 +19,7 @@ class SearchPluginItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final title = plugin.fullName.isNotEmpty ? plugin.fullName : plugin.name;
@@ -50,7 +52,9 @@ class SearchPluginItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '版本 ${plugin.version.isEmpty ? '—' : plugin.version}',
+                      l10n.pluginVersion(
+                        plugin.version.isEmpty ? '—' : plugin.version,
+                      ),
                       style: textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -74,7 +78,7 @@ class SearchPluginItem extends StatelessWidget {
                 onChanged: busy ? null : onEnabledChanged,
               ),
               IconButton(
-                tooltip: '删除插件',
+                tooltip: l10n.deletePlugin,
                 onPressed: busy ? null : onDelete,
                 icon: Icon(
                   Icons.delete_outline,

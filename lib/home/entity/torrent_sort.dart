@@ -1,35 +1,55 @@
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/api/entity/response/torrent_state.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 /// qB 用 `8640000` 秒表示未知/无限 ETA。
 const _unknownEta = 8640000;
 
 /// 首页列表排序键。不含分类。
 enum TorrentSortKey {
-  state('状态'),
-  name('名称'),
-  progress('进度'),
-  size('大小'),
-  downloadSpeed('下载速度'),
-  uploadSpeed('上传速度'),
-  downloaded('已下载'),
-  uploaded('已上传'),
-  eta('剩余时间'),
-  amountLeft('剩余大小'),
-  ratio('分享率'),
-  addedOn('添加时间'),
-  completionOn('完成时间'),
-  lastActivity('最后活动'),
-  numSeeds('种子数'),
-  numLeechs('下载用户'),
-  availability('可用性'),
-  priority('优先级'),
-  timeActive('活动时间'),
-  seedingTime('做种时间');
+  state,
+  name,
+  progress,
+  size,
+  downloadSpeed,
+  uploadSpeed,
+  downloaded,
+  uploaded,
+  eta,
+  amountLeft,
+  ratio,
+  addedOn,
+  completionOn,
+  lastActivity,
+  numSeeds,
+  numLeechs,
+  availability,
+  priority,
+  timeActive,
+  seedingTime;
 
-  const TorrentSortKey(this.displayText);
-
-  final String displayText;
+  String label(AppLocalizations l10n) => switch (this) {
+        TorrentSortKey.state => l10n.sortState,
+        TorrentSortKey.name => l10n.sortName,
+        TorrentSortKey.progress => l10n.sortProgress,
+        TorrentSortKey.size => l10n.sortSize,
+        TorrentSortKey.downloadSpeed => l10n.sortDownloadSpeed,
+        TorrentSortKey.uploadSpeed => l10n.sortUploadSpeed,
+        TorrentSortKey.downloaded => l10n.sortDownloaded,
+        TorrentSortKey.uploaded => l10n.sortUploaded,
+        TorrentSortKey.eta => l10n.sortEta,
+        TorrentSortKey.amountLeft => l10n.sortAmountLeft,
+        TorrentSortKey.ratio => l10n.sortRatio,
+        TorrentSortKey.addedOn => l10n.sortAddedOn,
+        TorrentSortKey.completionOn => l10n.sortCompletionOn,
+        TorrentSortKey.lastActivity => l10n.sortLastActivity,
+        TorrentSortKey.numSeeds => l10n.sortNumSeeds,
+        TorrentSortKey.numLeechs => l10n.sortNumLeechs,
+        TorrentSortKey.availability => l10n.sortAvailability,
+        TorrentSortKey.priority => l10n.sortPriority,
+        TorrentSortKey.timeActive => l10n.sortTimeActive,
+        TorrentSortKey.seedingTime => l10n.sortSeedingTime,
+      };
 
   int compare(
     TorrentInfoResponse a,

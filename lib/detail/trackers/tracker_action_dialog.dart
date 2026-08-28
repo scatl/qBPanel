@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:qbpanel/api/entity/response/torrent_tracker_response.dart';
 import 'package:qbpanel/detail/trackers/edit_tracker_dialog.dart';
 import 'package:qbpanel/detail/trackers/torrent_trackers_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 
@@ -60,7 +61,7 @@ abstract final class TrackerActionDialog {
               if (!context.mounted) return;
               ScaffoldMessenger.of(
                 context,
-              ).showSnackBar(const SnackBar(content: Text('已复制 Tracker URL')));
+              ).showSnackBar(SnackBar(content: Text(context.l10n.copiedTracker)));
             },
             onReannounce: () {
               Navigator.of(ctx).pop();
@@ -83,11 +84,12 @@ Future<void> _removeTracker(
   TorrentTrackerResponse tracker,
   TorrentTrackersViewModel viewModel,
 ) async {
+  final l10n = context.l10n;
   final confirmed = await ConfirmDialog.show(
     context,
-    title: '删除 Tracker',
-    message: '确定删除 ${tracker.displayName}？',
-    confirmText: '删除',
+    title: l10n.deleteTracker,
+    message: l10n.confirmDeleteTracker(tracker.displayName),
+    confirmText: l10n.actionDelete,
     destructive: true,
   );
   if (confirmed != true || !context.mounted) return;
@@ -96,7 +98,7 @@ Future<void> _removeTracker(
   if (error == null) return;
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(SnackBar(content: Text('删除失败：$error')));
+  ).showSnackBar(SnackBar(content: Text(l10n.deleteFailed(error))));
 }
 
 Future<void> _reannounce(
@@ -109,14 +111,14 @@ Future<void> _reannounce(
   if (error == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(url == null ? '已重新宣告全部 Tracker' : '已重新宣告该 Tracker'),
+        content: Text(url == null ? context.l10n.reannouncedAll : context.l10n.reannouncedOne),
       ),
     );
     return;
   }
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(SnackBar(content: Text('重新宣告失败：$error')));
+  ).showSnackBar(SnackBar(content: Text(context.l10n.reannounceFailedOne(error))));
 }
 
 class _TrackerActionContent extends StatelessWidget {
@@ -158,18 +160,18 @@ class _TrackerActionContent extends StatelessWidget {
         if (editable) ...[
           _ActionTile(
             icon: Icons.edit_outlined,
-            label: '编辑 Tracker URL',
+            label: context.l10n.editTracker,
             onTap: onEdit,
           ),
           _ActionTile(
             icon: Icons.delete_outline,
-            label: '删除 Tracker',
+            label: context.l10n.deleteTracker,
             foreground: scheme.error,
             onTap: onRemove,
           ),
           _ActionTile(
             icon: Icons.copy_outlined,
-            label: '复制 Tracker URL',
+            label: context.l10n.copyTracker,
             onTap: onCopy,
           ),
         ],
@@ -177,12 +179,12 @@ class _TrackerActionContent extends StatelessWidget {
           if (editable)
             _ActionTile(
               icon: Icons.campaign_outlined,
-              label: '强制重新宣告选中的 Tracker',
+              label: context.l10n.reannounceSelected,
               onTap: onReannounce,
             ),
           _ActionTile(
             icon: Icons.campaign,
-            label: '强制重新宣告全部 Tracker',
+            label: context.l10n.reannounceAll,
             onTap: onReannounceAll,
           ),
         ],

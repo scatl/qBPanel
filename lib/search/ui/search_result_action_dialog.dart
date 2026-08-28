@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbpanel/api/entity/response/search_result_response.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -43,7 +44,7 @@ abstract final class SearchResultActionDialog {
               if (!context.mounted) return;
               if (!ok) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('无法打开描述页')),
+                  SnackBar(content: Text(context.l10n.cannotOpenDescription)),
                 );
               }
             },
@@ -51,19 +52,19 @@ abstract final class SearchResultActionDialog {
               dialogContext: ctx,
               pageContext: context,
               text: result.fileName,
-              message: '已复制名称',
+              message: context.l10n.copiedName,
             ),
             onCopyDownloadLink: () => _copyAndClose(
               dialogContext: ctx,
               pageContext: context,
               text: result.fileUrl,
-              message: '已复制下载链接',
+              message: context.l10n.copiedDownloadLink,
             ),
             onCopyDescriptionUrl: () => _copyAndClose(
               dialogContext: ctx,
               pageContext: context,
               text: result.descrLink!,
-              message: '已复制描述页 URL',
+              message: context.l10n.copiedDescriptionUrl,
             ),
           ),
         );
@@ -118,6 +119,7 @@ class _SearchResultActionContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -136,30 +138,30 @@ class _SearchResultActionContent extends StatelessWidget {
         ),
         _ActionTile(
           icon: Icons.download_outlined,
-          label: '下载',
+          label: l10n.download,
           enabled: _hasDownloadLink,
           onTap: onDownload,
         ),
         _ActionTile(
           icon: Icons.open_in_new_outlined,
-          label: '打开描述页',
+          label: l10n.openDescription,
           enabled: _hasDescriptionLink,
           onTap: onOpenDescription,
         ),
         _ActionTile(
           icon: Icons.copy_outlined,
-          label: '复制名称',
+          label: l10n.copyName,
           onTap: onCopyName,
         ),
         _ActionTile(
           icon: Icons.link_outlined,
-          label: '复制下载链接',
+          label: l10n.copyDownloadLink,
           enabled: _hasDownloadLink,
           onTap: onCopyDownloadLink,
         ),
         _ActionTile(
           icon: Icons.description_outlined,
-          label: '复制描述页 URL',
+          label: l10n.copyDescriptionUrl,
           enabled: _hasDescriptionLink,
           onTap: onCopyDescriptionUrl,
         ),

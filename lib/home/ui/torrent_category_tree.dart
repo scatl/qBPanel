@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_category_node.dart';
 import 'package:qbpanel/home/ui/dialog/category_edit_dialog.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 
@@ -79,7 +80,7 @@ class _TorrentCategoryTreeState extends ConsumerState<TorrentCategoryTree> {
       children: [
         if (widget.showAllRow)
           CategoryRow(
-            label: '全部',
+            label: context.l10n.filterAll,
             icon: Icons.apps_outlined,
             showExpandGutter: showExpandGutter,
             count: counts.all,
@@ -87,7 +88,7 @@ class _TorrentCategoryTreeState extends ConsumerState<TorrentCategoryTree> {
             onTap: widget.enabled ? widget.onSelectAll : null,
           ),
         CategoryRow(
-          label: '未分类',
+          label: context.l10n.filterUncategorized,
           icon: Icons.label_off_outlined,
           showExpandGutter: showExpandGutter,
           count: counts.uncategorized,
@@ -131,7 +132,7 @@ class _TorrentCategoryTreeState extends ConsumerState<TorrentCategoryTree> {
               : null,
           actions: [
             FilterIconButton(
-              tooltip: '编辑分类',
+              tooltip: context.l10n.editCategory,
               icon: Icons.edit_note_outlined,
               onPressed: widget.enabled
                   ? () => CategoryEditDialog.show(
@@ -143,7 +144,7 @@ class _TorrentCategoryTreeState extends ConsumerState<TorrentCategoryTree> {
             ),
             const SizedBox(width: 8),
             FilterIconButton(
-              tooltip: '添加子分类',
+              tooltip: context.l10n.addSubcategory,
               icon: Icons.create_new_folder_outlined,
               onPressed: widget.enabled
                   ? () => CategoryEditDialog.show(
@@ -155,7 +156,7 @@ class _TorrentCategoryTreeState extends ConsumerState<TorrentCategoryTree> {
             ),
             const SizedBox(width: 8),
             FilterIconButton(
-              tooltip: '删除分类',
+              tooltip: context.l10n.deleteCategory,
               icon: Icons.delete_outline,
               onPressed: widget.enabled
                   ? () => confirmRemoveCategory(
@@ -202,25 +203,26 @@ Future<void> confirmRemoveCategory(
   WidgetRef ref,
   TorrentCategoryNode node,
 ) async {
+  final l10n = context.l10n;
   final message = node.hasChildren
-      ? '确定删除分类「${node.fullPath}」？其子分类也会一并删除。种子不会被删除。'
-      : '确定删除分类「${node.fullPath}」？种子不会被删除。';
+      ? l10n.confirmDeleteCategoryWithChildren(node.fullPath)
+      : l10n.confirmDeleteCategory(node.fullPath);
   final confirmed = await ConfirmDialog.show(
     context,
-    title: '删除分类',
+    title: l10n.deleteCategory,
     message: message,
-    confirmText: '删除',
+    confirmText: l10n.actionDelete,
   );
   if (confirmed != true || !context.mounted) return;
 
-  LoadingDialog.show(context, message: '删除中…');
+  LoadingDialog.show(context, message: l10n.deleting);
   final error =
       await ref.read(homePageProvider.notifier).removeCategory(node.fullPath);
   if (!context.mounted) return;
   LoadingDialog.dismiss(context);
   if (error == null) return;
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('删除失败：$error')),
+    SnackBar(content: Text(l10n.deleteFailed(error))),
   );
 }
 
@@ -228,30 +230,31 @@ Future<void> confirmRemoveUnusedCategories(
   BuildContext context,
   WidgetRef ref,
 ) async {
+  final l10n = context.l10n;
   final vm = ref.read(homePageProvider.notifier);
   final names = vm.unusedCategoryNames();
   if (names.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('没有未使用的分类')),
+      SnackBar(content: Text(l10n.noUnusedCategories)),
     );
     return;
   }
 
   final confirmed = await ConfirmDialog.show(
     context,
-    title: '删除未使用的分类',
-    message: '确定删除 ${names.length} 个未使用的分类？种子不会被删除。',
-    confirmText: '删除',
+    title: l10n.deleteUnusedCategories,
+    message: l10n.confirmDeleteUnusedCategories(names.length),
+    confirmText: l10n.actionDelete,
   );
   if (confirmed != true || !context.mounted) return;
 
-  LoadingDialog.show(context, message: '删除中…');
+  LoadingDialog.show(context, message: l10n.deleting);
   final error = await vm.removeUnusedCategories();
   if (!context.mounted) return;
   LoadingDialog.dismiss(context);
   if (error == null) return;
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('删除失败：$error')),
+    SnackBar(content: Text(l10n.deleteFailed(error))),
   );
 }
 

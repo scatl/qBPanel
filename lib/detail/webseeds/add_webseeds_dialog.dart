@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class AddWebSeedsDialog extends StatefulWidget {
@@ -61,14 +62,16 @@ class _AddWebSeedsDialogState extends State<AddWebSeedsDialog> {
       });
       return;
     }
+    final l10n = context.l10n;
     Navigator.of(context).pop();
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('已添加 HTTP 源')));
+    ).showSnackBar(SnackBar(content: Text(l10n.addedHttpSeed)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.86;
@@ -83,7 +86,7 @@ class _AddWebSeedsDialogState extends State<AddWebSeedsDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '添加 HTTP 源',
+            l10n.addHttpSeed,
             style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
           ),
           const SizedBox(height: 16),
@@ -98,7 +101,7 @@ class _AddWebSeedsDialogState extends State<AddWebSeedsDialog> {
               if (_error != null) setState(() => _error = null);
             },
             decoration: InputDecoration(
-              labelText: '要添加的 HTTP 源列表（每行一个）',
+              labelText: l10n.httpSeedListHint,
               errorText: _error,
             ),
           ),
@@ -110,7 +113,7 @@ class _AddWebSeedsDialogState extends State<AddWebSeedsDialog> {
                 onPressed: _submitting
                     ? null
                     : () => Navigator.of(context).pop(),
-                child: const Text('取消'),
+                child: Text(l10n.actionCancel),
               ),
               const SizedBox(width: 8),
               FilledButton(
@@ -124,7 +127,7 @@ class _AddWebSeedsDialogState extends State<AddWebSeedsDialog> {
                           color: scheme.onPrimary,
                         ),
                       )
-                    : const Text('添加'),
+                    : Text(l10n.actionAdd),
               ),
             ],
           ),

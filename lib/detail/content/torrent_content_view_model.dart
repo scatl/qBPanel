@@ -7,6 +7,8 @@ import 'package:qbpanel/detail/content/torrent_content_sort.dart';
 import 'package:qbpanel/detail/content/torrent_content_ui_state.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final torrentContentProvider = NotifierProvider.autoDispose
@@ -22,6 +24,8 @@ class TorrentContentViewModel extends Notifier<TorrentContentUiState> {
   late PollLoop _poll;
   bool _priorityBusy = false;
   bool _renameBusy = false;
+
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
 
   @override
   TorrentContentUiState build() {
@@ -74,9 +78,9 @@ class TorrentContentViewModel extends Notifier<TorrentContentUiState> {
         )
         .onFail((e) {
           error = switch (e.statusCode) {
-            400 => '优先级无效',
-            404 => '种子不存在',
-            409 => '元数据未就绪，或文件不存在',
+            400 => _l10n.priorityInvalid,
+            404 => _l10n.torrentNotFound,
+            409 => _l10n.metadataNotReady,
             _ => e.message,
           };
         });
@@ -115,9 +119,9 @@ class TorrentContentViewModel extends Notifier<TorrentContentUiState> {
         )
         .onFail((e) {
           error = switch (e.statusCode) {
-            400 => '请输入新名称',
-            404 => '种子不存在',
-            409 => '名称无效或已被占用',
+            400 => _l10n.enterNewName,
+            404 => _l10n.torrentNotFound,
+            409 => _l10n.nameTaken,
             _ => e.message,
           };
         });
@@ -145,17 +149,17 @@ class TorrentContentViewModel extends Notifier<TorrentContentUiState> {
   }
 
   String? _validateRenameName(String name) {
-    if (name.isEmpty) return '请输入名称';
+    if (name.isEmpty) return _l10n.enterName;
     if (name.contains('/') || name.contains('\\')) {
-      return '名称不能包含路径分隔符';
+      return _l10n.nameNoPathSeparator;
     }
-    if (name == '.' || name == '..') return '名称无效';
+    if (name == '.' || name == '..') return _l10n.nameInvalid;
     return null;
   }
 
   Future<void> _onPoll(PollTicket ticket) async {
     if (hash.isEmpty) {
-      state = state.copyWith(emptyState: EmptyState.error('无效的种子'));
+      state = state.copyWith(emptyState: EmptyState.error(_l10n.invalidTorrent));
       ticket.stopPolling();
       return;
     }
@@ -175,14 +179,14 @@ class TorrentContentViewModel extends Notifier<TorrentContentUiState> {
         })
         .onFail((e) {
           if (e.isCancel) return;
-          error = e.statusCode == 404 ? '种子不存在' : e.message;
+          error = e.statusCode == 404 ? _l10n.torrentNotFound : e.message;
         });
 
     if (!ticket.isActive) return;
 
     if (files == null) {
       if (state.roots.isEmpty) {
-        state = state.copyWith(emptyState: EmptyState.error(error ?? '加载失败'));
+        state = state.copyWith(emptyState: EmptyState.error(error ?? _l10n.loadFailed));
       }
       return;
     }

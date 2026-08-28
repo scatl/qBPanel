@@ -1,5 +1,6 @@
 import 'package:qbpanel/api/entity/response/search_plugin_response.dart';
 import 'package:qbpanel/api/entity/response/search_result_response.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/search/entity/search_result_filter.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
@@ -11,6 +12,20 @@ class SearchCategoryOption {
 
   final String id;
   final String name;
+
+  /// 官方 nova 分类按 id 本地化；插件自定义分类沿用接口返回的名称。
+  String label(AppLocalizations l10n) => switch (id.toLowerCase()) {
+        'all' => l10n.allCategories,
+        'anime' => l10n.searchCategoryAnime,
+        'books' => l10n.searchCategoryBooks,
+        'games' => l10n.searchCategoryGames,
+        'movies' => l10n.searchCategoryMovies,
+        'music' => l10n.searchCategoryMusic,
+        'pictures' => l10n.searchCategoryPictures,
+        'software' => l10n.searchCategorySoftware,
+        'tv' => l10n.searchCategoryTv,
+        _ => name.isNotEmpty ? name : id,
+      };
 }
 
 class SearchUiState {
@@ -22,7 +37,7 @@ class SearchUiState {
     this.searchPattern = '',
     this.selectedCategoryId = 'all',
     this.categoryOptions = const [
-      SearchCategoryOption(id: 'all', name: '全部分类'),
+      SearchCategoryOption(id: 'all', name: ''),
     ],
     this.pluginMode = SearchPluginMode.enabled,
     this.selectedPluginName,
@@ -34,11 +49,7 @@ class SearchUiState {
     this.resultFilterQuery = '',
     this.resultFilter = const SearchResultFilter(),
     this.startingSearch = false,
-    this.emptyState = const EmptyState(
-      isEmpty: true,
-      emptyTitle: '搜索种子',
-      emptySubtitle: '输入关键词并选择分类 / 插件后开始搜索',
-    ),
+    this.emptyState = const EmptyState(isEmpty: true),
   });
 
   final bool pluginsLoading;

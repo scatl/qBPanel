@@ -1,5 +1,6 @@
 abstract final class SpKey {
   static const theme = _Theme();
+  static const locale = _Locale();
 }
 
 class _Theme {
@@ -7,5 +8,10 @@ class _Theme {
   final keyMode = 'theme_mode';
   final keyDynamic = 'theme_use_dynamic_color';
   final keySeedColor = 'theme_seed_color';
+}
+
+class _Locale {
+  const _Locale();
+  final keyMode = 'app_locale_mode';
 }
 

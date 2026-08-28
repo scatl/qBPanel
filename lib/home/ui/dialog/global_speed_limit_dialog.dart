@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/check_row.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
@@ -83,7 +84,7 @@ class _GlobalSpeedLimitDialogState extends State<GlobalSpeedLimitDialog> {
     final dl = _dlLimit.toBytes();
     final up = _upLimit.toBytes();
     if (dl == _SpeedLimitDraft.invalid || up == _SpeedLimitDraft.invalid) {
-      setState(() => _error = '请输入有效的速度');
+      setState(() => _error = context.l10n.enterValidSpeed);
       return;
     }
     setState(() {
@@ -107,9 +108,16 @@ class _GlobalSpeedLimitDialogState extends State<GlobalSpeedLimitDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final title = widget.useAltSpeedLimits ? '备用速度限制' : '全局速度限制';
+    final title = widget.useAltSpeedLimits
+        ? l10n.altSpeedLimit
+        : l10n.globalSpeedLimit;
+    final labelWidth = _speedLimitLabelWidth(context, [
+      l10n.download,
+      l10n.upload,
+    ]);
 
     return PopScope(
       canPop: !_submitting,
@@ -126,7 +134,7 @@ class _GlobalSpeedLimitDialogState extends State<GlobalSpeedLimitDialog> {
             if (widget.useAltSpeedLimits) ...[
               const SizedBox(height: 4),
               Text(
-                '当前已开启备用限速，修改将作用于备用值',
+                l10n.altSpeedLimitHint,
                 style: textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
@@ -134,14 +142,16 @@ class _GlobalSpeedLimitDialogState extends State<GlobalSpeedLimitDialog> {
             ],
             const SizedBox(height: 12),
             _SpeedLimitRow(
-              label: '下载',
+              label: l10n.download,
+              labelWidth: labelWidth,
               draft: _dlLimit,
               enabled: !_submitting,
               onChanged: () => setState(() => _error = null),
             ),
             const SizedBox(height: 4),
             _SpeedLimitRow(
-              label: '上传',
+              label: l10n.upload,
+              labelWidth: labelWidth,
               draft: _upLimit,
               enabled: !_submitting,
               onChanged: () => setState(() => _error = null),
@@ -161,7 +171,7 @@ class _GlobalSpeedLimitDialogState extends State<GlobalSpeedLimitDialog> {
                     onPressed: _submitting
                         ? null
                         : () => Navigator.of(context).pop(),
-                    child: const Text('取消'),
+                    child: Text(l10n.actionCancel),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -177,7 +187,7 @@ class _GlobalSpeedLimitDialogState extends State<GlobalSpeedLimitDialog> {
                               color: scheme.onPrimary,
                             ),
                           )
-                        : const Text('确定'),
+                        : Text(l10n.actionOk),
                   ),
                 ),
               ],
@@ -190,6 +200,21 @@ class _GlobalSpeedLimitDialogState extends State<GlobalSpeedLimitDialog> {
 }
 
 enum _SpeedUnit { kb, mb }
+
+double _speedLimitLabelWidth(BuildContext context, List<String> labels) {
+  final style = Theme.of(context).textTheme.bodyLarge;
+  final direction = Directionality.of(context);
+  var maxWidth = 0.0;
+  for (final label in labels) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: style),
+      maxLines: 1,
+      textDirection: direction,
+    )..layout();
+    if (painter.width > maxWidth) maxWidth = painter.width;
+  }
+  return maxWidth;
+}
 
 class _SpeedLimitDraft {
   _SpeedLimitDraft({
@@ -265,12 +290,14 @@ String _formatSpeedNumber(double value) {
 class _SpeedLimitRow extends StatelessWidget {
   const _SpeedLimitRow({
     required this.label,
+    required this.labelWidth,
     required this.draft,
     required this.enabled,
     required this.onChanged,
   });
 
   final String label;
+  final double labelWidth;
   final _SpeedLimitDraft draft;
   final bool enabled;
   final VoidCallback onChanged;
@@ -283,9 +310,15 @@ class _SpeedLimitRow extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 40,
-          child: Text(label, style: textTheme.bodyLarge),
+          width: labelWidth,
+          child: Text(
+            label,
+            style: textTheme.bodyLarge,
+            maxLines: 1,
+            softWrap: false,
+          ),
         ),
+        const SizedBox(width: 8),
         AlignedCheckbox(
           value: draft.enabled,
           onChanged: enabled

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/torrent_category_response.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 enum CategoryEditMode { create, createSubcategory, edit }
@@ -66,12 +67,6 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
   bool get _isEdit => widget.mode == CategoryEditMode.edit;
   bool get _isSubcategory => widget.mode == CategoryEditMode.createSubcategory;
 
-  String get _title => switch (widget.mode) {
-        CategoryEditMode.create => '添加分类',
-        CategoryEditMode.createSubcategory => '添加子分类',
-        CategoryEditMode.edit => '编辑分类',
-      };
-
   @override
   void initState() {
     super.initState();
@@ -133,12 +128,12 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
   }
 
   String? _validateName(String name) {
-    if (name.isEmpty) return '请输入分类名称';
+    if (name.isEmpty) return context.l10n.enterCategoryName;
     if (name.contains('\\') ||
         name.startsWith('/') ||
         name.endsWith('/') ||
         name.contains('//')) {
-      return '分类名称无效';
+      return context.l10n.categoryNameInvalid;
     }
     return null;
   }
@@ -181,9 +176,15 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.85;
+    final title = switch (widget.mode) {
+      CategoryEditMode.create => l10n.addCategory,
+      CategoryEditMode.createSubcategory => l10n.addSubcategory,
+      CategoryEditMode.edit => l10n.editCategory,
+    };
 
     return BlurDialogScaffold(
       animation: widget.animation,
@@ -196,7 +197,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                _title,
+                title,
                 style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
               ),
               const SizedBox(height: 16),
@@ -216,8 +217,8 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                   TextField(
                     controller: _parentPathController,
                     enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: '父分类',
+                    decoration: InputDecoration(
+                      labelText: l10n.parentCategory,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -233,7 +234,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                     });
                   },
                   decoration: InputDecoration(
-                    labelText: '分类名称',
+                    labelText: l10n.categoryName,
                     errorText: _nameError,
                   ),
                 ),
@@ -245,7 +246,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                   maxLines: 3,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                    labelText: '保存路径',
+                    labelText: l10n.savePath,
                     hintText: _isEdit && _savePathController.text.isNotEmpty
                         ? null
                         : _savePathHint,
@@ -258,7 +259,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '对不完整的 Torrent 使用另一个路径',
+                  l10n.incompleteUseAnotherPath,
                   style: textTheme.titleSmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
@@ -268,18 +269,18 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                 SegmentedButton<CategoryIncompletePathMode>(
                   showSelectedIcon: false,
                   expandedInsets: EdgeInsets.zero,
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: CategoryIncompletePathMode.followDefault,
-                      label: Text('默认'),
+                      label: Text(l10n.defaultOption),
                     ),
                     ButtonSegment(
                       value: CategoryIncompletePathMode.yes,
-                      label: Text('是'),
+                      label: Text(l10n.yes),
                     ),
                     ButtonSegment(
                       value: CategoryIncompletePathMode.no,
-                      label: Text('否'),
+                      label: Text(l10n.no),
                     ),
                   ],
                   selected: {_incompletePathMode},
@@ -298,8 +299,8 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                       _incompletePathMode == CategoryIncompletePathMode.yes,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _onConfirm(),
-                  decoration: const InputDecoration(
-                    labelText: '路径',
+                  decoration: InputDecoration(
+                    labelText: l10n.path,
                   ),
                 ),
                 if (_submitError != null) ...[
@@ -317,7 +318,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                   TextButton(
                     onPressed:
                         _saving ? null : () => Navigator.of(context).pop(false),
-                    child: const Text('取消'),
+                    child: Text(l10n.actionCancel),
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
@@ -331,7 +332,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                               color: scheme.onPrimary,
                             ),
                           )
-                        : const Text('确定'),
+                        : Text(l10n.actionOk),
                   ),
                 ],
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/check_row.dart';
 
 class TorrentSpeedLimitPage extends ConsumerStatefulWidget {
@@ -50,10 +51,15 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    final title = _completed ? '上传限速' : '上传/下载限速';
+    final title = _completed ? l10n.uploadLimit : l10n.uploadDownloadLimit;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final labelWidth = _speedLimitLabelWidth(context, [
+      if (_dlLimit != null) l10n.download,
+      l10n.upload,
+    ]);
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Column(
@@ -65,7 +71,7 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
             child: Row(
               children: [
                 IconButton(
-                  tooltip: '返回',
+                  tooltip: l10n.actionBack,
                   visualDensity: VisualDensity.compact,
                   onPressed: _saving ? null : widget.onBack,
                   icon: const Icon(Icons.arrow_back),
@@ -83,13 +89,15 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
           ),
           if (_dlLimit != null)
             _SpeedLimitRow(
-              label: '下载',
+              label: l10n.download,
+              labelWidth: labelWidth,
               draft: _dlLimit,
               enabled: !_saving,
               onChanged: () => setState(() => _error = null),
             ),
           _SpeedLimitRow(
-            label: '上传',
+            label: l10n.upload,
+            labelWidth: labelWidth,
             draft: _upLimit,
             enabled: !_saving,
             onChanged: () => setState(() => _error = null),
@@ -115,7 +123,7 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
                         color: scheme.onPrimary,
                       ),
                     )
-                  : const Text('确定'),
+                  : Text(l10n.actionOk),
             ),
           ),
         ],
@@ -127,7 +135,7 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
     final dl = _dlLimit?.toBytes();
     final up = _upLimit.toBytes();
     if (dl == _SpeedLimitDraft.invalid || up == _SpeedLimitDraft.invalid) {
-      setState(() => _error = '请输入有效的速度');
+      setState(() => _error = context.l10n.enterValidSpeed);
       return;
     }
     setState(() {
@@ -152,7 +160,7 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
     widget.onBack();
     if (!widget.pageContext.mounted) return;
     ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-      const SnackBar(content: Text('已保存限速')),
+      SnackBar(content: Text(widget.pageContext.l10n.speedLimitSaved)),
     );
   }
 }
@@ -230,15 +238,32 @@ String _formatSpeedNumber(double value) {
   return text;
 }
 
+double _speedLimitLabelWidth(BuildContext context, List<String> labels) {
+  final style = Theme.of(context).textTheme.bodyLarge;
+  final direction = Directionality.of(context);
+  var maxWidth = 0.0;
+  for (final label in labels) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: style),
+      maxLines: 1,
+      textDirection: direction,
+    )..layout();
+    if (painter.width > maxWidth) maxWidth = painter.width;
+  }
+  return maxWidth;
+}
+
 class _SpeedLimitRow extends StatelessWidget {
   const _SpeedLimitRow({
     required this.label,
+    required this.labelWidth,
     required this.draft,
     required this.enabled,
     required this.onChanged,
   });
 
   final String label;
+  final double labelWidth;
   final _SpeedLimitDraft draft;
   final bool enabled;
   final VoidCallback onChanged;
@@ -253,9 +278,15 @@ class _SpeedLimitRow extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 40,
-            child: Text(label, style: textTheme.bodyLarge),
+            width: labelWidth,
+            child: Text(
+              label,
+              style: textTheme.bodyLarge,
+              maxLines: 1,
+              softWrap: false,
+            ),
           ),
+          const SizedBox(width: 8),
           AlignedCheckbox(
             value: draft.enabled,
             onChanged: enabled

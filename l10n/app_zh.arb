@@ -1,0 +1,1360 @@
+{
+  "@@locale": "zh",
+  "appTitle": "qBPanel",
+
+  "actionCancel": "取消",
+  "actionOk": "确定",
+  "actionConfirm": "确定",
+  "actionApply": "应用",
+  "actionRetry": "重试",
+  "actionSave": "保存",
+  "actionDelete": "删除",
+  "actionClose": "关闭",
+  "actionRename": "重命名",
+  "actionMore": "更多",
+  "loading": "加载中…",
+  "processing": "处理中…",
+  "emptyNoData": "暂无数据",
+  "loadFailed": "加载失败",
+  "yes": "是",
+  "no": "否",
+  "notAvailable": "N/A",
+  "emDash": "—",
+
+  "settingsTitle": "设置",
+  "settingsLanguage": "语言",
+  "localeFollowSystem": "跟随系统",
+  "localeChinese": "简体中文",
+  "localeChineseTraditional": "繁體中文",
+  "localeEnglish": "English",
+  "settingsServer": "服务器",
+  "settingsServerSettings": "服务器设置",
+  "settingsServerSettingsSubtitle": "修改或添加服务器",
+  "settingsAppearance": "显示",
+  "settingsDisplayMode": "显示模式",
+  "settingsThemeSystem": "跟随系统",
+  "settingsThemeLight": "浅色",
+  "settingsThemeDark": "深色",
+  "settingsThemeHint": "跟随系统时，自动匹配设备的浅色 / 深色模式。",
+  "settingsThemeColor": "主题色",
+  "settingsUseDynamicColor": "使用系统强调色",
+  "settingsUseDynamicColorHint": "使用 Android 12+ 的 Material You 配色。",
+  "settingsCustomThemeColor": "自定义主题色",
+  "settingsCustomThemeColorHintDynamic": "关闭上方开关后生效；系统色不可用时也会回退到此颜色",
+  "settingsCustomThemeColorHint": "任意选取一个颜色，作为 Material 3 种子色",
+  "settingsPickThemeColor": "选择主题色",
+  "settingsPickColor": "取色",
+  "settingsPickColorHint": "选中后点「应用」立即生效",
+
+  "apiNoActiveServer": "没有激活的服务器，请先在设置中添加并选中",
+  "apiTimeout": "连接超时，请检查地址与端口",
+  "apiConnectionError": "无法连接服务器，请检查网络与配置",
+  "apiUnauthorized": "API 密钥无效或无权限",
+  "apiHttpStatus": "服务器返回 {code}",
+  "@apiHttpStatus": {
+    "placeholders": {
+      "code": { "type": "int" }
+    }
+  },
+  "apiBadCertificate": "HTTPS 证书不受信任",
+  "apiCancelled": "请求已取消",
+
+  "durationSeconds": "{count} 秒",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{count} 分钟",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count} 小时",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHoursMinutes": "{hours} 小时 {minutes} 分",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "durationDays": "{count} 天",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationDaysHours": "{days} 天 {hours} 小时",
+  "@durationDaysHours": {
+    "placeholders": {
+      "days": { "type": "int" },
+      "hours": { "type": "int" }
+    }
+  },
+  "durationMinutesSeconds": "{minutes} 分钟 {seconds} 秒",
+  "@durationMinutesSeconds": {
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "seconds": { "type": "int" }
+    }
+  },
+  "formatSeedingSuffix": "{base} (做种 {seeding})",
+  "@formatSeedingSuffix": {
+    "placeholders": {
+      "base": { "type": "String" },
+      "seeding": { "type": "String" }
+    }
+  },
+  "formatConnectionsUnlimited": "{count} (最多 ∞)",
+  "@formatConnectionsUnlimited": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "formatConnectionsLimited": "{count} (最多 {limit})",
+  "@formatConnectionsLimited": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "limit": { "type": "int" }
+    }
+  },
+  "formatSession": "{total} (本次 {session})",
+  "@formatSession": {
+    "placeholders": {
+      "total": { "type": "String" },
+      "session": { "type": "String" }
+    }
+  },
+  "formatSpeedAvg": "{current} (平均 {average})",
+  "@formatSpeedAvg": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "average": { "type": "String" }
+    }
+  },
+  "formatCountTotal": "{current} (共 {total})",
+  "@formatCountTotal": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "formatPieces": "{count} × {size} (已完成 {have})",
+  "@formatPieces": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "size": { "type": "String" },
+      "have": { "type": "int" }
+    }
+  },
+  "logToday": "今天",
+  "logYesterday": "昨天",
+
+  "connectionStatusConnected": "已连接",
+  "connectionStatusFirewalled": "无法入站",
+  "connectionStatusDisconnected": "未连接",
+  "connectionStatusUnknown": "未知",
+
+  "torrentStateError": "错误",
+  "torrentStateMissingFiles": "文件缺失",
+  "torrentStateUploading": "做种中",
+  "torrentStateStoppedUp": "已完成",
+  "torrentStateQueuedUp": "排队做种",
+  "torrentStateStalledUp": "做种已暂停",
+  "torrentStateCheckingUp": "校验中",
+  "torrentStateForcedUp": "强制做种",
+  "torrentStateAllocating": "分配空间",
+  "torrentStateDownloading": "下载中",
+  "torrentStateMetaDl": "获取元数据",
+  "torrentStateForcedMetaDl": "强制获取元数据",
+  "torrentStateStoppedDl": "已停止",
+  "torrentStateQueuedDl": "排队下载",
+  "torrentStateStalledDl": "下载已暂停",
+  "torrentStateCheckingDl": "校验中",
+  "torrentStateForcedDl": "强制下载",
+  "torrentStateCheckingResumeData": "检查恢复数据",
+  "torrentStateMoving": "移动中",
+  "torrentStateUnknown": "未知",
+
+  "filterAll": "全部",
+  "filterDownloading": "下载",
+  "filterSeeding": "做种",
+  "filterCompleted": "完成",
+  "filterRunning": "正运行",
+  "filterStopped": "已停止",
+  "filterActive": "活动",
+  "filterInactive": "空闲",
+  "filterStalled": "暂停",
+  "filterStalledUploading": "上传已暂停",
+  "filterStalledDownloading": "下载已暂停",
+  "filterChecking": "正在检查",
+  "filterMoving": "正在移动",
+  "filterErrored": "错误",
+  "filterUncategorized": "未分类",
+  "filterUntagged": "无标签",
+
+  "sortState": "状态",
+  "sortName": "名称",
+  "sortProgress": "进度",
+  "sortSize": "大小",
+  "sortDownloadSpeed": "下载速度",
+  "sortUploadSpeed": "上传速度",
+  "sortDownloaded": "已下载",
+  "sortUploaded": "已上传",
+  "sortEta": "剩余时间",
+  "sortAmountLeft": "剩余大小",
+  "sortRatio": "分享率",
+  "sortAddedOn": "添加时间",
+  "sortCompletionOn": "完成时间",
+  "sortLastActivity": "最后活动",
+  "sortNumSeeds": "种子数",
+  "sortNumLeechs": "下载用户",
+  "sortAvailability": "可用性",
+  "sortPriority": "优先级",
+  "sortTimeActive": "活动时间",
+  "sortSeedingTime": "做种时间",
+  "sortCountry": "国家/地区",
+  "sortIp": "IP/地址",
+  "sortPort": "端口",
+  "sortConnection": "连接",
+  "sortFlags": "标志",
+  "sortClient": "客户端",
+  "sortPeerIdClient": "对等节点 ID 客户端",
+  "sortRelevance": "文件关联",
+  "sortFiles": "文件",
+  "sortUrl": "URL",
+  "sortTier": "层级",
+  "sortStatus": "状态",
+  "sortSeeds": "种子",
+  "sortPeers": "用户",
+  "sortLeeches": "下载者",
+  "sortDownloadCount": "完成次数",
+  "sortMessage": "消息",
+  "sortNextAnnounce": "下次宣告",
+  "sortMinAnnounce": "最短宣告间隔",
+  "sortContentPriority": "下载优先级",
+  "sortTotalSize": "总大小",
+  "sortRemaining": "剩余",
+
+  "shareLimitUseDefault": "使用全局设置",
+  "shareLimitStop": "停止种子",
+  "shareLimitRemove": "删除种子",
+  "shareLimitRemoveWithContent": "删除种子和文件",
+  "shareLimitSuperSeeding": "开启超级做种",
+
+  "logLevelNormal": "普通",
+  "logLevelInfo": "信息",
+  "logLevelWarning": "警告",
+  "logLevelCritical": "严重",
+
+  "searchPluginEnabled": "已启用",
+  "searchPluginAll": "全部",
+  "searchPluginSingle": "指定插件",
+
+  "addModeManual": "手动",
+  "addModeAutomatic": "自动",
+  "addStopNone": "无",
+  "addStopMetadataReceived": "已收到元数据",
+  "addStopFilesChecked": "文件已被检查",
+  "addLayoutOriginal": "原始",
+  "addLayoutSubfolder": "创建子文件夹",
+  "addLayoutNoSubfolder": "不创建子文件夹",
+
+  "speedPeriod30s": "30 秒",
+  "speedPeriod1m": "1 分钟",
+  "speedPeriod5m": "5 分钟",
+  "speedPeriod10m": "10 分钟",
+  "speedPeriod30m": "30 分钟",
+
+  "homeFilter": "筛选",
+  "homeFiltering": "筛选中",
+  "homeSort": "排序",
+  "homeSorting": "排序中",
+  "homeStartAll": "一键开始",
+  "homeStopAll": "一键停止",
+  "homeSearchTorrents": "搜索种子",
+  "homeLogs": "日志",
+  "homeSettings": "设置",
+  "homeAddTorrent": "添加种子",
+  "homeNoActiveServer": "还没有活跃的服务器",
+  "homeNoActiveServerHint": "去服务器列表添加或点选一台",
+  "homeChooseServer": "去选择服务器",
+  "homeNoMatchingTorrents": "没有符合条件的种子",
+  "homeClearFilters": "清除筛选",
+  "homeNoTorrents": "暂无种子",
+  "homeNoTorrentsInList": "当前列表没有种子",
+  "homeConfirmBatch": "确定{action}当前列表中的 {count} 个种子？",
+  "@homeConfirmBatch": {
+    "placeholders": {
+      "action": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "homeBatchStarted": "已开始 {count} 个种子",
+  "@homeBatchStarted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "homeBatchStopped": "已停止 {count} 个种子",
+  "@homeBatchStopped": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "homeBatchFailed": "{label}：{error}",
+  "@homeBatchFailed": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "homeStartAllFailed": "一键开始失败",
+  "homeStopAllFailed": "一键停止失败",
+  "homeStarting": "开始中…",
+  "homeStopping": "停止中…",
+  "homeStart": "开始",
+  "homeStop": "停止",
+  "homeSavedAltSpeed": "已保存备用限速",
+  "homeSavedGlobalSpeed": "已保存全局限速",
+  "homeAltSpeedToggleFailed": "切换备用速度限制失败：{error}",
+  "@homeAltSpeedToggleFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "homeAltSpeedOn": "已开启备用速度限制",
+  "homeAltSpeedOff": "已关闭备用速度限制",
+  "homeServerStatus": "服务器状态",
+
+  "renameTitle": "重命名",
+  "copiedWithLabel": "已复制 {label}",
+  "@copiedWithLabel": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+
+  "actionBack": "返回",
+  "actionAdd": "添加",
+  "actionEnable": "开启",
+  "actionDisable": "关闭",
+  "actionGotIt": "知道了",
+  "enabling": "开启中…",
+  "disabling": "关闭中…",
+  "deleting": "删除中…",
+  "settingInProgress": "设置中…",
+  "deleteFailed": "删除失败：{error}",
+  "@deleteFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "errorWithDetail": "{label}：{error}",
+  "@errorWithDetail": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "onLabel": "开",
+  "offLabel": "关",
+  "unlimited": "无限制",
+  "unlimitedSpeed": "不限",
+  "custom": "自定义",
+  "minutes": "分钟",
+  "download": "下载",
+  "upload": "上传",
+  "status": "状态",
+  "category": "分类",
+  "tags": "标签",
+  "queue": "队列",
+  "copy": "复制",
+  "connection": "连接",
+  "transfer": "传输",
+  "info": "信息",
+  "application": "应用",
+  "never": "从未",
+  "unknown": "未知",
+  "enterName": "请输入名称",
+  "nameInvalid": "名称无效",
+  "invalidTorrent": "无效的种子",
+  "invalidParam": "参数无效",
+  "torrentNotFound": "种子不存在",
+
+  "actionForceStart": "强制启动",
+  "actionStartFailed": "开始失败",
+  "actionStopFailed": "停止失败",
+  "actionForceStartFailed": "强制启动失败",
+  "setSaveLocation": "设置保存位置",
+  "autoTmm": "自动种子管理",
+  "uploadLimit": "上传限速",
+  "uploadDownloadLimit": "上传/下载限速",
+  "shareLimit": "分享率限制",
+  "superSeeding": "超级做种模式",
+  "sequentialDownload": "顺序下载",
+  "firstLastPiece": "先下首尾块",
+  "forceRecheck": "强制重新校验",
+  "forceReannounce": "强制重新汇报",
+  "shareTorrent": "分享种子",
+  "queueTop": "置顶",
+  "queueUp": "上移",
+  "queueDown": "下移",
+  "queueBottom": "置底",
+  "queueTopFailed": "置顶失败",
+  "queueUpFailed": "上移失败",
+  "queueDownFailed": "下移失败",
+  "queueBottomFailed": "置底失败",
+  "sequentialFailed": "设置顺序下载失败",
+  "firstLastFailed": "设置先下首尾块失败",
+  "recheckFailed": "重新校验失败",
+  "reannounceFailed": "重新汇报失败",
+  "preparingShare": "准备分享…",
+  "shareFailed": "分享失败：{error}",
+  "@shareFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "renameTorrentHint": "修改的是种子在列表中的显示名称，不会改动服务器上的文件或文件夹。",
+  "setLocationFailed": "设置保存位置失败：{error}",
+  "@setLocationFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "enableAutoTmmTitle": "开启自动种子管理",
+  "enableAutoTmmMessage": "确定开启自动种子管理？种子可能会按分类的保存路径被移动。",
+  "autoTmmFailed": "{action}自动管理失败：{error}",
+  "@autoTmmFailed": {
+    "placeholders": {
+      "action": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "superSeedingFailed": "{action}超级做种失败：{error}",
+  "@superSeedingFailed": {
+    "placeholders": {
+      "action": { "type": "String" },
+      "error": { "type": "String" }
+    }
+  },
+  "deleteTorrentTitle": "删除种子",
+  "confirmDeleteTorrent": "确定删除该种子？",
+  "confirmDeleteTorrentNamed": "确定删除「{name}」？",
+  "@confirmDeleteTorrentNamed": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "deleteFilesToo": "同时删除文件",
+  "noTorrentsToOperate": "当前没有可操作的种子",
+  "invalidTorrentFile": "无效的种子文件",
+  "torrentFileNotReady": "种子文件尚未就绪",
+  "shareContentEmpty": "分享内容为空",
+  "prepareShareFailed": "准备分享文件失败",
+  "savePathRequired": "保存路径不能为空",
+  "savePathNoPermission": "没有该目录的写入权限",
+  "savePathCreateFailed": "无法创建保存路径",
+  "queueingDisabled": "未开启种子排队",
+  "categoryNotFound": "分类不存在",
+  "magnetLink": "磁力链接",
+  "contentPath": "内容路径",
+  "remaining": "剩余",
+
+  "addCategory": "添加分类",
+  "addSubcategory": "添加子分类",
+  "editCategory": "编辑分类",
+  "deleteCategory": "删除分类",
+  "deleteUnusedCategories": "删除未使用的分类",
+  "addTag": "添加标签",
+  "deleteTag": "删除标签",
+  "deleteUnusedTags": "删除未使用的标签",
+  "confirmDeleteTag": "确定删除标签「{tag}」？种子不会被删除。",
+  "@confirmDeleteTag": {
+    "placeholders": {
+      "tag": { "type": "String" }
+    }
+  },
+  "confirmDeleteUnusedTags": "确定删除 {count} 个未使用的标签？种子不会被删除。",
+  "@confirmDeleteUnusedTags": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "confirmDeleteCategory": "确定删除分类「{name}」？种子不会被删除。",
+  "@confirmDeleteCategory": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "confirmDeleteCategoryWithChildren": "确定删除分类「{name}」？其子分类也会一并删除。种子不会被删除。",
+  "@confirmDeleteCategoryWithChildren": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "confirmDeleteUnusedCategories": "确定删除 {count} 个未使用的分类？种子不会被删除。",
+  "@confirmDeleteUnusedCategories": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noUnusedTags": "没有未使用的标签",
+  "noUnusedCategories": "没有未使用的分类",
+  "noTagsHint": "暂无标签，点右上角新建",
+  "removeTags": "取消标签",
+  "tagsRemoved": "已取消标签",
+  "switchServer": "切换服务器",
+  "noServers": "暂无服务器",
+  "enterSavePath": "请输入保存路径",
+  "savePath": "保存路径",
+  "autoTmmLocationHint": "已开启自动种子管理。确定后将关闭自动管理，并改用上面的手动路径。",
+  "enterTagName": "请输入标签名称",
+  "tagNameNoComma": "标签名称不能包含逗号",
+  "tagName": "标签名称",
+  "enterCategoryName": "请输入分类名称",
+  "categoryNameInvalid": "分类名称无效",
+  "parentCategory": "父分类",
+  "categoryName": "分类名称",
+  "incompleteUseAnotherPath": "对不完整的 Torrent 使用另一个路径",
+  "defaultOption": "默认",
+  "path": "路径",
+  "queuePosition": "第 {position} 位",
+  "@queuePosition": {
+    "placeholders": {
+      "position": { "type": "int" }
+    }
+  },
+  "notInQueue": "不在队列中",
+  "seedingTime": "做种时间",
+  "inactive": "不活跃",
+  "afterLimitReached": "达到上限后",
+  "enterValidLimit": "请输入有效的限制",
+  "shareLimitSaved": "已保存分享率限制",
+  "enterValidSpeed": "请输入有效的速度",
+  "altSpeedLimit": "备用速度限制",
+  "globalSpeedLimit": "全局速度限制",
+  "altSpeedLimitHint": "当前已开启备用限速，修改将作用于备用值",
+  "speedLimitSaved": "已保存限速",
+  "altSpeedOffTooltip": "关闭备用速度限制",
+  "altSpeedOnTooltip": "开启备用速度限制",
+
+  "ssConnectionStatus": "连接状态",
+  "ssDhtNodes": "DHT 节点",
+  "ssPeerConnections": "Peer 连接",
+  "ssExternalIpv4": "外网 IPv4",
+  "ssExternalIpv6": "外网 IPv6",
+  "ssSessionDownload": "本次下载",
+  "ssSessionUpload": "本次上传",
+  "ssAllTimeDownload": "累计下载",
+  "ssAllTimeUpload": "累计上传",
+  "ssSessionWasted": "本次丢弃",
+  "ssDlRateLimit": "下载限速",
+  "ssUpRateLimit": "上传限速",
+  "ssAltSpeed": "备用限速",
+  "ssDiskAndQueue": "磁盘与队列",
+  "ssFreeSpace": "磁盘剩余",
+  "ssTorrentQueueing": "种子排队",
+  "ssDiskQueue": "磁盘队列",
+  "ssTrackerQueue": "Tracker 排队",
+  "ssWritePending": "待写入",
+  "ssQueued": "队列等待",
+  "ssCache": "缓存",
+  "ssCacheUsed": "缓存占用",
+  "ssReadCacheHits": "读缓存命中",
+  "ssReadCacheOverload": "读缓存过载",
+  "ssWriteCacheOverload": "写缓存过载",
+  "ssAppVersion": "应用版本",
+  "ssApiVersion": "API 版本",
+  "ssBitness": "位数",
+  "ssPlatform": "平台",
+  "milliseconds": "{count} 毫秒",
+  "@milliseconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bitnessValue": "{bitness} 位",
+  "@bitnessValue": {
+    "placeholders": {
+      "bitness": { "type": "int" }
+    }
+  },
+
+  "torrentDetail": "种子详情",
+  "tabGeneral": "普通",
+  "tabPeers": "用户",
+  "tabContent": "内容",
+  "tabTrackers": "Tracker",
+  "tabHttpSeeds": "HTTP 源",
+  "sortPeersTitle": "用户排序",
+  "sortContent": "内容排序",
+  "sortTrackers": "Tracker 排序",
+  "progress": "进度",
+  "availability": "可用性",
+  "timeActive": "活动时间",
+  "eta": "剩余时间",
+  "connections": "连接",
+  "seeds": "种子",
+  "peers": "用户",
+  "dlLimit": "下载限制",
+  "upLimit": "上传限制",
+  "wasted": "已丢弃",
+  "nextAnnounce": "下次汇报",
+  "lastSeen": "最后完整可见",
+  "popularity": "流行度",
+  "totalSize": "总大小",
+  "pieces": "区块",
+  "createdBy": "创建",
+  "addedOn": "添加于",
+  "completedOn": "完成于",
+  "createdOn": "创建于",
+  "privateTorrent": "私有",
+  "infohashV1": "信息哈希值 v1",
+  "infohashV2": "信息哈希值 v2",
+  "comment": "注释",
+  "speed": "速度",
+  "downloadAvg": "下载平均",
+  "uploadAvg": "上传平均",
+  "sampling": "采样中…",
+  "tier": "层级",
+  "leeches": "下载者",
+  "timesCompleted": "完成次数",
+  "message": "消息",
+  "minAnnounce": "最短宣告间隔",
+  "btProtocol": "BT 协议",
+  "relevance": "关联度",
+  "contribution": "贡献",
+  "flags": "标志",
+  "downloadingFile": "正在下载",
+  "downloadingFiles": "正在下载 {count} 个文件",
+  "@downloadingFiles": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noHttpSeeds": "暂无 HTTP 源",
+  "noHttpSeedsHint": "当前种子还没有 HTTP 源",
+  "addHttpSeed": "添加 HTTP 源",
+  "editHttpSeed": "编辑 HTTP 源 URL",
+  "deleteHttpSeed": "删除 HTTP 源",
+  "copyHttpSeed": "复制 HTTP 源 URL",
+  "copiedHttpSeed": "已复制 HTTP 源 URL",
+  "confirmDeleteHttpSeed": "确定删除 {url}？",
+  "@confirmDeleteHttpSeed": {
+    "placeholders": {
+      "url": { "type": "String" }
+    }
+  },
+  "addedHttpSeed": "已添加 HTTP 源",
+  "enterHttpSeeds": "请输入至少一个 HTTP 源",
+  "enterHttpSeedUrl": "请输入 HTTP 源 URL",
+  "invalidUrl": "URL 无效",
+  "httpSeedNotFound": "HTTP 源不存在",
+  "invalidHttpSeed": "无效的 HTTP 源",
+  "httpSeedUrl": "HTTP 源 URL",
+  "httpSeedListHint": "要添加的 HTTP 源列表（每行一个）",
+  "noTrackers": "暂无 Tracker",
+  "noTrackersHint": "当前种子还没有 Tracker",
+  "addTracker": "添加 Tracker",
+  "editTracker": "编辑 Tracker URL",
+  "deleteTracker": "删除 Tracker",
+  "copyTracker": "复制 Tracker URL",
+  "copiedTracker": "已复制 Tracker URL",
+  "confirmDeleteTracker": "确定删除 {name}？",
+  "@confirmDeleteTracker": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "reannounceSelected": "强制重新宣告选中的 Tracker",
+  "reannounceAll": "强制重新宣告全部 Tracker",
+  "reannouncedAll": "已重新宣告全部 Tracker",
+  "reannouncedOne": "已重新宣告该 Tracker",
+  "reannounceFailedOne": "重新宣告失败：{error}",
+  "@reannounceFailedOne": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "addedTracker": "已添加 Tracker",
+  "enterTrackers": "请输入至少一个 Tracker",
+  "enterTrackerUrl": "请输入 Tracker URL",
+  "trackerUrl": "Tracker URL",
+  "tierRange": "层级必须是 0–255",
+  "enterTier": "请输入层级",
+  "trackerNotFound": "Tracker 不存在",
+  "trackerUrlTaken": "Tracker 不存在或新 URL 已被占用",
+  "invalidTracker": "无效的 Tracker",
+  "trackerListHint": "要添加的 Tracker 列表（每行一个）",
+  "noPeers": "暂无用户",
+  "noPeersHint": "当前没有连上的 Peer",
+  "startRefresh": "开始刷新",
+  "pauseRefresh": "暂停刷新",
+  "flagsHelp": "标志说明",
+  "copiedEndpoint": "已复制 IP 端口",
+  "banPeerTitle": "永久禁止用户",
+  "banPeerMessage": "确定永久禁止 {endpoint}？该用户将无法再连接。",
+  "@banPeerMessage": {
+    "placeholders": {
+      "endpoint": { "type": "String" }
+    }
+  },
+  "ban": "禁止",
+  "peerBanned": "已禁止该用户",
+  "banFailed": "禁止失败：{error}",
+  "@banFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "addPeers": "添加对等节点",
+  "copyEndpoint": "复制IP端口",
+  "banPeer": "永久禁止用户",
+  "addedPeers": "已添加对等节点",
+  "peerListHint": "要添加的用户列表（每行一个 IP）",
+  "peerFormatHint": "格式：IPV4:端口/IPV6:端口",
+  "enterPeers": "请输入至少一个对等节点",
+  "noValidPeers": "没有有效的对等节点",
+  "invalidPeer": "无效的对等节点",
+  "noFiles": "暂无文件",
+  "noFilesHint": "还没有元数据，或种子里没有文件",
+  "priorityFailed": "设置优先级失败：{error}",
+  "@priorityFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "priorityInvalid": "优先级无效",
+  "metadataNotReady": "元数据未就绪，或文件不存在",
+  "enterNewName": "请输入新名称",
+  "nameTaken": "名称无效或已被占用",
+  "nameNoPathSeparator": "名称不能包含路径分隔符",
+  "folderName": "文件夹名称",
+  "fileName": "文件名称",
+  "renameFolderHint": "修改的是服务器上这个文件夹的名称，其中的文件路径会一起变更。",
+  "renameFileHint": "修改的是服务器上这个文件的名称，磁盘路径会一起变更。",
+  "priorityDoNotDownload": "不下载",
+  "priorityHigh": "较高",
+  "priorityMaximum": "最高",
+  "priorityMixed": "混合",
+  "priorityNormal": "正常",
+  "trackerUpdating": "正在更新...",
+  "trackerDisabled": "已禁用",
+  "trackerNotContacted": "尚未联系",
+  "trackerWorking": "工作",
+  "trackerNotWorking": "未工作",
+  "trackerError": "Tracker 错误",
+  "trackerUnreachable": "无法访问",
+  "peerFlagD": "本端想下且未被阻塞",
+  "peerFlagd": "本端想下但对端阻塞",
+  "peerFlagU": "对端想下且未被阻塞",
+  "peerFlagu": "对端想下但本端阻塞",
+  "peerFlagK": "本端不想下，对端未阻塞",
+  "peerFlagQuestion": "对端不想下，本端未阻塞",
+  "peerFlagO": "乐观解除阻塞",
+  "peerFlagS": "对方被冷落",
+  "peerFlagI": "传入连接",
+  "peerFlagH": "来自 DHT",
+  "peerFlagX": "来自 PEX",
+  "peerFlagL": "来自 LSD",
+  "peerFlagE": "加密传输",
+  "peerFlage": "加密握手",
+  "peerFlagP": "μTP",
+  "peerFlagh": "NAT 打洞",
+
+  "optional": "可选",
+  "unavailable": "暂不可用",
+  "notEnabled": "未启用",
+  "adding": "添加中…",
+  "saved": "已保存",
+  "saving": "保存中…",
+  "saveFailed": "保存失败：{error}",
+  "@saveFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "addFailed": "添加失败：{error}",
+  "@addFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "loadSettingsFailed": "加载设置失败",
+  "actionClear": "清除",
+  "actionImport": "导入",
+  "actionInstall": "安装",
+  "actionSearch": "搜索",
+
+  "addTorrentSettings": "种子设置",
+  "noTags": "暂无标签",
+  "contentLayout": "内容布局",
+  "stopCondition": "停止条件",
+  "startTorrent": "开始 Torrent",
+  "addToTopOfQueue": "添加到队列顶部",
+  "skipHashCheck": "跳过哈希校验",
+  "limitDownloadRate": "限制下载速率",
+  "limitUploadRate": "限制上传速率",
+  "saveTo": "保存在",
+  "torrentManagementMode": "种子管理模式",
+  "saveFilesTo": "保存文件到",
+  "autoTmmDecides": "由自动管理决定",
+  "incompleteTorrentPath": "对不完整的种子使用另一个路径",
+  "incompleteSavePath": "不完整种子保存路径",
+  "importMagnet": "从磁力链接导入",
+  "importFile": "从文件导入",
+  "tapToChangeLink": "点击更换链接",
+  "enterMagnetOrHttp": "输入磁力链接或 HTTP(S) 地址",
+  "tapToChangeFile": "点击更换文件",
+  "selectTorrentFile": "选择 .torrent 文件",
+  "magnetOrUrl": "磁力链接或 URL",
+  "enterMagnetOrUrl": "请输入磁力链接或 HTTP(S) 地址",
+  "importOneTorrentOnly": "一次只能导入一个种子",
+  "torrentInfo": "种子信息",
+  "date": "日期",
+  "fetchingMetadata": "正在获取元数据…",
+  "metadataFailed": "获取元数据失败",
+  "metadataFailedWithError": "获取元数据失败：{error}",
+  "@metadataFailedWithError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "filesAfterImport": "导入种子后显示文件列表",
+  "cannotReadTorrentFile": "无法读取种子文件",
+  "cannotReadSelectedFile": "无法读取所选文件",
+  "importTorrentFirst": "请先导入种子",
+  "fetchingMetadataWait": "正在获取元数据，请稍候",
+  "cannotAdd": "无法添加",
+
+  "searchTorrents": "搜索种子",
+  "searchPlugins": "搜索插件",
+  "filterResults": "筛选结果",
+  "stopSearch": "停止搜索",
+  "searchKeyword": "搜索关键词",
+  "searchStarting": "启动中…",
+  "collapse": "收起",
+  "expandSearchForm": "展开搜索条件",
+  "searchCriteria": "搜索条件",
+  "filterResultName": "筛选结果名称…",
+  "enabledPlugins": "已启用插件",
+  "allPlugins": "全部插件",
+  "plugin": "插件",
+  "searchingFound": "搜索中 · 已找到 {total} 条",
+  "@searchingFound": {
+    "placeholders": {
+      "total": { "type": "int" }
+    }
+  },
+  "searchingFoundVisible": "搜索中 · 已找到 {total} 条（显示 {visible} 条）",
+  "@searchingFoundVisible": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "visible": { "type": "int" }
+    }
+  },
+  "pythonRequired": "服务器未安装 Python，无法使用搜索功能",
+  "searchLimitReached": "进行中的搜索已达上限（最多 5 个）",
+  "startSearchFailed": "开始搜索失败",
+  "loadPluginsFailed": "加载搜索插件失败",
+  "noSearchPlugins": "未安装搜索插件",
+  "noSearchPluginsHint": "请在 qBittorrent Web 端安装并启用搜索插件",
+  "searchIdleHint": "输入关键词并选择分类 / 插件后开始搜索",
+  "searching": "搜索中",
+  "searchingHint": "正在从插件获取结果…",
+  "noMatchingResults": "无匹配结果",
+  "noResults": "未找到结果",
+  "adjustFiltersHint": "试试调整筛选条件",
+  "retrySearchHint": "可更换关键词或插件重试",
+  "allCategories": "全部分类",
+  "searchCategoryAnime": "动画",
+  "searchCategoryBooks": "书籍",
+  "searchCategoryGames": "游戏",
+  "searchCategoryMovies": "电影",
+  "searchCategoryMusic": "音乐",
+  "searchCategoryPictures": "图片",
+  "searchCategorySoftware": "软件",
+  "searchCategoryTv": "电视节目",
+  "searchJobNotFound": "搜索任务不存在",
+  "searchResultsUnavailable": "搜索结果已不可用",
+  "seedingCount": "做种 {count}",
+  "@seedingCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "leechingCount": "下载 {count}",
+  "@leechingCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "unknownSize": "未知大小",
+  "cannotOpenDescription": "无法打开描述页",
+  "copiedName": "已复制名称",
+  "copiedDownloadLink": "已复制下载链接",
+  "copiedDescriptionUrl": "已复制描述页 URL",
+  "openDescription": "打开描述页",
+  "copyName": "复制名称",
+  "copyDownloadLink": "复制下载链接",
+  "copyDescriptionUrl": "复制描述页 URL",
+  "resultFilter": "结果筛选",
+  "resultFilterHint": "对齐 Web 端：0 表示不限制。大小单位按 1024 进制换算。",
+  "seeders": "做种数",
+  "minValue": "最小",
+  "maxValue": "最大",
+  "rangeTo": "至",
+  "pluginVersion": "版本 {version}",
+  "@pluginVersion": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+  "deletePlugin": "删除插件",
+  "installPlugin": "安装插件",
+  "checkingUpdates": "检查中…",
+  "checkUpdates": "检查更新",
+  "searchPluginCopyrightWarning": "警告：在下载来自这些搜索引擎的 torrent 时，请确认它符合您所在国家的版权法。",
+  "searchPluginGetMore": "你可以在这里获取新的搜索引擎插件：",
+  "noSearchPluginsList": "暂无搜索插件",
+  "noSearchPluginsListHint": "点击「安装插件」或「检查更新」获取官方插件",
+  "cannotOpenLink": "无法打开链接",
+  "installing": "安装中…",
+  "pluginInstalled": "插件已安装",
+  "installFailed": "安装失败：{error}",
+  "@installFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "pluginsUpdated": "插件列表已更新",
+  "checkUpdatesFailed": "检查更新失败：{error}",
+  "@checkUpdatesFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "operationFailed": "操作失败：{error}",
+  "@operationFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "confirmUninstallPlugin": "确定卸载 {name}？",
+  "@confirmUninstallPlugin": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pluginDeleted": "插件已删除",
+  "enterPluginSource": "请输入插件 URL 或路径",
+  "installSearchPlugin": "安装搜索插件",
+  "installPluginHint": "输入插件 .py 的 URL，或 qB 服务器上的文件路径。多个来源可用换行分隔。",
+  "pluginSource": "插件来源",
+
+  "actionEdit": "编辑",
+  "actionReset": "重置",
+  "actionGenerate": "生成",
+  "actionSend": "发送",
+  "validating": "校验中…",
+  "listSeparator": "、",
+  "pleaseFillFields": "请填写：{fields}",
+  "@pleaseFillFields": {
+    "placeholders": {
+      "fields": { "type": "String" }
+    }
+  },
+  "serverNotFound": "服务器不存在或已删除",
+  "cannotGetApiVersion": "无法获取 API 版本",
+  "probeFailed": "校验失败：{error}",
+  "@probeFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "saveFailedServerGone": "保存失败：服务器不存在或已删除",
+  "unitSeconds": "秒",
+  "unitMilliseconds": "毫秒",
+  "unlimitedHint": "0 为无限制",
+
+  "qbSetBehavior": "行为",
+  "qbSetDownloads": "下载",
+  "qbSetConnection": "连接",
+  "qbSetSpeed": "速度",
+  "qbSetAdvanced": "高级",
+  "qbSetDisclaimer": "此处修改的是当前 qBittorrent 服务器的选项。部分设置仅作用于服务器或 WebUI，不会影响本 App 的界面与行为。",
+
+  "currentServerSettings": "当前服务器设置",
+  "addServer": "添加服务器",
+  "editServer": "编辑服务器",
+  "serverListHint": "点击切换服务器，点击右上角可以修改服务器设置",
+  "noServersHint": "点击右下角添加一台 qBittorrent 服务器",
+  "deleteServer": "删除服务器",
+  "confirmDeleteServer": "确定删除「{name}」吗？此操作不可恢复。",
+  "@confirmDeleteServer": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "serverName": "服务器名称",
+  "serverNameHint": "服务器名称，例如：我的NAS",
+  "host": "域名或IP",
+  "hostHint": "域名或IP，例如：my.nas.com, 192.168.1.1",
+  "port": "端口",
+  "portHint": "端口，例如：8888",
+  "pathHint": "路径，不包含“/”符号，例如：nas/qb",
+  "apiKey": "API密钥",
+  "apiKeyHint": "API密钥，请在WebUI上生成密钥",
+  "useHttps": "使用HTTPS",
+
+  "schedulerEveryDay": "每天",
+  "schedulerWeekdays": "工作日",
+  "schedulerWeekends": "周末",
+  "schedulerMonday": "周一",
+  "schedulerTuesday": "周二",
+  "schedulerWednesday": "周三",
+  "schedulerThursday": "周四",
+  "schedulerFriday": "周五",
+  "schedulerSaturday": "周六",
+  "schedulerSunday": "周日",
+
+  "peerProtocolTcpAndUtp": "TCP 和 μTP",
+  "proxyTypeNone": "(无)",
+
+  "btEncryptAllow": "允许加密",
+  "btEncryptRequire": "强制加密",
+  "btEncryptDisable": "禁用加密",
+  "btRatioStop": "停止 torrent",
+  "btRatioRemove": "删除 torrent",
+  "btRatioRemoveAndFiles": "删除 torrent 及所属文件",
+  "btRatioSuperSeeding": "为 torrent 启用超级做种",
+
+  "logAgeDays": "天",
+  "logAgeMonths": "月",
+  "logAgeYears": "年",
+
+  "tmmRelocateTorrent": "重新定位 Torrent",
+  "tmmRelocateAffected": "重新定位受影响的 Torrent",
+  "tmmSwitchTorrentManual": "切换 Torrent 到手动模式",
+  "tmmSwitchAffectedManual": "切换受影响的 torrent 至手动模式",
+
+  "resumeFastresume": "Fastresume 文件",
+  "resumeSqlite": "SQLite 数据库（实验性）",
+  "removeDeleteFiles": "永久删除文件",
+  "removeMoveToTrash": "移到回收站（如可能）",
+  "diskIoMemoryMapped": "内存映射文件",
+  "diskIoPosix": "POSIX 兼容",
+  "diskIoSimplePread": "简单 pread/pwrite",
+  "osCacheDisable": "禁用 OS 缓存",
+  "osCacheEnable": "启用 OS 缓存",
+  "osCacheWriteThrough": "直写",
+  "utpPreferTcp": "首选 TCP",
+  "utpPeerProportional": "与 peer 成比例（限制 TCP）",
+  "uploadSlotsFixed": "固定槽位",
+  "uploadSlotsRateBased": "基于上传速率",
+  "chokeRoundRobin": "轮询",
+  "chokeFastestUpload": "最快上传",
+  "chokeAntiLeech": "反吸血",
+  "bindAllAddresses": "所有地址",
+  "bindAllIpv4": "所有 IPv4 地址",
+  "bindAllIpv6": "所有 IPv6 地址",
+  "anyInterface": "任意接口",
+
+  "qbWebUiLanguage": "用户界面语言",
+  "transferList": "传输列表",
+  "confirmTorrentDeletion": "删除 Torrent 时提示确认",
+  "showExternalIp": "在状态栏展示外部 IP",
+  "logFile": "日志文件",
+  "enableLogFile": "启用日志文件",
+  "backupLogWhenLarger": "当大于指定大小时备份日志文件",
+  "deleteOldBackupLogs": "删除早于指定时间的备份日志文件",
+  "logAge": "时间",
+  "logPerformanceWarning": "记录性能警报",
+  "invalidLogBackupSize": "请填写有效的日志备份大小",
+  "invalidLogRetention": "请填写有效的日志保留时间",
+
+  "scheduleAltSpeed": "计划备用速度限制的启用时间",
+  "scheduleFrom": "从",
+  "scheduleTo": "到",
+  "scheduleWhen": "时间",
+  "rateLimitOptions": "设置速度限制",
+  "limitUtpRate": "对 µTP 协议进行速度限制",
+  "limitOverhead": "对传送总开销进行速度限制",
+  "limitLanPeers": "对本地网络用户进行速度限制",
+  "invalidSpeedLimit": "速度限制必须大于等于 0（0 为无限制）",
+
+  "peerConnectionProtocol": "对等节点连接协议",
+  "listeningPort": "监听端口",
+  "incomingConnectionsPort": "用于传入连接的端口",
+  "actionRandom": "随机",
+  "upnpPortForward": "使用我的路由器的 UPnP / NAT-PMP 端口转发",
+  "connectionLimits": "连接限制",
+  "maxConnectionsGlobal": "全局最大连接数",
+  "maxConnectionsPerTorrent": "每 torrent 最大连接数",
+  "maxUploadsGlobal": "全局上传窗口数上限",
+  "maxUploadsPerTorrent": "每个 torrent 上传窗口数上限",
+  "i2pExperimental": "I2P（实验性）",
+  "mixedMode": "混合模式",
+  "proxyServer": "代理服务器",
+  "proxyType": "类型",
+  "proxyHostnameLookup": "通过代理查找主机名",
+  "authentication": "验证",
+  "username": "用户名",
+  "password": "密码",
+  "passwordStoredUnencrypted": "注意：密码以非加密形式保存",
+  "proxyForBittorrent": "对 BitTorrent 目的使用代理",
+  "proxyForPeerConnections": "使用代理服务器进行用户连接",
+  "proxyForRss": "对 RSS 目的使用代理",
+  "proxyForGeneral": "对常规目的使用代理",
+  "ipFiltering": "IP 过滤",
+  "ipFilterPath": "过滤规则路径 (.dat, .p2p, .p2b)",
+  "filterTrackers": "匹配 tracker",
+  "manuallyBannedIps": "手动屏蔽 IP 地址",
+  "oneIpPerLine": "每行一个 IP",
+  "invalidListenPort": "用于传入连接的端口必须在 0 到 65535 之间",
+  "invalidMaxConnections": "全局最大连接数必须大于 0 或关闭",
+  "invalidMaxConnectionsPerTorrent": "每 torrent 最大连接数必须大于 0 或关闭",
+  "invalidMaxUploads": "全局上传窗口数上限必须大于 0 或关闭",
+  "invalidMaxUploadsPerTorrent": "每个 torrent 上传窗口数上限必须大于 0 或关闭",
+  "invalidProxyPort": "代理端口必须在 0 到 65535 之间",
+  "invalidI2pPort": "I2P 端口必须在 0 到 65535 之间",
+
+  "privacy": "隐私",
+  "enableDht": "启用 DHT (去中心化网络) 以找到更多用户",
+  "enablePex": "启用用户交换 (PeX) 以找到更多用户",
+  "enableLsd": "启用本地用户发现以找到更多用户",
+  "encryptionMode": "加密模式",
+  "anonymousMode": "启用匿名模式",
+  "maxActiveCheckingTorrents": "最大活跃检查 Torrent 数",
+  "maxActiveDownloads": "最大活动的下载数",
+  "maxActiveUploads": "最大活动的上传数",
+  "maxActiveTorrents": "最大活动的 torrent 数",
+  "ignoreSlowTorrents": "慢速 torrent 不计入限制内",
+  "downloadRateThreshold": "下载速度阈值",
+  "uploadRateThreshold": "上传速度阈值",
+  "torrentInactivityTimer": "Torrent 非活动计时器",
+  "seedingLimits": "做种限制",
+  "whenRatioReaches": "当分享率达到",
+  "whenSeedingTimeReaches": "达到总做种时间时",
+  "whenInactiveSeedingTimeReaches": "达到不活跃做种时间时",
+  "then": "然后",
+  "autoAddTrackers": "自动附加这些 tracker 到新下载",
+  "oneTrackerPerLine": "每行一个 tracker",
+  "autoAddTrackersFromUrl": "自动添加 URL 中的 trackers 到新的下载",
+  "url": "网址",
+  "fetchedTrackers": "获取 tracker",
+  "invalidMaxActiveChecking": "最大活跃检查 Torrent 数必须大于 -1",
+  "invalidMaxActiveDownloads": "最大活动的下载数必须大于 -1",
+  "invalidMaxActiveUploads": "最大活动的上传数必须大于 -1",
+  "invalidMaxActiveTorrents": "最大活动的 torrent 数必须大于 -1",
+  "invalidDownloadRateThreshold": "下载速度阈值必须大于 0",
+  "invalidUploadRateThreshold": "上传速度阈值必须大于 0",
+  "invalidTorrentInactivityTimer": "Torrent 非活动计时器必须大于 0",
+  "invalidShareRatio": "分享率限制不能为负数",
+  "invalidSeedingTime": "做种时间限制不能为负数",
+  "invalidInactiveSeedingTime": "不活跃做种时间限制不能为负数",
+
+  "whenAddingTorrent": "添加 torrent 时",
+  "doNotStartDownload": "不要自动开始下载",
+  "whenDuplicateTorrent": "添加重复种子时",
+  "mergeTrackers": "合并 tracker 到现有 torrent",
+  "deleteTorrentFileWhenDone": "完成后删除 .torrent 文件",
+  "preallocateAll": "为所有文件预分配磁盘空间",
+  "appendIncompleteExt": "为不完整的文件添加扩展名 .!qB",
+  "keepUnwantedInFolder": "将未选中的文件保留在 \".unwanted\" 文件夹中",
+  "saveManagement": "保存管理",
+  "defaultTmmMode": "默认 Torrent 管理模式",
+  "whenTorrentCategoryChanged": "当 Torrent 分类修改时",
+  "whenDefaultSavePathChanged": "当默认保存路径修改时",
+  "whenCategorySavePathChanged": "当分类保存路径修改时",
+  "useCategoryPathsInManualMode": "在手动模式下使用分类路径",
+  "defaultSavePath": "默认保存路径",
+  "saveIncompleteTorrentsTo": "保存未完成的 torrent 到",
+  "copyTorrentFilesTo": "复制 .torrent 文件到",
+  "copyFinishedTorrentFilesTo": "复制下载完成的 .torrent 文件到",
+  "excludedFileNames": "排除的文件名",
+  "oneRulePerLine": "每行一个规则",
+  "emailOnTorrentCompletion": "下载完成时发送电子邮件通知",
+  "mailSender": "发件人",
+  "mailRecipient": "收件人",
+  "smtpServer": "SMTP 服务器",
+  "smtpRequiresSsl": "该服务器需要安全链接（SSL）",
+  "sendTestEmail": "发送测试邮件",
+  "sending": "发送中…",
+  "sendFailed": "发送失败：{error}",
+  "@sendFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "testEmailSent": "测试邮件已发送",
+  "confirmSendTestEmailTitle": "发送测试邮件",
+  "confirmSendTestEmail": "测试邮件会使用服务器已保存的邮件设置发送。继续前将先保存当前本页设置（含邮件相关项），确定继续吗？",
+  "runExternalProgram": "运行外部程序",
+  "runOnTorrentAdded": "新增 Torrent 时运行",
+  "runOnTorrentFinished": "torrent 完成时运行",
+  "autorunExampleHint": "例如：\"%N\"",
+  "autorunParametersHint": "支持的参数（区分大小写）：\n%N：Torrent 名称，%L：分类，%G：标签（以逗号分隔），%F：内容路径，%R：根目录，%D：保存路径，%C：文件数，%Z：Torrent 大小（字节），%T：Tracker，%I/%J：Info hash，%K：ID，%M：备注\n提示：使用引号将参数扩起以防止文本被空白符分割（例如：\"%N\"）",
+  "torrentContentLayout": "Torrent 内容布局",
+  "torrentStopCondition": "Torrent 停止条件",
+  "enableMailNotificationFirst": "请先启用邮件通知",
+  "enterDefaultSavePath": "请填写默认保存路径",
+
+  "webUiRemoteControl": "Web 用户界面（远程控制）",
+  "ipAddress": "IP 地址",
+  "useHttpsInsteadOfHttp": "使用 HTTPS 而不是 HTTP",
+  "certificate": "证书",
+  "privateKey": "密钥",
+  "bypassAuthLocalhost": "对本地主机上的客户端跳过身份验证",
+  "bypassAuthWhitelist": "对 IP 子网白名单中的客户端跳过身份验证",
+  "subnetWhitelistHint": "例如 192.168.1.0/24",
+  "banAfterFailedAttempts": "连续失败后禁止客户端",
+  "banFor": "禁止",
+  "sessionTimeout": "会话超时",
+  "passwordLeaveBlank": "留空表示不修改",
+  "copiedApiKey": "已复制 API 密钥",
+  "resetApiKey": "重置 API key",
+  "generateApiKey": "生成 API 密钥",
+  "confirmResetApiKey": "重置该 API key 吗？当前 key 会立即停止工作，会生成新 key。本 App 会自动更新本地保存的密钥。",
+  "confirmGenerateApiKey": "生成 API key 吗？这枚 key 可用于和 qBittorrent 的 API 互动。本 App 会自动保存到本地服务器配置。",
+  "resetting": "重置中…",
+  "generating": "生成中…",
+  "apiKeyReset": "已重置 API key",
+  "apiKeyGenerated": "已生成 API 密钥",
+  "deleteApiKey": "删除 API 密钥",
+  "confirmDeleteApiKey": "删除此 API key 吗？当前 key 会立即停止工作。本 App 将无法继续连接，请随后在服务器设置中重新配置密钥。",
+  "apiKeyDeleted": "已删除 API 密钥",
+  "useAlternativeWebUi": "使用备选 WebUI",
+  "filePath": "文件路径",
+  "security": "安全",
+  "clickjackingProtection": "启用“点击劫持”保护",
+  "csrfProtection": "启用跨站请求伪造 (CSRF) 保护",
+  "secureCookie": "启用 cookie Secure 标志（需要 HTTPS 或本机连接）",
+  "hostHeaderValidation": "启用 Host 标头验证",
+  "serverDomains": "服务器域名",
+  "customHttpHeaders": "启用自定义 HTTP 头",
+  "oneHeaderPerLine": "每行一个 Header",
+  "reverseProxySupport": "启用反向代理支持",
+  "trustedProxiesList": "受信任的代理列表",
+  "onePerLine": "每行一个",
+  "updateDynDns": "更新我的动态域名",
+  "dynDnsService": "服务",
+  "domain": "域名",
+  "webUiWarning": "此处修改的是服务器 WebUI 自身配置。错误地更改地址、端口、HTTPS、认证或安全选项可能导致本 App 无法再连接该服务器，请谨慎操作并确保仍有其他方式访问 qBittorrent。",
+  "confirmSaveWebUiTitle": "确认保存 WebUI 设置",
+  "confirmSaveWebUi": "修改地址、端口、HTTPS、用户名密码或安全选项后，本 App 可能暂时无法连接服务器。请确认你仍能通过其他方式访问 qBittorrent。确定继续保存吗？",
+  "cannotResetApiKey": "无法重置 API key",
+  "cannotDeleteApiKey": "无法删除 API 密钥。",
+  "httpsCertPathRequired": "HTTPS 证书路径不能为空",
+  "httpsKeyPathRequired": "HTTPS 密钥路径不能为空",
+  "webUiUsernameMinLength": "WebUI 用户名至少需要 3 个字符",
+  "webUiUsernameNoColon": "WebUI 用户名不能包含冒号",
+  "webUiPasswordMinLength": "WebUI 密码至少需要 6 个字符",
+  "altWebUiPathRequired": "备选 WebUI 文件路径不能为空",
+  "webUiPortRange": "WebUI 端口必须在 1 到 65535 之间",
+
+  "resumeDataStorage": "恢复数据存储类型（需重启）",
+  "torrentContentRemoveOption": "删除种子内容方式",
+  "physicalMemoryLimit": "物理内存 (RAM) 使用上限",
+  "networkInterface": "网络接口",
+  "optionalBindAddress": "可选绑定 IP 地址",
+  "saveResumeDataInterval": "保存恢复数据间隔",
+  "saveStatisticsInterval": "保存统计信息间隔",
+  "torrentFileSizeLimit": ".torrent 文件大小限制",
+  "confirmTorrentRecheck": "确认重新检查种子",
+  "recheckCompletedTorrents": "完成时重新检查种子",
+  "appInstanceName": "自定义应用程序实例名称",
+  "refreshInterval": "刷新间隔",
+  "resolvePeerHostnames": "解析 peer 主机名",
+  "resolvePeerCountries": "解析 peer 国家/地区",
+  "enableEmbeddedTracker": "启用嵌入式 tracker",
+  "embeddedTrackerPort": "嵌入式 tracker 端口",
+  "embeddedTrackerPortForwarding": "为嵌入式 tracker 启用端口转发",
+  "enableMotw": "为下载的文件启用 Mark-of-the-Web（需 macOS 或 Windows）",
+  "ignoreSslErrors": "忽略 SSL 错误",
+  "asyncIoThreads": "异步 I/O 线程数",
+  "hashingThreads": "哈希线程数",
+  "filePoolSize": "文件池大小",
+  "outstandingMemoryWhenChecking": "检查种子时的未决内存",
+  "diskCache": "磁盘缓存",
+  "diskCacheTtl": "磁盘缓存过期间隔",
+  "diskQueueSize": "磁盘队列大小",
+  "diskIoType": "磁盘 IO 类型（需重启）",
+  "diskIoReadMode": "磁盘 IO 读取模式",
+  "diskIoWriteMode": "磁盘 IO 写入模式",
+  "coalesceReadsWrites": "合并读写",
+  "pieceExtentAffinity": "使用分块范围亲和性",
+  "sendUploadPieceSuggestions": "发送上传分块建议",
+  "sendBufferWatermark": "发送缓冲区水位线",
+  "sendBufferLowWatermark": "发送缓冲区低水位线",
+  "sendBufferWatermarkFactor": "发送缓冲区水位线系数",
+  "outgoingConnectionsPerSecond": "每秒传出连接数",
+  "allowOutgoingWhenSeeding": "做种时允许传出连接",
+  "socketSendBufferSize": "套接字发送缓冲区大小（0：系统默认）",
+  "socketReceiveBufferSize": "套接字接收缓冲区大小（0：系统默认）",
+  "socketBacklogSize": "套接字 backlog 大小",
+  "outgoingPortsMin": "传出端口（最小，0：禁用）",
+  "outgoingPortsMax": "传出端口（最大，0：禁用）",
+  "peerTos": "连接 peer 的 DSCP",
+  "resolverCacheTtl": "内部主机名解析器缓存过期间隔",
+  "idnSupport": "支持国际化域名 (IDN)",
+  "allowMultipleConnectionsFromSameIp": "允许来自同一 IP 地址的多个连接",
+  "validateHttpsTrackerCert": "验证 HTTPS tracker 证书",
+  "ssrfMitigation": "服务端请求伪造 (SSRF) 缓解",
+  "blockPeersOnPrivilegedPorts": "禁止连接到特权端口上的 peer",
+  "uploadSlotsBehavior": "上传槽行为",
+  "uploadChokingAlgorithm": "上传阻塞算法",
+  "announceToAllTrackers": "始终向层级内所有 tracker 宣布",
+  "announceToAllTiers": "始终向 tier 内所有 tracker 宣布",
+  "announceIp": "向 tracker 报告的 IP（需重启）",
+  "announcePort": "向 tracker 报告的端口（需重启，0：监听端口）",
+  "maxConcurrentHttpAnnounces": "最大并发 HTTP announce 数",
+  "stopTrackerTimeout": "停止 tracker 超时（0：禁用）",
+  "peerTurnover": "Peer 轮换断开百分比",
+  "peerTurnoverCutoff": "Peer 轮换阈值百分比",
+  "peerTurnoverInterval": "Peer 轮换断开间隔",
+  "requestQueueSize": "对单个 peer 的最大未完成请求数",
+  "maxOutstandingPieceRequests": "来自 peer 的最大未完成块请求数",
+  "dhtBootstrapNodes": "DHT 引导节点",
+  "i2pInboundQuantity": "I2P 入站数量",
+  "i2pOutboundQuantity": "I2P 出站数量",
+  "i2pInboundLength": "I2P 入站长度",
+  "i2pOutboundLength": "I2P 出站长度",
+  "i2pTunnel": "I2P 隧道",
+  "upnpLeaseDuration": "UPnP 租约时长（0：永久）",
+  "reannounceWhenAddressChanges": "IP 或端口变化时向所有 tracker 重新 announce",
+  "pythonExecutablePath": "Python 可执行文件路径（可能需要重启）",
+  "bdecodeTokenLimit": "Bdecode 令牌限制",
+  "bdecodeDepthLimit": "Bdecode 深度限制",
+  "utpTcpMixedMode": "μTP-TCP 混合模式算法",
+  "allowMultipleConnectionsFromSamePeerId": "允许来自同一 Peer ID 的多个连接",
+  "invalidCheckingMemory": "检查种子时的未决内存必须大于 0 且小于 1024 MiB",
+  "invalidPeerDscp": "Peer DSCP 必须在 0 到 255 之间",
+  "invalidAnnouncePort": "向 tracker 报告的端口必须在 0 到 65535 之间",
+  "invalidPeerTurnover": "Peer 轮换断开百分比必须在 0 到 100 之间",
+  "invalidPeerTurnoverCutoff": "Peer 轮换阈值百分比必须在 0 到 100 之间",
+  "invalidPeerTurnoverInterval": "Peer 轮换断开间隔必须大于等于 0",
+  "pythonPathNoQuotes": "Python 可执行文件路径首尾不能包含引号",
+  "searchLogsHint": "搜索日志…",
+  "closeSearch": "关闭搜索",
+  "logTabBannedIp": "封禁 IP",
+  "noLogs": "暂无日志",
+  "noLogsHint": "服务器尚未产生日志记录",
+  "noMatchingLogs": "无匹配日志",
+  "adjustFiltersOrSearchHint": "试试调整筛选或搜索关键词",
+  "noBanRecords": "暂无封禁记录",
+  "noBanRecordsHint": "尚未有 Peer 被屏蔽或封禁",
+  "noMatchingRecords": "无匹配记录",
+  "adjustSearchHint": "试试调整搜索关键词",
+  "logPeerBlocked": "已屏蔽",
+  "logPeerBanned": "已封禁",
+  "pageNotFound": "页面不存在"
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_action_tile.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 
 class TorrentQueuePage extends StatelessWidget {
   const TorrentQueuePage({
@@ -21,6 +22,7 @@ class TorrentQueuePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     final inQueue = position != null && position! > 0;
@@ -33,21 +35,21 @@ class TorrentQueuePage extends StatelessWidget {
           child: Row(
             children: [
               IconButton(
-                tooltip: '返回',
+                tooltip: l10n.actionBack,
                 visualDensity: VisualDensity.compact,
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back),
               ),
               Expanded(
                 child: Text(
-                  '队列',
+                  l10n.queue,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium,
                 ),
               ),
               Text(
-                inQueue ? '第 $position 位' : '不在队列中',
+                inQueue ? l10n.queuePosition(position!) : l10n.notInQueue,
                 style: textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
@@ -61,22 +63,22 @@ class TorrentQueuePage extends StatelessWidget {
             children: [
               TorrentActionTile(
                 icon: Icons.vertical_align_top,
-                label: '置顶',
+                label: l10n.queueTop,
                 onTap: onTop,
               ),
               TorrentActionTile(
                 icon: Icons.keyboard_arrow_up,
-                label: '上移',
+                label: l10n.queueUp,
                 onTap: onUp,
               ),
               TorrentActionTile(
                 icon: Icons.keyboard_arrow_down,
-                label: '下移',
+                label: l10n.queueDown,
                 onTap: onDown,
               ),
               TorrentActionTile(
                 icon: Icons.vertical_align_bottom,
-                label: '置底',
+                label: l10n.queueBottom,
                 onTap: onBottom,
               ),
             ],

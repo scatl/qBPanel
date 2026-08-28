@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/network_interface_item.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
@@ -276,14 +277,14 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
     if (!ui.ready || ui.saving) return;
 
     _syncTextFieldsToVm();
-    LoadingDialog.show(context, message: '保存中…');
+    LoadingDialog.show(context, message: context.l10n.saving);
     await Future<void>.delayed(Duration.zero);
 
     final error = await ref.read(advancedSettingsProvider.notifier).save();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error ?? '已保存')),
+      SnackBar(content: Text(error ?? context.l10n.saved)),
     );
   }
 
@@ -292,7 +293,7 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
     String current,
   ) {
     final items = <DropdownMenuItem<String>>[
-      const DropdownMenuItem(value: '', child: Text('任意接口')),
+      DropdownMenuItem(value: '', child: Text(context.l10n.anyInterface)),
     ];
     if (current.isNotEmpty &&
         !interfaces.any((e) => e.value == current)) {
@@ -322,7 +323,7 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
         .map(
           (value) => DropdownMenuItem(
             value: value,
-            child: Text(AdvancedBindAddressOption.labelOf(value)),
+            child: Text(AdvancedBindAddressOption.labelOf(value, context.l10n)),
           ),
         )
         .toList();
@@ -338,10 +339,10 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('高级'),
+        title: Text(context.l10n.qbSetAdvanced),
         actions: [
           IconButton(
-            tooltip: '保存',
+            tooltip: context.l10n.actionSave,
             icon: const Icon(Icons.save),
             onPressed: canEdit ? _onSave : null,
           ),
@@ -361,42 +362,42 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   DropdownField<AdvancedResumeDataStorage>(
-                    label: '恢复数据存储类型（需重启）',
+                    label: context.l10n.resumeDataStorage,
                     value: ui.resumeDataStorageType,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedResumeDataStorage.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setResumeDataStorageType,
                   ),
                   const SizedBox(height: 8),
                   DropdownField<AdvancedTorrentRemoveOption>(
-                    label: '删除种子内容方式',
+                    label: context.l10n.torrentContentRemoveOption,
                     value: ui.torrentContentRemoveOption,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedTorrentRemoveOption.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setTorrentContentRemoveOption,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '物理内存 (RAM) 使用上限',
+                    label: context.l10n.physicalMemoryLimit,
                     controller: _memoryLimitController,
                     enabled: canEdit,
                     suffix: 'MiB',
                   ),
                   const SizedBox(height: 8),
                   DropdownField<String>(
-                    label: '网络接口',
+                    label: context.l10n.networkInterface,
                     value: ui.currentNetworkInterface,
                     enabled: canEdit,
                     items: _networkInterfaceItems(
@@ -407,7 +408,7 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                   ),
                   const SizedBox(height: 8),
                   DropdownField<String>(
-                    label: '可选绑定 IP 地址',
+                    label: context.l10n.optionalBindAddress,
                     value: ui.currentInterfaceAddress,
                     enabled: canEdit,
                     items: _bindAddressItems(
@@ -418,32 +419,32 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '保存恢复数据间隔',
+                    label: context.l10n.saveResumeDataInterval,
                     controller: _saveResumeIntervalController,
                     enabled: canEdit,
-                    suffix: '分钟',
+                    suffix: context.l10n.minutes,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '保存统计信息间隔',
+                    label: context.l10n.saveStatisticsInterval,
                     controller: _saveStatsIntervalController,
                     enabled: canEdit,
-                    suffix: '分钟',
+                    suffix: context.l10n.minutes,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '.torrent 文件大小限制',
+                    label: context.l10n.torrentFileSizeLimit,
                     controller: _torrentFileSizeController,
                     enabled: canEdit,
                     suffix: 'MiB',
                   ),
                   SettingsSwitchTile(
-                    title: '确认重新检查种子',
+                    title: context.l10n.confirmTorrentRecheck,
                     value: ui.confirmTorrentRecheck,
                     onChanged: canEdit ? vm.setConfirmTorrentRecheck : null,
                   ),
                   SettingsSwitchTile(
-                    title: '完成时重新检查种子',
+                    title: context.l10n.recheckCompletedTorrents,
                     value: ui.recheckCompletedTorrents,
                     onChanged:
                         canEdit ? vm.setRecheckCompletedTorrents : null,
@@ -452,29 +453,29 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                   TextField(
                     controller: _appInstanceController,
                     enabled: canEdit,
-                    decoration: const InputDecoration(
-                      labelText: '自定义应用程序实例名称',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.appInstanceName,
                     ),
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '刷新间隔',
+                    label: context.l10n.refreshInterval,
                     controller: _refreshIntervalController,
                     enabled: canEdit,
-                    suffix: '毫秒',
+                    suffix: context.l10n.unitMilliseconds,
                   ),
                   SettingsSwitchTile(
-                    title: '解析 peer 主机名',
+                    title: context.l10n.resolvePeerHostnames,
                     value: ui.resolvePeerHostNames,
                     onChanged: canEdit ? vm.setResolvePeerHostNames : null,
                   ),
                   SettingsSwitchTile(
-                    title: '解析 peer 国家/地区',
+                    title: context.l10n.resolvePeerCountries,
                     value: ui.resolvePeerCountries,
                     onChanged: canEdit ? vm.setResolvePeerCountries : null,
                   ),
                   SettingsSwitchTile(
-                    title: 'IP 或端口变化时向所有 tracker 重新 announce',
+                    title: context.l10n.reannounceWhenAddressChanges,
                     value: ui.reannounceWhenAddressChanged,
                     onChanged:
                         canEdit ? vm.setReannounceWhenAddressChanged : null,
@@ -484,18 +485,18 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         SettingsSwitchTile(
-                          title: '启用嵌入式 tracker',
+                          title: context.l10n.enableEmbeddedTracker,
                           value: ui.enableEmbeddedTracker,
                           onChanged:
                               canEdit ? vm.setEnableEmbeddedTracker : null,
                         ),
                         _NumberField(
-                          label: '嵌入式 tracker 端口',
+                          label: context.l10n.embeddedTrackerPort,
                           controller: _embeddedPortController,
                           enabled: embeddedOn,
                         ),
                         SettingsSwitchTile(
-                          title: '为嵌入式 tracker 启用端口转发',
+                          title: context.l10n.embeddedTrackerPortForwarding,
                           value: ui.embeddedTrackerPortForwarding,
                           onChanged: embeddedOn
                               ? vm.setEmbeddedTrackerPortForwarding
@@ -505,12 +506,12 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     ),
                   ),
                   SettingsSwitchTile(
-                    title: '为下载的文件启用 Mark-of-the-Web（需 macOS 或 Windows）',
+                    title: context.l10n.enableMotw,
                     value: ui.markOfTheWeb,
                     onChanged: canEdit ? vm.setMarkOfTheWeb : null,
                   ),
                   SettingsSwitchTile(
-                    title: '忽略 SSL 错误',
+                    title: context.l10n.ignoreSslErrors,
                     value: ui.ignoreSslErrors,
                     onChanged: canEdit ? vm.setIgnoreSslErrors : null,
                   ),
@@ -520,8 +521,8 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     enabled: canEdit,
                     minLines: 1,
                     maxLines: 2,
-                    decoration: const InputDecoration(
-                      labelText: 'Python 可执行文件路径（可能需要重启）',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.pythonExecutablePath,
                     ),
                   ),
                 ],
@@ -535,291 +536,291 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _NumberField(
-                    label: 'Bdecode 深度限制',
+                    label: context.l10n.bdecodeDepthLimit,
                     controller: _bdecodeDepthController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'Bdecode 令牌限制',
+                    label: context.l10n.bdecodeTokenLimit,
                     controller: _bdecodeTokenController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '异步 I/O 线程数',
+                    label: context.l10n.asyncIoThreads,
                     controller: _asyncIoThreadsController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '哈希线程数',
+                    label: context.l10n.hashingThreads,
                     controller: _hashingThreadsController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '文件池大小',
+                    label: context.l10n.filePoolSize,
                     controller: _filePoolSizeController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '检查种子时的未决内存',
+                    label: context.l10n.outstandingMemoryWhenChecking,
                     controller: _checkingMemoryController,
                     enabled: canEdit,
                     suffix: 'MiB',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '磁盘缓存',
+                    label: context.l10n.diskCache,
                     controller: _diskCacheController,
                     enabled: canEdit,
                     suffix: 'MiB',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '磁盘缓存过期间隔',
+                    label: context.l10n.diskCacheTtl,
                     controller: _diskCacheTtlController,
                     enabled: canEdit,
-                    suffix: '秒',
+                    suffix: context.l10n.unitSeconds,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '磁盘队列大小',
+                    label: context.l10n.diskQueueSize,
                     controller: _diskQueueController,
                     enabled: canEdit,
                     suffix: 'KiB',
                   ),
                   const SizedBox(height: 8),
                   DropdownField<AdvancedDiskIoType>(
-                    label: '磁盘 IO 类型（需重启）',
+                    label: context.l10n.diskIoType,
                     value: ui.diskIoType,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedDiskIoType.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setDiskIoType,
                   ),
                   const SizedBox(height: 8),
                   DropdownField<AdvancedDiskIoCacheMode>(
-                    label: '磁盘 IO 读取模式',
+                    label: context.l10n.diskIoReadMode,
                     value: ui.diskIoReadMode,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedDiskIoCacheMode.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setDiskIoReadMode,
                   ),
                   const SizedBox(height: 8),
                   DropdownField<AdvancedDiskIoWriteMode>(
-                    label: '磁盘 IO 写入模式',
+                    label: context.l10n.diskIoWriteMode,
                     value: ui.diskIoWriteMode,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedDiskIoWriteMode.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setDiskIoWriteMode,
                   ),
                   SettingsSwitchTile(
-                    title: '合并读写',
+                    title: context.l10n.coalesceReadsWrites,
                     value: ui.enableCoalesceReadWrite,
                     onChanged: canEdit ? vm.setEnableCoalesceReadWrite : null,
                   ),
                   SettingsSwitchTile(
-                    title: '使用分块范围亲和性',
+                    title: context.l10n.pieceExtentAffinity,
                     value: ui.enablePieceExtentAffinity,
                     onChanged:
                         canEdit ? vm.setEnablePieceExtentAffinity : null,
                   ),
                   SettingsSwitchTile(
-                    title: '发送上传分块建议',
+                    title: context.l10n.sendUploadPieceSuggestions,
                     value: ui.enableUploadSuggestions,
                     onChanged: canEdit ? vm.setEnableUploadSuggestions : null,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '发送缓冲区水位线',
+                    label: context.l10n.sendBufferWatermark,
                     controller: _sendBufferController,
                     enabled: canEdit,
                     suffix: 'KiB',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '发送缓冲区低水位线',
+                    label: context.l10n.sendBufferLowWatermark,
                     controller: _sendBufferLowController,
                     enabled: canEdit,
                     suffix: 'KiB',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '发送缓冲区水位线系数',
+                    label: context.l10n.sendBufferWatermarkFactor,
                     controller: _sendBufferFactorController,
                     enabled: canEdit,
                     suffix: '%',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '每秒传出连接数',
+                    label: context.l10n.outgoingConnectionsPerSecond,
                     controller: _connectionSpeedController,
                     enabled: canEdit,
                   ),
                   SettingsSwitchTile(
-                    title: '做种时允许传出连接',
+                    title: context.l10n.allowOutgoingWhenSeeding,
                     value: ui.seedingOutgoingConnections,
                     onChanged:
                         canEdit ? vm.setSeedingOutgoingConnections : null,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '套接字发送缓冲区大小（0：系统默认）',
+                    label: context.l10n.socketSendBufferSize,
                     controller: _socketSendController,
                     enabled: canEdit,
                     suffix: 'KiB',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '套接字接收缓冲区大小（0：系统默认）',
+                    label: context.l10n.socketReceiveBufferSize,
                     controller: _socketReceiveController,
                     enabled: canEdit,
                     suffix: 'KiB',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '套接字 backlog 大小',
+                    label: context.l10n.socketBacklogSize,
                     controller: _socketBacklogController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '传出端口（最小，0：禁用）',
+                    label: context.l10n.outgoingPortsMin,
                     controller: _outgoingMinController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '传出端口（最大，0：禁用）',
+                    label: context.l10n.outgoingPortsMax,
                     controller: _outgoingMaxController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'UPnP 租约时长（0：永久）',
+                    label: context.l10n.upnpLeaseDuration,
                     controller: _upnpLeaseController,
                     enabled: canEdit,
-                    suffix: '秒',
+                    suffix: context.l10n.unitSeconds,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '连接 peer 的 DSCP',
+                    label: context.l10n.peerTos,
                     controller: _peerDscpController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   DropdownField<AdvancedUtpTcpMixedMode>(
-                    label: 'μTP-TCP 混合模式算法',
+                    label: context.l10n.utpTcpMixedMode,
                     value: ui.utpTcpMixedMode,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedUtpTcpMixedMode.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setUtpTcpMixedMode,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '内部主机名解析器缓存过期间隔',
+                    label: context.l10n.resolverCacheTtl,
                     controller: _hostnameCacheController,
                     enabled: canEdit,
-                    suffix: '秒',
+                    suffix: context.l10n.unitSeconds,
                   ),
                   SettingsSwitchTile(
-                    title: '支持国际化域名 (IDN)',
+                    title: context.l10n.idnSupport,
                     value: ui.idnSupportEnabled,
                     onChanged: canEdit ? vm.setIdnSupportEnabled : null,
                   ),
                   SettingsSwitchTile(
-                    title: '允许来自同一 IP 地址的多个连接',
+                    title: context.l10n.allowMultipleConnectionsFromSameIp,
                     value: ui.enableMultiConnectionsFromSameIp,
                     onChanged: canEdit
                         ? vm.setEnableMultiConnectionsFromSameIp
                         : null,
                   ),
                   SettingsSwitchTile(
-                    title: '允许来自同一 Peer ID 的多个连接',
+                    title: context.l10n.allowMultipleConnectionsFromSamePeerId,
                     value: ui.enableMultiConnectionsFromSamePeerId,
                     onChanged: canEdit
                         ? vm.setEnableMultiConnectionsFromSamePeerId
                         : null,
                   ),
                   SettingsSwitchTile(
-                    title: '验证 HTTPS tracker 证书',
+                    title: context.l10n.validateHttpsTrackerCert,
                     value: ui.validateHttpsTrackerCertificate,
                     onChanged: canEdit
                         ? vm.setValidateHttpsTrackerCertificate
                         : null,
                   ),
                   SettingsSwitchTile(
-                    title: '服务端请求伪造 (SSRF) 缓解',
+                    title: context.l10n.ssrfMitigation,
                     value: ui.ssrfMitigation,
                     onChanged: canEdit ? vm.setSsrfMitigation : null,
                   ),
                   SettingsSwitchTile(
-                    title: '禁止连接到特权端口上的 peer',
+                    title: context.l10n.blockPeersOnPrivilegedPorts,
                     value: ui.blockPeersOnPrivilegedPorts,
                     onChanged:
                         canEdit ? vm.setBlockPeersOnPrivilegedPorts : null,
                   ),
                   const SizedBox(height: 8),
                   DropdownField<AdvancedUploadSlotsBehavior>(
-                    label: '上传槽行为',
+                    label: context.l10n.uploadSlotsBehavior,
                     value: ui.uploadSlotsBehavior,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedUploadSlotsBehavior.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setUploadSlotsBehavior,
                   ),
                   const SizedBox(height: 8),
                   DropdownField<AdvancedUploadChokingAlgorithm>(
-                    label: '上传阻塞算法',
+                    label: context.l10n.uploadChokingAlgorithm,
                     value: ui.uploadChokingAlgorithm,
                     enabled: canEdit,
                     items: [
                       for (final item in AdvancedUploadChokingAlgorithm.values)
                         DropdownMenuItem(
                           value: item,
-                          child: Text(item.label),
+                          child: Text(item.label(context.l10n)),
                         ),
                     ],
                     onChanged: vm.setUploadChokingAlgorithm,
                   ),
                   SettingsSwitchTile(
-                    title: '始终向层级内所有 tracker 宣布',
+                    title: context.l10n.announceToAllTrackers,
                     value: ui.announceToAllTiers,
                     onChanged: canEdit ? vm.setAnnounceToAllTiers : null,
                   ),
                   SettingsSwitchTile(
-                    title: '始终向 tier 内所有 tracker 宣布',
+                    title: context.l10n.announceToAllTiers,
                     value: ui.announceToAllTrackers,
                     onChanged: canEdit ? vm.setAnnounceToAllTrackers : null,
                   ),
@@ -827,59 +828,59 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                   TextField(
                     controller: _announceIpController,
                     enabled: canEdit,
-                    decoration: const InputDecoration(
-                      labelText: '向 tracker 报告的 IP（需重启）',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.announceIp,
                     ),
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '向 tracker 报告的端口（需重启，0：监听端口）',
+                    label: context.l10n.announcePort,
                     controller: _announcePortController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '最大并发 HTTP announce 数',
+                    label: context.l10n.maxConcurrentHttpAnnounces,
                     controller: _maxHttpAnnouncesController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '停止 tracker 超时（0：禁用）',
+                    label: context.l10n.stopTrackerTimeout,
                     controller: _stopTrackerTimeoutController,
                     enabled: canEdit,
-                    suffix: '秒',
+                    suffix: context.l10n.unitSeconds,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'Peer 轮换断开百分比',
+                    label: context.l10n.peerTurnover,
                     controller: _peerTurnoverController,
                     enabled: canEdit,
                     suffix: '%',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'Peer 轮换阈值百分比',
+                    label: context.l10n.peerTurnoverCutoff,
                     controller: _peerTurnoverCutoffController,
                     enabled: canEdit,
                     suffix: '%',
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'Peer 轮换断开间隔',
+                    label: context.l10n.peerTurnoverInterval,
                     controller: _peerTurnoverIntervalController,
                     enabled: canEdit,
-                    suffix: '秒',
+                    suffix: context.l10n.unitSeconds,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '对单个 peer 的最大未完成请求数',
+                    label: context.l10n.requestQueueSize,
                     controller: _requestQueueController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: '来自 peer 的最大未完成块请求数',
+                    label: context.l10n.maxOutstandingPieceRequests,
                     controller: _maxBlockRequestsController,
                     enabled: canEdit,
                   ),
@@ -889,37 +890,37 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     enabled: canEdit,
                     minLines: 2,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'DHT 引导节点',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.dhtBootstrapNodes,
                       alignLabelWithHint: true,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'I2P 隧道',
+                    context.l10n.i2pTunnel,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'I2P 入站数量',
+                    label: context.l10n.i2pInboundQuantity,
                     controller: _i2pInboundQtyController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'I2P 出站数量',
+                    label: context.l10n.i2pOutboundQuantity,
                     controller: _i2pOutboundQtyController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'I2P 入站长度',
+                    label: context.l10n.i2pInboundLength,
                     controller: _i2pInboundLenController,
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
-                    label: 'I2P 出站长度',
+                    label: context.l10n.i2pOutboundLength,
                     controller: _i2pOutboundLenController,
                     enabled: canEdit,
                   ),

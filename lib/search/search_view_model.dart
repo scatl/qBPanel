@@ -8,6 +8,8 @@ import 'package:qbpanel/api/entity/response/search_plugin_response.dart';
 import 'package:qbpanel/api/entity/response/search_result_response.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/search/entity/search_result_filter.dart';
 import 'package:qbpanel/search/search_ui_state.dart';
 import 'package:qbpanel/search/util/search_filter.dart';
@@ -22,6 +24,8 @@ class SearchViewModel extends Notifier<SearchUiState> {
   late PollLoop _poll;
   Timer? _resultFilterDebounce;
   int? _activeJobId;
+
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
 
   @override
   SearchUiState build() {
@@ -41,7 +45,17 @@ class SearchViewModel extends Notifier<SearchUiState> {
     });
 
     Future.microtask(_loadPlugins);
-    return const SearchUiState();
+    final l10n = _l10n;
+    return SearchUiState(
+      categoryOptions: [
+        SearchCategoryOption(id: 'all', name: l10n.allCategories),
+      ],
+      emptyState: EmptyState.empty(
+        title: l10n.searchTorrents,
+        subtitle: l10n.searchIdleHint,
+        icon: Icons.search_outlined,
+      ),
+    );
   }
 
   void setPatternInput(String value) {
@@ -125,8 +139,8 @@ class SearchViewModel extends Notifier<SearchUiState> {
         .onFail((e) {
           error = switch (e.statusCode) {
             409 => e.message.contains('Python') || e.message.contains('python')
-                ? '服务器未安装 Python，无法使用搜索功能'
-                : '进行中的搜索已达上限（最多 5 个）',
+                ? _l10n.pythonRequired
+                : _l10n.searchLimitReached,
             _ => e.message,
           };
         });
@@ -136,7 +150,7 @@ class SearchViewModel extends Notifier<SearchUiState> {
     if (jobId == null || jobId == 0) {
       state = state.copyWith(
         startingSearch: false,
-        emptyState: EmptyState.error(error ?? '开始搜索失败'),
+        emptyState: EmptyState.error(error ?? _l10n.startSearchFailed),
       );
       return;
     }
@@ -182,8 +196,8 @@ class SearchViewModel extends Notifier<SearchUiState> {
     if (plugins == null) {
       state = state.copyWith(
         pluginsLoading: false,
-        pluginsError: error ?? '加载搜索插件失败',
-        emptyState: EmptyState.error(error ?? '加载搜索插件失败'),
+        pluginsError: error ?? _l10n.loadPluginsFailed,
+        emptyState: EmptyState.error(error ?? _l10n.loadPluginsFailed),
       );
       return;
     }
@@ -193,8 +207,8 @@ class SearchViewModel extends Notifier<SearchUiState> {
         pluginsLoading: false,
         plugins: plugins!,
         emptyState: EmptyState.empty(
-          title: '未安装搜索插件',
-          subtitle: '请在 qBittorrent Web 端安装并启用搜索插件',
+          title: _l10n.noSearchPlugins,
+          subtitle: _l10n.noSearchPluginsHint,
           icon: Icons.extension_off_outlined,
         ),
       );
@@ -246,7 +260,7 @@ class SearchViewModel extends Notifier<SearchUiState> {
         ).id.isEmpty) {
       options.insert(
         0,
-        const SearchCategoryOption(id: 'all', name: '全部分类'),
+        SearchCategoryOption(id: 'all', name: _l10n.allCategories),
       );
     }
 
@@ -291,8 +305,8 @@ class SearchViewModel extends Notifier<SearchUiState> {
         .onFail((e) {
           if (e.isCancel) return;
           error = switch (e.statusCode) {
-            404 => '搜索任务不存在',
-            409 => '搜索结果已不可用',
+            404 => _l10n.searchJobNotFound,
+            409 => _l10n.searchResultsUnavailable,
             _ => e.message,
           };
         });
@@ -338,30 +352,32 @@ class SearchViewModel extends Notifier<SearchUiState> {
       emptyState = EmptyState.error(state.pluginsError!);
     } else if (state.plugins.isEmpty && !state.pluginsLoading) {
       emptyState = EmptyState.empty(
-        title: '未安装搜索插件',
-        subtitle: '请在 qBittorrent Web 端安装并启用搜索插件',
+        title: _l10n.noSearchPlugins,
+        subtitle: _l10n.noSearchPluginsHint,
         icon: Icons.extension_off_outlined,
       );
     } else if (!state.hasSearchJob) {
       emptyState = EmptyState.empty(
-        title: '搜索种子',
-        subtitle: '输入关键词并选择分类 / 插件后开始搜索',
+        title: _l10n.searchTorrents,
+        subtitle: _l10n.searchIdleHint,
         icon: Icons.search_outlined,
       );
     } else if (state.isRunning && state.allResults.isEmpty) {
       emptyState = EmptyState.empty(
-        title: '搜索中',
-        subtitle: '正在从插件获取结果…',
+        title: _l10n.searching,
+        subtitle: _l10n.searchingHint,
         icon: Icons.hourglass_top_outlined,
       );
     } else if (filtered.isEmpty) {
       emptyState = EmptyState.empty(
-        title: state.resultFiltering ? '无匹配结果' : '未找到结果',
-        subtitle: state.resultFiltering ? '试试调整筛选条件' : '可更换关键词或插件重试',
+        title: state.resultFiltering ? _l10n.noMatchingResults : _l10n.noResults,
+        subtitle: state.resultFiltering
+            ? _l10n.adjustFiltersHint
+            : _l10n.retrySearchHint,
         icon: state.resultFiltering
             ? Icons.search_off_outlined
             : Icons.inbox_outlined,
-        actionText: state.resultFiltering ? '清除筛选' : null,
+        actionText: state.resultFiltering ? _l10n.homeClearFilters : null,
       );
     } else {
       emptyState = const EmptyState.content();

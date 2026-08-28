@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/connection/connection_settings_ui_state.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
@@ -36,7 +37,7 @@ class ConnectionSettingsViewModel extends Notifier<ConnectionSettingsUiState> {
 
     if (prefs == null) {
       state = state.copyWith(
-        emptyState: EmptyState.error(error ?? '加载设置失败'),
+        emptyState: EmptyState.error(error ?? ref.read(appLocalizationsProvider).loadSettingsFailed),
       );
       return false;
     }
@@ -218,26 +219,26 @@ class ConnectionSettingsViewModel extends Notifier<ConnectionSettingsUiState> {
 
     final listenPort = state.listenPort;
     if (listenPort < 0 || listenPort > 65535) {
-      return '用于传入连接的端口必须在 0 到 65535 之间';
+      return ref.read(appLocalizationsProvider).invalidListenPort;
     }
     if (state.maxConnecEnabled && state.maxConnec <= 0) {
-      return '全局最大连接数必须大于 0 或关闭';
+      return ref.read(appLocalizationsProvider).invalidMaxConnections;
     }
     if (state.maxConnecPerTorrentEnabled && state.maxConnecPerTorrent <= 0) {
-      return '每 torrent 最大连接数必须大于 0 或关闭';
+      return ref.read(appLocalizationsProvider).invalidMaxConnectionsPerTorrent;
     }
     if (state.maxUploadsEnabled && state.maxUploads <= 0) {
-      return '全局上传窗口数上限必须大于 0 或关闭';
+      return ref.read(appLocalizationsProvider).invalidMaxUploads;
     }
     if (state.maxUploadsPerTorrentEnabled &&
         state.maxUploadsPerTorrent <= 0) {
-      return '每个 torrent 上传窗口数上限必须大于 0 或关闭';
+      return ref.read(appLocalizationsProvider).invalidMaxUploadsPerTorrent;
     }
     if (state.proxyPort < 0 || state.proxyPort > 65535) {
-      return '代理端口必须在 0 到 65535 之间';
+      return ref.read(appLocalizationsProvider).invalidProxyPort;
     }
     if (state.i2pPort < 0 || state.i2pPort > 65535) {
-      return 'I2P 端口必须在 0 到 65535 之间';
+      return ref.read(appLocalizationsProvider).invalidI2pPort;
     }
 
     state = state.copyWith(saving: true);

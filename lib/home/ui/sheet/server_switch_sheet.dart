@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/settings/server/list/server_list_item.dart';
 import 'package:qbpanel/settings/server/list/server_list_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
 import 'package:qbpanel/widget/sheet/blur_modal_bottom_sheet.dart';
 
@@ -28,6 +29,7 @@ class _ServerSwitchSheetState extends ConsumerState<ServerSwitchSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final ui = ref.watch(serverListProvider);
     final textTheme = Theme.of(context).textTheme;
     final maxHeight = MediaQuery.sizeOf(context).height * 0.7;
@@ -43,7 +45,7 @@ class _ServerSwitchSheetState extends ConsumerState<ServerSwitchSheet> {
       body = Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         child: Text(
-          list.error ? (list.errorMessage ?? '加载失败') : '暂无服务器',
+          list.error ? (list.errorMessage ?? l10n.loadFailed) : l10n.noServers,
           style: textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),
@@ -72,7 +74,7 @@ class _ServerSwitchSheetState extends ConsumerState<ServerSwitchSheet> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text('切换服务器', style: textTheme.titleMedium),
+            child: Text(l10n.switchServer, style: textTheme.titleMedium),
           ),
           Flexible(child: body),
         ],

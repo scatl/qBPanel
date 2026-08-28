@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class TorrentLocationDialog extends StatefulWidget {
@@ -61,7 +62,7 @@ class _TorrentLocationDialogState extends State<TorrentLocationDialog> {
     FocusScope.of(context).unfocus();
     final path = _controller.text.trim();
     if (path.isEmpty) {
-      setState(() => _pathError = '请输入保存路径');
+      setState(() => _pathError = context.l10n.enterSavePath);
       return;
     }
     Navigator.of(context).pop(path);
@@ -69,6 +70,7 @@ class _TorrentLocationDialogState extends State<TorrentLocationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.85;
@@ -84,7 +86,7 @@ class _TorrentLocationDialogState extends State<TorrentLocationDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '设置保存位置',
+              l10n.setSaveLocation,
               style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
             ),
             const SizedBox(height: 16),
@@ -99,7 +101,7 @@ class _TorrentLocationDialogState extends State<TorrentLocationDialog> {
                 if (_pathError != null) setState(() => _pathError = null);
               },
               decoration: InputDecoration(
-                labelText: '保存路径',
+                labelText: l10n.savePath,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 errorText: _pathError,
               ),
@@ -107,7 +109,7 @@ class _TorrentLocationDialogState extends State<TorrentLocationDialog> {
             if (widget.autoTmm) ...[
               const SizedBox(height: 12),
               Text(
-                '已开启自动种子管理。确定后将关闭自动管理，并改用上面的手动路径。',
+                l10n.autoTmmLocationHint,
                 style: textTheme.bodySmall?.copyWith(color: scheme.tertiary),
               ),
             ],
@@ -117,12 +119,12 @@ class _TorrentLocationDialogState extends State<TorrentLocationDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                  child: Text(l10n.actionCancel),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
                   onPressed: _onConfirm,
-                  child: const Text('确定'),
+                  child: Text(l10n.actionOk),
                 ),
               ],
             ),

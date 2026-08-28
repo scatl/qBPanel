@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/search_result_response.dart';
 import 'package:qbpanel/detail/general/torrent_general_format.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -16,6 +17,7 @@ class SearchResultItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -48,15 +50,15 @@ class SearchResultItem extends StatelessWidget {
                 children: [
                   _MetaChip(
                     icon: Icons.storage_outlined,
-                    label: _formatSize(result.fileSize),
+                    label: _formatSize(result.fileSize, l10n.unknownSize),
                   ),
                   _MetaChip(
                     icon: Icons.arrow_upward_rounded,
-                    label: '做种 ${_formatCount(result.nbSeeders)}',
+                    label: l10n.seedingCount(_formatCount(result.nbSeeders)),
                   ),
                   _MetaChip(
                     icon: Icons.arrow_downward_rounded,
-                    label: '下载 ${_formatCount(result.nbLeechers)}',
+                    label: l10n.leechingCount(_formatCount(result.nbLeechers)),
                   ),
                   if ((result.engineName ?? '').isNotEmpty)
                     _MetaChip(
@@ -82,8 +84,8 @@ class SearchResultItem extends StatelessWidget {
     );
   }
 
-  static String _formatSize(int bytes) {
-    if (bytes < 0) return '未知大小';
+  static String _formatSize(int bytes, String unknown) {
+    if (bytes < 0) return unknown;
     return formatBytes(bytes, fractionDigits: 2);
   }
 

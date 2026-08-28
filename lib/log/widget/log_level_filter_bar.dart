@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/log/model/log_level.dart';
 import 'package:qbpanel/log/model/log_level_colors.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -69,7 +70,7 @@ class _LevelFilterChip extends StatelessWidget {
 
     return FilterChip(
       label: Text(
-        level.label,
+        level.label(context.l10n),
         style: textTheme.labelLarge?.copyWith(
           color: labelColor,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w500,

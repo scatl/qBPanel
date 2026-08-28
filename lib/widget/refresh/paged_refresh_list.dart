@@ -1,5 +1,6 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 
@@ -43,12 +44,12 @@ class PagedRefreshList<T> extends StatefulWidget {
     this.enableLoadMore = true,
     this.triggerLoadMoreOffset = 5,
     this.padding = EdgeInsets.zero,
-    this.emptyTitle = '暂无数据',
+    this.emptyTitle,
     this.emptySubtitle,
     this.emptyIcon,
     this.emptyActionText,
     this.onEmptyAction,
-    this.errorActionText = '重试',
+    this.errorActionText,
     this.showNoMoreMessage = true,
     this.itemExtent,
     this.separatorBuilder,
@@ -75,7 +76,7 @@ class PagedRefreshList<T> extends StatefulWidget {
   final int triggerLoadMoreOffset;
 
   final EdgeInsetsGeometry padding;
-  final String emptyTitle;
+  final String? emptyTitle;
   final String? emptySubtitle;
 
   /// 非错误空态图标；默认 `Icons.inbox_outlined`。错误态仍用 `error_outline`。
@@ -87,8 +88,8 @@ class PagedRefreshList<T> extends StatefulWidget {
   /// 非错误空态按钮；错误态走 [errorActionText] + 重试。
   final VoidCallback? onEmptyAction;
 
-  /// 错误态按钮文案，默认「重试」。
-  final String errorActionText;
+  /// 错误态按钮文案；null 时使用 l10n「重试」。
+  final String? errorActionText;
 
   final bool showNoMoreMessage;
 
@@ -258,7 +259,7 @@ class PagedRefreshListState<T> extends State<PagedRefreshList<T>> {
               state: EmptyState(
                 isEmpty: true,
                 errorMessage: _state.error
-                    ? (_state.errorMessage ?? '加载失败')
+                    ? (_state.errorMessage ?? context.l10n.loadFailed)
                     : null,
                 emptyTitle: widget.emptyTitle,
                 emptySubtitle: widget.emptySubtitle,

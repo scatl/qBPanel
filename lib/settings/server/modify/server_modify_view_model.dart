@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_build_info_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/modify/server_modify_ui_state.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
 import 'package:qbpanel/storage/db/app_database_provider.dart';
@@ -57,7 +58,7 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
     if (server == null) {
       state = state.copyWith(
         initializing: false,
-        formErrorMessage: '服务器不存在或已删除',
+        formErrorMessage: ref.read(appLocalizationsProvider).serverNotFound,
       );
       return null;
     }
@@ -92,16 +93,17 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
     final apiKeyError = apiKeyTrim.isEmpty;
 
     if (nameError || hostError || apiKeyError) {
+      final l10n = ref.read(appLocalizationsProvider);
       final missing = <String>[
-        if (nameError) '服务器名称',
-        if (hostError) '域名或IP',
-        if (apiKeyError) 'API密钥',
+        if (nameError) l10n.serverName,
+        if (hostError) l10n.host,
+        if (apiKeyError) l10n.apiKey,
       ];
       state = state.copyWith(
         nameError: nameError,
         hostError: hostError,
         apiKeyError: apiKeyError,
-        formErrorMessage: '请填写：${missing.join('、')}',
+        formErrorMessage: l10n.pleaseFillFields(missing.join(l10n.listSeparator)),
       );
       return false;
     }
@@ -143,7 +145,9 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
         ),
       );
       if (updated == 0) {
-        state = state.copyWith(formErrorMessage: '保存失败：服务器不存在或已删除');
+        state = state.copyWith(
+          formErrorMessage: ref.read(appLocalizationsProvider).saveFailedServerGone,
+        );
         return false;
       }
       return true;
@@ -237,7 +241,9 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
     final apiVersion = results[1] as String?;
     if (apiVersion == null) {
       state = state.copyWith(
-        formErrorMessage: '校验失败：${probeError ?? '无法获取 API 版本'}',
+        formErrorMessage: ref.read(appLocalizationsProvider).probeFailed(
+          probeError ?? ref.read(appLocalizationsProvider).cannotGetApiVersion,
+        ),
       );
       return null;
     }

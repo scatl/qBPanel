@@ -1,19 +1,21 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
+
 /// 与 qBittorrent `PeerInfo::determineFlags` 一致。
-const peerFlagLegend = [
-  ('D', '本端想下且未被阻塞'),
-  ('d', '本端想下但对端阻塞'),
-  ('U', '对端想下且未被阻塞'),
-  ('u', '对端想下但本端阻塞'),
-  ('K', '本端不想下，对端未阻塞'),
-  ('?', '对端不想下，本端未阻塞'),
-  ('O', '乐观解除阻塞'),
-  ('S', '对方被冷落'),
-  ('I', '传入连接'),
-  ('H', '来自 DHT'),
-  ('X', '来自 PEX'),
-  ('L', '来自 LSD'),
-  ('E', '加密传输'),
-  ('e', '加密握手'),
-  ('P', 'μTP'),
-  ('h', 'NAT 打洞'),
-];
+List<(String, String)> peerFlagLegend(AppLocalizations l10n) => [
+      ('D', l10n.peerFlagD),
+      ('d', l10n.peerFlagd),
+      ('U', l10n.peerFlagU),
+      ('u', l10n.peerFlagu),
+      ('K', l10n.peerFlagK),
+      ('?', l10n.peerFlagQuestion),
+      ('O', l10n.peerFlagO),
+      ('S', l10n.peerFlagS),
+      ('I', l10n.peerFlagI),
+      ('H', l10n.peerFlagH),
+      ('X', l10n.peerFlagX),
+      ('L', l10n.peerFlagL),
+      ('E', l10n.peerFlagE),
+      ('e', l10n.peerFlage),
+      ('P', l10n.peerFlagP),
+      ('h', l10n.peerFlagh),
+    ];

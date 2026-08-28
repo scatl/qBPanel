@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:qbpanel/widget/page_insets.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
 
 class ServerListItem extends StatelessWidget {
@@ -58,7 +59,7 @@ class ServerListItem extends StatelessWidget {
             ),
             if (showEdit)
               IconButton(
-                tooltip: '编辑',
+                tooltip: context.l10n.actionEdit,
                 onPressed: onEdit,
                 icon: const Icon(Icons.edit_outlined),
               ),
@@ -92,7 +93,7 @@ class ServerListItem extends StatelessWidget {
                       backgroundColor: scheme.error,
                       foregroundColor: scheme.onError,
                       icon: Icons.delete_outline,
-                      label: '删除',
+                      label: context.l10n.actionDelete,
                     ),
                   ],
                 ),

@@ -6,6 +6,8 @@ import 'package:qbpanel/detail/peers/model/torrent_peer_sort.dart';
 import 'package:qbpanel/detail/peers/torrent_peers_ui_state.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final torrentPeersProvider = NotifierProvider.autoDispose
@@ -19,6 +21,8 @@ class TorrentPeersViewModel extends Notifier<TorrentPeersUiState> {
   final String hash;
 
   late PollLoop _poll;
+
+  AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
 
   @override
   TorrentPeersUiState build() {
@@ -48,7 +52,7 @@ class TorrentPeersViewModel extends Notifier<TorrentPeersUiState> {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .join('|');
-    if (peers.isEmpty) return '请输入至少一个对等节点';
+    if (peers.isEmpty) return _l10n.enterPeers;
 
     String? error;
     await ref
@@ -61,8 +65,8 @@ class TorrentPeersViewModel extends Notifier<TorrentPeersUiState> {
         )
         .onFail((e) {
           error = switch (e.statusCode) {
-            400 => '没有有效的对等节点',
-            404 => '种子不存在',
+            400 => _l10n.noValidPeers,
+            404 => _l10n.torrentNotFound,
             _ => e.message,
           };
         });
@@ -75,7 +79,7 @@ class TorrentPeersViewModel extends Notifier<TorrentPeersUiState> {
   /// 成功为 `null`。
   Future<String?> banPeer(String endpoint) async {
     final peers = endpoint.trim();
-    if (peers.isEmpty) return '无效的对等节点';
+    if (peers.isEmpty) return _l10n.invalidPeer;
 
     String? error;
     await ref
@@ -105,7 +109,7 @@ class TorrentPeersViewModel extends Notifier<TorrentPeersUiState> {
 
   Future<void> _onPoll(PollTicket ticket) async {
     if (hash.isEmpty) {
-      state = state.copyWith(emptyState: EmptyState.error('无效的种子'));
+      state = state.copyWith(emptyState: EmptyState.error(_l10n.invalidTorrent));
       ticket.stopPolling();
       return;
     }
@@ -125,14 +129,14 @@ class TorrentPeersViewModel extends Notifier<TorrentPeersUiState> {
         })
         .onFail((e) {
           if (e.isCancel) return;
-          error = e.statusCode == 404 ? '种子不存在' : e.message;
+          error = e.statusCode == 404 ? _l10n.torrentNotFound : e.message;
         });
 
     if (!ticket.isActive) return;
 
     if (data == null) {
       if (state.peers.isEmpty) {
-        state = state.copyWith(emptyState: EmptyState.error(error ?? '加载失败'));
+        state = state.copyWith(emptyState: EmptyState.error(error ?? _l10n.loadFailed));
       }
       return;
     }

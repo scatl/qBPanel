@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/api/entity/response/torrent_state.dart';
 import 'package:qbpanel/home/entity/torrent_tag.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 import 'package:qbpanel/util/byte_format.dart';
 
@@ -118,29 +119,29 @@ class TorrentItem extends StatelessWidget {
                 runSpacing: 6,
                 children: [
                   _StatText(
-                    label: '已下载',
+                    label: context.l10n.sortDownloaded,
                     value: formatBytes(torrent.downloaded, fractionDigits: 2),
                   ),
                   _StatText(
-                    label: '大小',
+                    label: context.l10n.sortSize,
                     value: formatBytes(
                       torrent.size ?? torrent.totalSize,
                       fractionDigits: 2,
                     ),
                   ),
                   _StatText(
-                    label: '已上传',
+                    label: context.l10n.sortUploaded,
                     value: formatBytes(torrent.uploaded, fractionDigits: 2),
                   ),
                   if (_isCompleted(torrent.state))
                     _StatText(
-                      label: '分享率',
+                      label: context.l10n.sortRatio,
                       value: formatRatio(torrent.ratio),
                     )
                   else
                     _StatText(
-                      label: '剩余',
-                      value: formatEta(torrent.eta),
+                      label: context.l10n.remaining,
+                      value: formatEta(torrent.eta, context.l10n),
                     ),
                 ],
               ),
@@ -246,7 +247,7 @@ class _StateLabel extends StatelessWidget {
         const SizedBox(width: 4),
         Flexible(
           child: Text(
-            resolved.displayText,
+            resolved.label(context.l10n),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: textTheme.labelMedium?.copyWith(color: color),

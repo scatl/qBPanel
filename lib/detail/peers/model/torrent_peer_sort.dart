@@ -1,23 +1,38 @@
 import 'package:qbpanel/api/entity/response/torrent_peer_response.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 enum PeerSortKey {
-  country('国家/地区'),
-  ip('IP/地址'),
-  port('端口'),
-  connection('连接'),
-  flags('标志'),
-  client('客户端'),
-  peerId('对等节点 ID 客户端'),
-  progress('进度'),
-  dlSpeed('下载速度'),
-  upSpeed('上传速度'),
-  downloaded('已下载'),
-  uploaded('已上传'),
-  relevance('文件关联'),
-  files('文件');
+  country,
+  ip,
+  port,
+  connection,
+  flags,
+  client,
+  peerId,
+  progress,
+  dlSpeed,
+  upSpeed,
+  downloaded,
+  uploaded,
+  relevance,
+  files;
 
-  const PeerSortKey(this.label);
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+        PeerSortKey.country => l10n.sortCountry,
+        PeerSortKey.ip => l10n.sortIp,
+        PeerSortKey.port => l10n.sortPort,
+        PeerSortKey.connection => l10n.sortConnection,
+        PeerSortKey.flags => l10n.sortFlags,
+        PeerSortKey.client => l10n.sortClient,
+        PeerSortKey.peerId => l10n.sortPeerIdClient,
+        PeerSortKey.progress => l10n.sortProgress,
+        PeerSortKey.dlSpeed => l10n.sortDownloadSpeed,
+        PeerSortKey.upSpeed => l10n.sortUploadSpeed,
+        PeerSortKey.downloaded => l10n.sortDownloaded,
+        PeerSortKey.uploaded => l10n.sortUploaded,
+        PeerSortKey.relevance => l10n.sortRelevance,
+        PeerSortKey.files => l10n.sortFiles,
+      };
 }
 
 List<TorrentPeerResponse> sortPeers(

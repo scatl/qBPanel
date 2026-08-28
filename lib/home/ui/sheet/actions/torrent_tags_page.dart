@@ -4,6 +4,7 @@ import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_tag.dart';
 import 'package:qbpanel/home/ui/dialog/tag_edit_dialog.dart';
 import 'package:qbpanel/home/ui/torrent_category_tree.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/check_row.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
@@ -37,6 +38,7 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
     final serverTags = ref.read(homePageProvider).tags;
     final selected = splitTorrentTags(torrent?.tags).toSet();
     final names = <String>{...serverTags, ...selected}.toList()..sort();
+    final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
 
@@ -49,27 +51,27 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
           child: Row(
             children: [
               IconButton(
-                tooltip: '返回',
+                tooltip: l10n.actionBack,
                 visualDensity: VisualDensity.compact,
                 onPressed: _busy ? null : widget.onBack,
                 icon: const Icon(Icons.arrow_back),
               ),
               Expanded(
                 child: Text(
-                  '标签',
+                  l10n.tags,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium,
                 ),
               ),
               IconButton(
-                tooltip: '添加标签',
+                tooltip: l10n.addTag,
                 visualDensity: VisualDensity.compact,
                 onPressed: _busy ? null : _createTag,
                 icon: const Icon(Icons.new_label_outlined),
               ),
               FilterIconButton(
-                tooltip: '删除未使用的标签',
+                tooltip: l10n.deleteUnusedTags,
                 iconSize: 22,
                 icon: Icons.label_off_outlined,
                 onPressed: _busy ? null : _removeUnusedTags,
@@ -83,7 +85,7 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
               ? Padding(
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                   child: Text(
-                    '暂无标签，点右上角新建',
+                    l10n.noTagsHint,
                     textAlign: TextAlign.center,
                     style: textTheme.bodyMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
@@ -104,7 +106,7 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
                           enable: value,
                         ),
                         trailing: FilterIconButton(
-                          tooltip: '删除标签',
+                          tooltip: l10n.deleteTag,
                           icon: Icons.delete_outline,
                           onPressed: _busy ? null : () => _deleteTag(name),
                         ),
@@ -133,7 +135,7 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
                       color: scheme.primary,
                     ),
                   )
-                : const Text('取消标签'),
+                : Text(l10n.removeTags),
           ),
         ),
       ],
@@ -147,14 +149,15 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
   }
 
   Future<void> _deleteTag(String tag) async {
+    final l10n = context.l10n;
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '删除标签',
-      message: '确定删除标签「$tag」？种子不会被删除。',
-      confirmText: '删除',
+      title: l10n.deleteTag,
+      message: l10n.confirmDeleteTag(tag),
+      confirmText: l10n.actionDelete,
     );
     if (confirmed != true || !mounted) return;
-    LoadingDialog.show(context, message: '删除中…');
+    LoadingDialog.show(context, message: l10n.deleting);
     final error = await ref.read(homePageProvider.notifier).deleteTag(tag);
     if (!mounted) return;
     LoadingDialog.dismiss(context);
@@ -165,20 +168,21 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
   Future<void> _removeUnusedTags() async {
     final vm = ref.read(homePageProvider.notifier);
     final names = vm.unusedTagNames();
+    final l10n = context.l10n;
     if (names.isEmpty) {
       ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        const SnackBar(content: Text('没有未使用的标签')),
+        SnackBar(content: Text(l10n.noUnusedTags)),
       );
       return;
     }
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '删除未使用的标签',
-      message: '确定删除 ${names.length} 个未使用的标签？种子不会被删除。',
-      confirmText: '删除',
+      title: l10n.deleteUnusedTags,
+      message: l10n.confirmDeleteUnusedTags(names.length),
+      confirmText: l10n.actionDelete,
     );
     if (confirmed != true || !mounted) return;
-    LoadingDialog.show(context, message: '删除中…');
+    LoadingDialog.show(context, message: l10n.deleting);
     final error = await vm.deleteUnusedTags();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
@@ -218,7 +222,7 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
     });
     if (error != null || !widget.pageContext.mounted) return;
     ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-      const SnackBar(content: Text('已取消标签')),
+      SnackBar(content: Text(context.l10n.tagsRemoved)),
     );
   }
 }

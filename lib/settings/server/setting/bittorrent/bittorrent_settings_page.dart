@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/setting/bittorrent/bittorrent_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/bittorrent/bittorrent_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
@@ -138,14 +139,14 @@ class _BittorrentSettingsPageState
     if (!ui.ready || ui.saving) return;
 
     _syncTextFieldsToVm();
-    LoadingDialog.show(context, message: '保存中…');
+    LoadingDialog.show(context, message: context.l10n.saving);
     await Future<void>.delayed(Duration.zero);
 
     final error = await ref.read(bittorrentSettingsProvider.notifier).save();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error == null ? '已保存' : '保存失败：$error')),
+      SnackBar(content: Text(error == null ? context.l10n.saved : context.l10n.saveFailed(error))),
     );
   }
 
@@ -163,7 +164,7 @@ class _BittorrentSettingsPageState
         title: const Text('BitTorrent'),
         actions: [
           IconButton(
-            tooltip: '保存',
+            tooltip: context.l10n.actionSave,
             icon: const Icon(Icons.save),
             onPressed: canEdit ? _onSave : null,
           ),
@@ -177,41 +178,41 @@ class _BittorrentSettingsPageState
                   padding: EdgeInsets.fromLTRB(0, 8, 0, 24 + bottomSafe),
                   children: [
                     SettingsGroupCard(
-                      title: '隐私',
+                      title: context.l10n.privacy,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '启用 DHT (去中心化网络) 以找到更多用户',
+                            title: context.l10n.enableDht,
                             value: ui.dht,
                             onChanged: canEdit ? vm.setDht : null,
                           ),
                           SettingsSwitchTile(
-                            title: '启用用户交换 (PeX) 以找到更多用户',
+                            title: context.l10n.enablePex,
                             value: ui.pex,
                             onChanged: canEdit ? vm.setPex : null,
                           ),
                           SettingsSwitchTile(
-                            title: '启用本地用户发现以找到更多用户',
+                            title: context.l10n.enableLsd,
                             value: ui.lsd,
                             onChanged: canEdit ? vm.setLsd : null,
                           ),
                           DropdownField<BittorrentEncryption>(
-                            label: '加密模式',
+                            label: context.l10n.encryptionMode,
                             value: ui.encryption,
                             enabled: canEdit,
                             items: [
                               for (final item in BittorrentEncryption.values)
                                 DropdownMenuItem(
                                   value: item,
-                                  child: Text(item.label),
+                                  child: Text(item.label(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setEncryption,
                           ),
                           SettingsSwitchTile(
-                            title: '启用匿名模式',
+                            title: context.l10n.anonymousMode,
                             value: ui.anonymousMode,
                             onChanged: canEdit ? vm.setAnonymousMode : null,
                           ),
@@ -222,7 +223,7 @@ class _BittorrentSettingsPageState
                     SettingsGroupCard(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: _NumberField(
-                        label: '最大活跃检查 Torrent 数',
+                        label: context.l10n.maxActiveCheckingTorrents,
                         controller: _maxActiveCheckingController,
                         enabled: canEdit,
                         signed: true,
@@ -235,26 +236,26 @@ class _BittorrentSettingsPageState
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: 'Torrent 排队',
+                            title: context.l10n.ssTorrentQueueing,
                             value: ui.queueingEnabled,
                             onChanged: canEdit ? vm.setQueueingEnabled : null,
                           ),
                           _NumberField(
-                            label: '最大活动的下载数',
+                            label: context.l10n.maxActiveDownloads,
                             controller: _maxActiveDlController,
                             enabled: queueOn,
                             signed: true,
                           ),
                           const SizedBox(height: 8),
                           _NumberField(
-                            label: '最大活动的上传数',
+                            label: context.l10n.maxActiveUploads,
                             controller: _maxActiveUpController,
                             enabled: queueOn,
                             signed: true,
                           ),
                           const SizedBox(height: 8),
                           _NumberField(
-                            label: '最大活动的 torrent 数',
+                            label: context.l10n.maxActiveTorrents,
                             controller: _maxActiveTorrentsController,
                             enabled: queueOn,
                             signed: true,
@@ -264,31 +265,31 @@ class _BittorrentSettingsPageState
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 SettingsSwitchTile(
-                                  title: '慢速 torrent 不计入限制内',
+                                  title: context.l10n.ignoreSlowTorrents,
                                   value: ui.dontCountSlowTorrents,
                                   onChanged: queueOn
                                       ? vm.setDontCountSlowTorrents
                                       : null,
                                 ),
                                 _NumberField(
-                                  label: '下载速度阈值',
+                                  label: context.l10n.downloadRateThreshold,
                                   controller: _dlThresholdController,
                                   enabled: slowOn,
                                   suffix: 'KiB/s',
                                 ),
                                 const SizedBox(height: 8),
                                 _NumberField(
-                                  label: '上传速度阈值',
+                                  label: context.l10n.uploadRateThreshold,
                                   controller: _ulThresholdController,
                                   enabled: slowOn,
                                   suffix: 'KiB/s',
                                 ),
                                 const SizedBox(height: 8),
                                 _NumberField(
-                                  label: 'Torrent 非活动计时器',
+                                  label: context.l10n.torrentInactivityTimer,
                                   controller: _inactiveTimerController,
                                   enabled: slowOn,
-                                  suffix: '秒',
+                                  suffix: context.l10n.unitSeconds,
                                 ),
                               ],
                             ),
@@ -298,13 +299,13 @@ class _BittorrentSettingsPageState
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '做种限制',
+                      title: context.l10n.seedingLimits,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '当分享率达到',
+                            title: context.l10n.whenRatioReaches,
                             value: ui.maxRatioEnabled,
                             onChanged:
                                 canEdit ? vm.setMaxRatioEnabled : null,
@@ -323,7 +324,7 @@ class _BittorrentSettingsPageState
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '达到总做种时间时',
+                            title: context.l10n.whenSeedingTimeReaches,
                             value: ui.maxSeedingTimeEnabled,
                             onChanged:
                                 canEdit ? vm.setMaxSeedingTimeEnabled : null,
@@ -331,11 +332,11 @@ class _BittorrentSettingsPageState
                           _NumberField(
                             controller: _maxSeedingTimeController,
                             enabled: canEdit && ui.maxSeedingTimeEnabled,
-                            suffix: '分钟',
+                            suffix: context.l10n.minutes,
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '达到不活跃做种时间时',
+                            title: context.l10n.whenInactiveSeedingTimeReaches,
                             value: ui.maxInactiveSeedingTimeEnabled,
                             onChanged: canEdit
                                 ? vm.setMaxInactiveSeedingTimeEnabled
@@ -345,17 +346,17 @@ class _BittorrentSettingsPageState
                             controller: _maxInactiveSeedingTimeController,
                             enabled:
                                 canEdit && ui.maxInactiveSeedingTimeEnabled,
-                            suffix: '分钟',
+                            suffix: context.l10n.minutes,
                           ),
                           DropdownField<BittorrentMaxRatioAct>(
-                            label: '然后',
+                            label: context.l10n.then,
                             value: ui.maxRatioAct,
                             enabled: canEdit,
                             items: [
                               for (final item in BittorrentMaxRatioAct.values)
                                 DropdownMenuItem(
                                   value: item,
-                                  child: Text(item.label),
+                                  child: Text(item.label(context.l10n)),
                                 ),
                             ],
                             onChanged: vm.setMaxRatioAct,
@@ -370,7 +371,7 @@ class _BittorrentSettingsPageState
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '自动附加这些 tracker 到新下载',
+                            title: context.l10n.autoAddTrackers,
                             value: ui.addTrackersEnabled,
                             onChanged:
                                 canEdit ? vm.setAddTrackersEnabled : null,
@@ -380,14 +381,14 @@ class _BittorrentSettingsPageState
                             enabled: canEdit && ui.addTrackersEnabled,
                             minLines: 4,
                             maxLines: 8,
-                            decoration: const InputDecoration(
-                              hintText: '每行一个 tracker',
+                            decoration: InputDecoration(
+                              hintText: context.l10n.oneTrackerPerLine,
                               alignLabelWithHint: true,
                             ),
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
-                            title: '自动添加 URL 中的 trackers 到新的下载',
+                            title: context.l10n.autoAddTrackersFromUrl,
                             value: ui.addTrackersFromUrlEnabled,
                             onChanged: canEdit
                                 ? vm.setAddTrackersFromUrlEnabled
@@ -397,8 +398,8 @@ class _BittorrentSettingsPageState
                             controller: _addTrackersUrlController,
                             enabled:
                                 canEdit && ui.addTrackersFromUrlEnabled,
-                            decoration: const InputDecoration(
-                              labelText: '网址',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.url,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -410,8 +411,8 @@ class _BittorrentSettingsPageState
                             keyboardType: TextInputType.multiline,
                             scrollPhysics:
                                 const AlwaysScrollableScrollPhysics(),
-                            decoration: const InputDecoration(
-                              labelText: '获取 tracker',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.fetchedTrackers,
                               alignLabelWithHint: true,
                             ),
                           ),

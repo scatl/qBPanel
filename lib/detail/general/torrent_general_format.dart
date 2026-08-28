@@ -1,3 +1,4 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/util/byte_format.dart';
 
 /// 详情「普通」tab 文案，对齐 WebUI `prop-general.js`。
@@ -12,45 +13,36 @@ String formatAvailability(double? value) {
   return value.toStringAsFixed(3);
 }
 
-String formatDurationSeconds(int? seconds) {
+String formatDurationSeconds(int? seconds, AppLocalizations l10n) {
   if (seconds == null || seconds < 0) return '—';
   if (seconds >= 8640000) return '∞';
-  if (seconds < 60) return '$seconds 秒';
-  final minutes = seconds ~/ 60;
-  if (minutes < 60) {
-    final remain = seconds % 60;
-    return remain == 0 ? '$minutes 分钟' : '$minutes 分钟 $remain 秒';
-  }
-  final hours = minutes ~/ 60;
-  final remainMinutes = minutes % 60;
-  if (hours < 24) {
-    return remainMinutes == 0 ? '$hours 小时' : '$hours 小时 $remainMinutes 分';
-  }
-  final days = hours ~/ 24;
-  final remainHours = hours % 24;
-  return remainHours == 0 ? '$days 天' : '$days 天 $remainHours 小时';
+  return formatLocalizedDuration(
+    seconds,
+    l10n,
+    includeRemainingSeconds: true,
+  );
 }
 
-String formatTimeActive(int? elapsed, int? seeding) {
-  final base = formatDurationSeconds(elapsed);
+String formatTimeActive(int? elapsed, int? seeding, AppLocalizations l10n) {
+  final base = formatDurationSeconds(elapsed, l10n);
   if (seeding != null && seeding > 0) {
-    return '$base (做种 ${formatDurationSeconds(seeding)})';
+    return l10n.formatSeedingSuffix(base, formatDurationSeconds(seeding, l10n));
   }
   return base;
 }
 
-String formatConnections(int? current, int? limit) {
+String formatConnections(int? current, int? limit, AppLocalizations l10n) {
   final n = current ?? 0;
-  if (limit == null || limit < 0) return '$n (最多 ∞)';
-  return '$n (最多 $limit)';
+  if (limit == null || limit < 0) return l10n.formatConnectionsUnlimited(n);
+  return l10n.formatConnectionsLimited(n, limit);
 }
 
-String formatWithSession(int? total, int? session) {
-  return '${formatBytes(total)} (本次 ${formatBytes(session)})';
+String formatWithSession(int? total, int? session, AppLocalizations l10n) {
+  return l10n.formatSession(formatBytes(total), formatBytes(session));
 }
 
-String formatSpeedAvg(int? current, int? average) {
-  return '${formatSpeed(current)} (平均 ${formatSpeed(average)})';
+String formatSpeedAvg(int? current, int? average, AppLocalizations l10n) {
+  return l10n.formatSpeedAvg(formatSpeed(current), formatSpeed(average));
 }
 
 String formatSpeedLimit(int? limit) {
@@ -58,8 +50,8 @@ String formatSpeedLimit(int? limit) {
   return formatSpeed(limit);
 }
 
-String formatCountTotal(int? current, int? total) {
-  return '${current ?? 0} (共 ${total ?? 0})';
+String formatCountTotal(int? current, int? total, AppLocalizations l10n) {
+  return l10n.formatCountTotal(current ?? 0, total ?? 0);
 }
 
 String formatShareNumber(double? value) {
@@ -75,18 +67,27 @@ String formatUnixDate(int? seconds, {String unknown = '—'}) {
       '${two(dt.hour)}:${two(dt.minute)}:${two(dt.second)}';
 }
 
-String formatPieces(int? count, int? pieceSize, int? have) {
+String formatPieces(
+  int? count,
+  int? pieceSize,
+  int? have,
+  AppLocalizations l10n,
+) {
   if (count == null || count < 0) return '';
-  return '$count × ${formatBytes(pieceSize)} (已完成 ${have ?? 0})';
+  return l10n.formatPieces(count, formatBytes(pieceSize), have ?? 0);
 }
 
-String formatPrivate(bool? hasMetadata, bool? isPrivate) {
-  if (hasMetadata != true) return 'N/A';
-  if (isPrivate == null) return 'N/A';
-  return isPrivate ? '是' : '否';
+String formatPrivate(
+  bool? hasMetadata,
+  bool? isPrivate,
+  AppLocalizations l10n,
+) {
+  if (hasMetadata != true) return l10n.notAvailable;
+  if (isPrivate == null) return l10n.notAvailable;
+  return isPrivate ? l10n.yes : l10n.no;
 }
 
-String formatInfoHash(String? hash) {
-  if (hash == null || hash.isEmpty) return 'N/A';
+String formatInfoHash(String? hash, AppLocalizations l10n) {
+  if (hash == null || hash.isEmpty) return l10n.notAvailable;
   return hash;
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/search_plugin_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/search/plugin/search_plugin_list_ui_state.dart';
 
 final searchPluginListProvider =
@@ -42,7 +43,7 @@ class SearchPluginListViewModel extends Notifier<SearchPluginListUiState> {
 
     if (plugins == null) {
       list.setError(
-        error ?? '加载失败',
+        error ?? ref.read(appLocalizationsProvider).loadFailed,
         keepItems: list.items.isNotEmpty,
       );
       state = state.copyWith(list: list);
@@ -59,7 +60,9 @@ class SearchPluginListViewModel extends Notifier<SearchPluginListUiState> {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .join('|');
-    if (sources.isEmpty) return '请输入插件 URL 或路径';
+    if (sources.isEmpty) {
+      return ref.read(appLocalizationsProvider).enterPluginSource;
+    }
 
     String? error;
     await ref

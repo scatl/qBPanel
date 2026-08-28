@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qbpanel/api/entity/response/torrent_tracker_response.dart';
 import 'package:qbpanel/detail/trackers/torrent_trackers_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class EditTrackerDialog extends StatefulWidget {
@@ -77,7 +78,7 @@ class _EditTrackerDialogState extends State<EditTrackerDialog> {
     if (tier == null) {
       setState(() {
         _submitting = false;
-        _error = '请输入层级';
+        _error = context.l10n.enterTier;
       });
       return;
     }
@@ -99,6 +100,7 @@ class _EditTrackerDialogState extends State<EditTrackerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.86;
@@ -114,7 +116,7 @@ class _EditTrackerDialogState extends State<EditTrackerDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '编辑 Tracker URL',
+              l10n.editTracker,
               style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
             ),
             const SizedBox(height: 16),
@@ -129,7 +131,7 @@ class _EditTrackerDialogState extends State<EditTrackerDialog> {
               onChanged: (_) {
                 if (_error != null) setState(() => _error = null);
               },
-              decoration: const InputDecoration(labelText: 'Tracker URL'),
+              decoration: InputDecoration(labelText: l10n.trackerUrl),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -142,7 +144,7 @@ class _EditTrackerDialogState extends State<EditTrackerDialog> {
               onChanged: (_) {
                 if (_error != null) setState(() => _error = null);
               },
-              decoration: InputDecoration(labelText: '层级', errorText: _error),
+              decoration: InputDecoration(labelText: l10n.tier, errorText: _error),
             ),
             const SizedBox(height: 20),
             Row(
@@ -152,7 +154,7 @@ class _EditTrackerDialogState extends State<EditTrackerDialog> {
                   onPressed: _submitting
                       ? null
                       : () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                  child: Text(l10n.actionCancel),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
@@ -166,7 +168,7 @@ class _EditTrackerDialogState extends State<EditTrackerDialog> {
                             color: scheme.onPrimary,
                           ),
                         )
-                      : const Text('确定'),
+                      : Text(l10n.actionOk),
                 ),
               ],
             ),

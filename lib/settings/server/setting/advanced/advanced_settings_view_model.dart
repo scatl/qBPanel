@@ -6,6 +6,7 @@ import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/api/entity/response/network_interface_item.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_ui_state.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
@@ -36,7 +37,7 @@ class AdvancedSettingsViewModel extends Notifier<AdvancedSettingsUiState> {
 
     if (prefs == null) {
       state = state.copyWith(
-        emptyState: EmptyState.error(error ?? '加载设置失败'),
+        emptyState: EmptyState.error(error ?? ref.read(appLocalizationsProvider).loadSettingsFailed),
       );
       return false;
     }
@@ -368,22 +369,22 @@ class AdvancedSettingsViewModel extends Notifier<AdvancedSettingsUiState> {
     if (state.saving) return null;
 
     if (state.checkingMemoryUse <= 0 || state.checkingMemoryUse > 1024) {
-      return '检查种子时的未决内存必须大于 0 且小于 1024 MiB';
+      return ref.read(appLocalizationsProvider).invalidCheckingMemory;
     }
     if (state.peerTos < 0 || state.peerTos > 255) {
-      return 'Peer DSCP 必须在 0 到 255 之间';
+      return ref.read(appLocalizationsProvider).invalidPeerDscp;
     }
     if (state.announcePort < 0 || state.announcePort > 65535) {
-      return '向 tracker 报告的端口必须在 0 到 65535 之间';
+      return ref.read(appLocalizationsProvider).invalidAnnouncePort;
     }
     if (state.peerTurnover < 0 || state.peerTurnover > 100) {
-      return 'Peer 轮换断开百分比必须在 0 到 100 之间';
+      return ref.read(appLocalizationsProvider).invalidPeerTurnover;
     }
     if (state.peerTurnoverCutoff < 0 || state.peerTurnoverCutoff > 100) {
-      return 'Peer 轮换阈值百分比必须在 0 到 100 之间';
+      return ref.read(appLocalizationsProvider).invalidPeerTurnoverCutoff;
     }
     if (state.peerTurnoverInterval < 0 || state.peerTurnoverInterval > 3600) {
-      return 'Peer 轮换断开间隔必须大于等于 0';
+      return ref.read(appLocalizationsProvider).invalidPeerTurnoverInterval;
     }
 
     final pyPath = state.pythonExecutablePath;
@@ -392,7 +393,7 @@ class AdvancedSettingsViewModel extends Notifier<AdvancedSettingsUiState> {
             pyPath.startsWith("'") ||
             pyPath.endsWith('"') ||
             pyPath.endsWith("'"))) {
-      return 'Python 可执行文件路径首尾不能包含引号';
+      return ref.read(appLocalizationsProvider).pythonPathNoQuotes;
     }
 
     state = state.copyWith(saving: true);

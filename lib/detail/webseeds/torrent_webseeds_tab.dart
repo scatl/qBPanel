@@ -4,6 +4,7 @@ import 'package:qbpanel/detail/webseeds/add_webseeds_dialog.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_view_model.dart';
 import 'package:qbpanel/detail/webseeds/webseed_action_dialog.dart';
 import 'package:qbpanel/detail/webseeds/widget/torrent_webseed_item.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -30,8 +31,8 @@ class TorrentWebSeedsTab extends ConsumerWidget {
           child: EmptyStateHost(
             state: ui.emptyState,
             onRetry: vm.retry,
-            emptyTitle: '暂无 HTTP 源',
-            emptySubtitle: '当前种子还没有 HTTP 源',
+            emptyTitle: context.l10n.noHttpSeeds,
+            emptySubtitle: context.l10n.noHttpSeedsHint,
             emptyIcon: Icons.source_outlined,
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + bottomSafe),
@@ -75,7 +76,7 @@ class _WebSeedsHeader extends StatelessWidget {
         child: TextButton.icon(
           onPressed: onAdd,
           icon: const Icon(Icons.add, size: 20),
-          label: const Text('添加 HTTP 源'),
+          label: Text(context.l10n.addHttpSeed),
         ),
       ),
     );

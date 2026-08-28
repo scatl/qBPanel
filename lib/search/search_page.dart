@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbpanel/api/entity/response/search_plugin_response.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/search/entity/search_result_filter.dart';
 import 'package:qbpanel/search/search_ui_state.dart';
@@ -60,13 +62,14 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     final rangeFiltering = ui.resultFilter.isActive;
     final showExpandedForm = !ui.hasSearchJob || _searchFormExpanded;
 
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('搜索种子'),
+        title: Text(l10n.searchTorrents),
         actions: [
           if (ui.hasSearchJob)
             IconButton(
-              tooltip: rangeFiltering ? '筛选中' : '筛选结果',
+              tooltip: rangeFiltering ? l10n.homeFiltering : l10n.filterResults,
               icon: Icon(
                 Icons.filter_alt_outlined,
                 color: rangeFiltering ? scheme.primary : null,
@@ -75,12 +78,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             ),
           if (ui.isRunning)
             IconButton(
-              tooltip: '停止搜索',
+              tooltip: l10n.stopSearch,
               icon: const Icon(Icons.stop_circle_outlined),
               onPressed: vm.stopSearch,
             ),
           IconButton(
-            tooltip: '搜索插件',
+            tooltip: l10n.searchPlugins,
             icon: const Icon(Icons.extension_outlined),
             onPressed: () async {
               await context.push(RouterPath.searchPlugins);
@@ -182,6 +185,7 @@ class _SearchFormSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Material(
       color: scheme.surfaceContainerLow,
@@ -205,12 +209,12 @@ class _SearchFormSection extends StatelessWidget {
                 if (ui.canSearch) onSubmit();
               },
               decoration: InputDecoration(
-                hintText: '搜索关键词',
+                hintText: l10n.searchKeyword,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: ui.patternInput.isEmpty
                     ? null
                     : IconButton(
-                        tooltip: '清除',
+                        tooltip: l10n.actionClear,
                         icon: const Icon(Icons.clear),
                         onPressed: ui.isRunning
                             ? null
@@ -259,11 +263,11 @@ class _SearchFormSection extends StatelessWidget {
                       ),
                     )
                   : const Icon(Icons.travel_explore_outlined),
-              label: Text(ui.startingSearch ? '启动中…' : '搜索'),
+              label: Text(ui.startingSearch ? l10n.searchStarting : l10n.actionSearch),
             ),
             if (onCollapse != null)
               IconButton(
-                tooltip: '收起',
+                tooltip: l10n.collapse,
                 onPressed: onCollapse,
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
@@ -291,13 +295,14 @@ class _CollapsedSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final pattern = ui.searchPattern.isNotEmpty
         ? ui.searchPattern
         : ui.patternInput.trim();
     final subtitle =
-        '${_categoryLabel(ui)} · ${_pluginLabel(ui)}';
+        '${_categoryLabel(ui, l10n)} · ${_pluginLabel(ui, l10n)}';
 
     return Material(
       color: scheme.surfaceContainerLow,
@@ -308,7 +313,7 @@ class _CollapsedSearchBar extends StatelessWidget {
           child: Row(
             children: [
               IconButton(
-                tooltip: '展开搜索条件',
+                tooltip: l10n.expandSearchForm,
                 onPressed: onExpand,
                 icon: const Icon(Icons.search),
               ),
@@ -317,7 +322,7 @@ class _CollapsedSearchBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      pattern.isEmpty ? '搜索条件' : pattern,
+                      pattern.isEmpty ? l10n.searchCriteria : pattern,
                       style: textTheme.titleSmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -335,7 +340,7 @@ class _CollapsedSearchBar extends StatelessWidget {
                 ),
               ),
               IconButton(
-                tooltip: '展开搜索条件',
+                tooltip: l10n.expandSearchForm,
                 onPressed: onExpand,
                 icon: const Icon(Icons.unfold_more),
               ),
@@ -347,26 +352,26 @@ class _CollapsedSearchBar extends StatelessWidget {
   }
 }
 
-String _categoryLabel(SearchUiState ui) {
+String _categoryLabel(SearchUiState ui, AppLocalizations l10n) {
   for (final option in ui.categoryOptions) {
     if (option.id == ui.selectedCategoryId) {
-      return option.name;
+      return option.label(l10n);
     }
   }
   return ui.selectedCategoryId;
 }
 
-String _pluginLabel(SearchUiState ui) {
+String _pluginLabel(SearchUiState ui, AppLocalizations l10n) {
   return switch (ui.pluginMode) {
-    SearchPluginMode.enabled => '已启用插件',
-    SearchPluginMode.all => '全部插件',
+    SearchPluginMode.enabled => l10n.enabledPlugins,
+    SearchPluginMode.all => l10n.allPlugins,
     SearchPluginMode.single => () {
         for (final plugin in ui.plugins) {
           if (plugin.name == ui.selectedPluginName) {
             return plugin.fullName.isNotEmpty ? plugin.fullName : plugin.name;
           }
         }
-        return ui.selectedPluginName ?? '指定插件';
+        return ui.selectedPluginName ?? l10n.searchPluginSingle;
       }(),
   };
 }
@@ -415,12 +420,12 @@ class _ResultFilterFieldState extends State<_ResultFilterField> {
         textInputAction: TextInputAction.search,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
-          hintText: '筛选结果名称…',
+          hintText: context.l10n.filterResultName,
           prefixIcon: const Icon(Icons.filter_list_outlined),
           suffixIcon: widget.controller.text.isEmpty
               ? null
               : IconButton(
-                  tooltip: '清除',
+                  tooltip: context.l10n.actionClear,
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     widget.controller.clear();
@@ -442,6 +447,7 @@ class _SearchProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final visible = ui.displayedResults.length;
@@ -463,8 +469,8 @@ class _SearchProgressBar extends StatelessWidget {
           ),
           child: Text(
             visible == total
-                ? '搜索中 · 已找到 $total 条'
-                : '搜索中 · 已找到 $total 条（显示 $visible 条）',
+                ? l10n.searchingFound(total)
+                : l10n.searchingFoundVisible(total, visible),
             style: textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
@@ -490,11 +496,12 @@ class _CategoryDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return DropdownButtonFormField<String>(
       isExpanded: true,
       value: options.any((o) => o.id == value) ? value : options.first.id,
-      decoration: const InputDecoration(
-        labelText: '分类',
+      decoration: InputDecoration(
+        labelText: l10n.category,
         border: OutlineInputBorder(),
         isDense: true,
       ),
@@ -502,7 +509,7 @@ class _CategoryDropdown extends StatelessWidget {
           .map(
             (option) => DropdownMenuItem(
               value: option.id,
-              child: Text(option.name, overflow: TextOverflow.ellipsis),
+              child: Text(option.label(l10n), overflow: TextOverflow.ellipsis),
             ),
           )
           .toList(growable: false),
@@ -511,7 +518,7 @@ class _CategoryDropdown extends StatelessWidget {
             (option) => Align(
               alignment: AlignmentDirectional.centerStart,
               child: Text(
-                option.name,
+                option.label(l10n),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
@@ -548,14 +555,15 @@ class _PluginDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final items = <DropdownMenuItem<String>>[
-      const DropdownMenuItem(
+      DropdownMenuItem(
         value: '__enabled__',
-        child: Text('已启用插件'),
+        child: Text(l10n.enabledPlugins),
       ),
-      const DropdownMenuItem(
+      DropdownMenuItem(
         value: '__all__',
-        child: Text('全部插件'),
+        child: Text(l10n.allPlugins),
       ),
       ...plugins.map(
         (plugin) => DropdownMenuItem(
@@ -573,8 +581,8 @@ class _PluginDropdown extends StatelessWidget {
       value: items.any((item) => item.value == _value)
           ? _value
           : '__enabled__',
-      decoration: const InputDecoration(
-        labelText: '插件',
+      decoration: InputDecoration(
+        labelText: l10n.plugin,
         border: OutlineInputBorder(),
         isDense: true,
       ),
@@ -584,7 +592,7 @@ class _PluginDropdown extends StatelessWidget {
             (item) => Align(
               alignment: AlignmentDirectional.centerStart,
               child: Text(
-                _itemLabel(item.value!),
+                _itemLabel(item.value!, l10n),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
@@ -608,10 +616,10 @@ class _PluginDropdown extends StatelessWidget {
     );
   }
 
-  String _itemLabel(String value) {
+  String _itemLabel(String value, AppLocalizations l10n) {
     return switch (value) {
-      '__enabled__' => '已启用插件',
-      '__all__' => '全部插件',
+      '__enabled__' => l10n.enabledPlugins,
+      '__all__' => l10n.allPlugins,
       _ => () {
           for (final plugin in plugins) {
             if (plugin.name == value) {

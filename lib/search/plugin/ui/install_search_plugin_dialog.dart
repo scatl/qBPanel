@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class InstallSearchPluginDialog extends StatefulWidget {
@@ -49,7 +50,7 @@ class _InstallSearchPluginDialogState extends State<InstallSearchPluginDialog> {
     FocusScope.of(context).unfocus();
     final source = _controller.text.trim();
     if (source.isEmpty) {
-      setState(() => _error = '请输入插件 URL 或路径');
+      setState(() => _error = context.l10n.enterPluginSource);
       return;
     }
     Navigator.of(context).pop(source);
@@ -57,6 +58,7 @@ class _InstallSearchPluginDialogState extends State<InstallSearchPluginDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final dialogWidth = MediaQuery.sizeOf(context).width * 0.86;
@@ -72,12 +74,12 @@ class _InstallSearchPluginDialogState extends State<InstallSearchPluginDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '安装搜索插件',
+              l10n.installSearchPlugin,
               style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
             ),
             const SizedBox(height: 8),
             Text(
-              '输入插件 .py 的 URL，或 qB 服务器上的文件路径。多个来源可用换行分隔。',
+              l10n.installPluginHint,
               style: textTheme.bodySmall?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
@@ -91,7 +93,7 @@ class _InstallSearchPluginDialogState extends State<InstallSearchPluginDialog> {
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _onConfirm(),
               decoration: InputDecoration(
-                labelText: '插件来源',
+                labelText: l10n.pluginSource,
                 hintText: 'https://…/engines/example.py',
                 errorText: _error,
                 border: const OutlineInputBorder(),
@@ -103,12 +105,12 @@ class _InstallSearchPluginDialogState extends State<InstallSearchPluginDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                  child: Text(l10n.actionCancel),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
                   onPressed: _onConfirm,
-                  child: const Text('安装'),
+                  child: Text(l10n.actionInstall),
                 ),
               ],
             ),

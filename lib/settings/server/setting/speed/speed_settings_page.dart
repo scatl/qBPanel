@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/setting/speed/speed_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/speed/speed_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
@@ -73,14 +74,14 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
     if (!ui.ready || ui.saving) return;
 
     _syncTextFieldsToVm();
-    LoadingDialog.show(context, message: '保存中…');
+    LoadingDialog.show(context, message: context.l10n.saving);
     await Future<void>.delayed(Duration.zero);
 
     final error = await ref.read(speedSettingsProvider.notifier).save();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error == null ? '已保存' : '保存失败：$error')),
+      SnackBar(content: Text(error == null ? context.l10n.saved : context.l10n.saveFailed(error))),
     );
   }
 
@@ -115,10 +116,10 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('速度'),
+        title: Text(context.l10n.qbSetSpeed),
         actions: [
           IconButton(
-            tooltip: '保存',
+            tooltip: context.l10n.actionSave,
             icon: const Icon(Icons.save),
             onPressed: canEdit ? _onSave : null,
           ),
@@ -132,25 +133,25 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
                   padding: EdgeInsets.fromLTRB(0, 8, 0, 24 + bottomSafe),
                   children: [
                     SettingsGroupCard(
-                      title: '全局速度限制',
+                      title: context.l10n.globalSpeedLimit,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _RateField(
-                            label: '上传',
+                            label: context.l10n.upload,
                             controller: _upLimitController,
                             enabled: canEdit,
                           ),
                           const SizedBox(height: 8),
                           _RateField(
-                            label: '下载',
+                            label: context.l10n.download,
                             controller: _dlLimitController,
                             enabled: canEdit,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '0 为无限制',
+                            context.l10n.unlimitedHint,
                             style: textTheme.bodySmall?.copyWith(
                               color: scheme.outline,
                             ),
@@ -160,25 +161,25 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '备用速度限制',
+                      title: context.l10n.altSpeedLimit,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _RateField(
-                            label: '上传',
+                            label: context.l10n.upload,
                             controller: _altUpLimitController,
                             enabled: canEdit,
                           ),
                           const SizedBox(height: 8),
                           _RateField(
-                            label: '下载',
+                            label: context.l10n.download,
                             controller: _altDlLimitController,
                             enabled: canEdit,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '0 为无限制',
+                            context.l10n.unlimitedHint,
                             style: textTheme.bodySmall?.copyWith(
                               color: scheme.outline,
                             ),
@@ -188,7 +189,7 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 SettingsSwitchTile(
-                                  title: '计划备用速度限制的启用时间',
+                                  title: context.l10n.scheduleAltSpeed,
                                   value: ui.schedulerEnabled,
                                   onChanged: canEdit
                                       ? vm.setSchedulerEnabled
@@ -197,10 +198,14 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
                                 Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 4),
-                                  child: Row(
+                                  child: Wrap(
+                                    spacing: 12,
+                                    runSpacing: 4,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
                                     children: [
                                       _TimeField(
-                                        label: '从',
+                                        label: context.l10n.scheduleFrom,
                                         hour: ui.scheduleFromHour,
                                         minute: ui.scheduleFromMin,
                                         enabled: scheduleOn,
@@ -215,9 +220,8 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
                                           },
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
                                       _TimeField(
-                                        label: '到',
+                                        label: context.l10n.scheduleTo,
                                         hour: ui.scheduleToHour,
                                         minute: ui.scheduleToMin,
                                         enabled: scheduleOn,
@@ -232,24 +236,22 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
                                           },
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
-                                      Flexible(
-                                        child: DropdownField<
-                                            SpeedSchedulerDays>(
-                                          label: '时间',
-                                          value: ui.schedulerDays,
-                                          enabled: scheduleOn,
-                                          compact: true,
-                                          items: [
-                                            for (final item
-                                                in SpeedSchedulerDays.values)
-                                              DropdownMenuItem(
-                                                value: item,
-                                                child: Text(item.label),
+                                      DropdownField<SpeedSchedulerDays>(
+                                        label: context.l10n.scheduleWhen,
+                                        value: ui.schedulerDays,
+                                        enabled: scheduleOn,
+                                        compact: true,
+                                        items: [
+                                          for (final item
+                                              in SpeedSchedulerDays.values)
+                                            DropdownMenuItem(
+                                              value: item,
+                                              child: Text(
+                                                item.label(context.l10n),
                                               ),
-                                          ],
-                                          onChanged: vm.setSchedulerDays,
-                                        ),
+                                            ),
+                                        ],
+                                        onChanged: vm.setSchedulerDays,
                                       ),
                                     ],
                                   ),
@@ -262,23 +264,23 @@ class _SpeedSettingsPageState extends ConsumerState<SpeedSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '设置速度限制',
+                      title: context.l10n.rateLimitOptions,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Column(
                         children: [
                           SettingsSwitchTile(
-                            title: '对 µTP 协议进行速度限制',
+                            title: context.l10n.limitUtpRate,
                             value: ui.limitUtpRate,
                             onChanged: canEdit ? vm.setLimitUtpRate : null,
                           ),
                           SettingsSwitchTile(
-                            title: '对传送总开销进行速度限制',
+                            title: context.l10n.limitOverhead,
                             value: ui.limitTcpOverhead,
                             onChanged:
                                 canEdit ? vm.setLimitTcpOverhead : null,
                           ),
                           SettingsSwitchTile(
-                            title: '对本地网络用户进行速度限制',
+                            title: context.l10n.limitLanPeers,
                             value: ui.limitLanPeers,
                             onChanged: canEdit ? vm.setLimitLanPeers : null,
                           ),
@@ -366,6 +368,7 @@ class _TimeField extends StatelessWidget {
         : scheme.outline.withValues(alpha: 0.38);
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(label, style: textTheme.bodyLarge?.copyWith(color: labelColor)),
         const SizedBox(width: 8),

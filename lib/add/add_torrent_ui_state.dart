@@ -1,23 +1,32 @@
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 /// 对应 WebUI「种子管理模式」。
 enum TorrentManagementMode {
-  manual('手动'),
-  automatic('自动');
+  manual,
+  automatic;
 
-  const TorrentManagementMode(this.label);
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+        TorrentManagementMode.manual => l10n.addModeManual,
+        TorrentManagementMode.automatic => l10n.addModeAutomatic,
+      };
 }
 
 /// 对应 WebUI「停止条件」。
 enum TorrentStopCondition {
-  none('无', 'None'),
-  metadataReceived('已收到元数据', 'MetadataReceived'),
-  filesChecked('文件已被检查', 'FilesChecked');
+  none('None'),
+  metadataReceived('MetadataReceived'),
+  filesChecked('FilesChecked');
 
-  const TorrentStopCondition(this.label, this.apiValue);
-  final String label;
+  const TorrentStopCondition(this.apiValue);
+
   final String apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        TorrentStopCondition.none => l10n.addStopNone,
+        TorrentStopCondition.metadataReceived => l10n.addStopMetadataReceived,
+        TorrentStopCondition.filesChecked => l10n.addStopFilesChecked,
+      };
 
   static TorrentStopCondition fromApi(String? value) {
     for (final item in values) {
@@ -29,13 +38,19 @@ enum TorrentStopCondition {
 
 /// 对应 WebUI「内容布局」。
 enum TorrentContentLayout {
-  original('原始', 'Original'),
-  createSubfolder('创建子文件夹', 'Subfolder'),
-  noSubfolder('不创建子文件夹', 'NoSubfolder');
+  original('Original'),
+  createSubfolder('Subfolder'),
+  noSubfolder('NoSubfolder');
 
-  const TorrentContentLayout(this.label, this.apiValue);
-  final String label;
+  const TorrentContentLayout(this.apiValue);
+
   final String apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        TorrentContentLayout.original => l10n.addLayoutOriginal,
+        TorrentContentLayout.createSubfolder => l10n.addLayoutSubfolder,
+        TorrentContentLayout.noSubfolder => l10n.addLayoutNoSubfolder,
+      };
 
   static TorrentContentLayout fromApi(String? value) {
     for (final item in values) {

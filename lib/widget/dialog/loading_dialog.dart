@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 /// 通用 Loading Dialog：指示器与文案垂直排列，背景高斯模糊 + 统一进入动画。
@@ -12,7 +13,7 @@ abstract final class LoadingDialog {
   /// 不要 `await` 返回的 Future（会等到 [dismiss] 才结束）。
   static Future<void> show(
     BuildContext context, {
-    String message = '加载中…',
+    String? message,
     bool barrierDismissible = false,
   }) {
     if (_visible) return Future.value();
@@ -40,7 +41,7 @@ abstract final class LoadingDialog {
               minWidth: 132,
               maxWidth: 220,
             ),
-            child: _LoadingContent(message: message),
+            child: _LoadingContent(message: message ?? ctx.l10n.loading),
           ),
         );
       },

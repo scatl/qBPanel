@@ -1,3 +1,5 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
+
 /// 体积与速率展示（接口单位为 bytes / bytes/s）。
 String formatBytes(int? bytes, {int? fractionDigits}) {
   if (bytes == null || bytes < 0) return '—';
@@ -24,20 +26,39 @@ String formatProgress(double? progress) {
   return '${percent.toStringAsFixed(1)}%';
 }
 
-/// qB 常用 `8640000` 秒表示未知/无限。
-String formatEta(int? seconds) {
-  if (seconds == null || seconds < 0 || seconds >= 8640000) return '—';
-  if (seconds < 60) return '$seconds 秒';
+/// 把秒格式化为短时长（ETA / 详情共用）。
+String formatLocalizedDuration(
+  int seconds,
+  AppLocalizations l10n, {
+  bool includeRemainingSeconds = false,
+}) {
+  if (seconds < 60) return l10n.durationSeconds(seconds);
   final minutes = seconds ~/ 60;
-  if (minutes < 60) return '$minutes 分钟';
+  if (minutes < 60) {
+    final remain = seconds % 60;
+    if (!includeRemainingSeconds || remain == 0) {
+      return l10n.durationMinutes(minutes);
+    }
+    return l10n.durationMinutesSeconds(minutes, remain);
+  }
   final hours = minutes ~/ 60;
   final remainMinutes = minutes % 60;
   if (hours < 24) {
-    return remainMinutes == 0 ? '$hours 小时' : '$hours 小时 $remainMinutes 分';
+    return remainMinutes == 0
+        ? l10n.durationHours(hours)
+        : l10n.durationHoursMinutes(hours, remainMinutes);
   }
   final days = hours ~/ 24;
   final remainHours = hours % 24;
-  return remainHours == 0 ? '$days 天' : '$days 天 $remainHours 小时';
+  return remainHours == 0
+      ? l10n.durationDays(days)
+      : l10n.durationDaysHours(days, remainHours);
+}
+
+/// qB 常用 `8640000` 秒表示未知/无限。
+String formatEta(int? seconds, AppLocalizations l10n) {
+  if (seconds == null || seconds < 0 || seconds >= 8640000) return '—';
+  return formatLocalizedDuration(seconds, l10n);
 }
 
 String formatRatio(double? ratio) {

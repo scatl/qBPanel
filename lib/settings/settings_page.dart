@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/widget/setting_appearance.dart';
 import 'package:qbpanel/settings/widget/setting_server.dart';
 
@@ -20,7 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("设置"),
+        title: Text(context.l10n.settingsTitle),
       ),
       body: ListView(
         padding: EdgeInsets.fromLTRB(0, 8, 0, 24 + bottomSafe),

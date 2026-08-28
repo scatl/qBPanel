@@ -13,6 +13,7 @@ import 'package:qbpanel/home/ui/sheet/actions/torrent_action_sheet.dart';
 import 'package:qbpanel/home/ui/sheet/torrent_filter_sheet.dart';
 import 'package:qbpanel/home/ui/sheet/torrent_sort_sheet.dart';
 import 'package:qbpanel/home/ui/torrent_item.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
@@ -57,32 +58,36 @@ class _HomePageState extends ConsumerState<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          serverState.useAltSpeedLimits == true ? '已保存备用限速' : '已保存全局限速',
+          serverState.useAltSpeedLimits == true
+              ? context.l10n.homeSavedAltSpeed
+              : context.l10n.homeSavedGlobalSpeed,
         ),
       ),
     );
   }
 
   Future<void> _confirmStartDisplayed() {
+    final l10n = context.l10n;
     return _confirmBatchAction(
-      title: '一键开始',
-      messagePrefix: '开始',
-      confirmText: '开始',
-      loadingMessage: '开始中…',
-      failLabel: '一键开始失败',
-      successLabel: '已开始',
+      title: l10n.homeStartAll,
+      messagePrefix: l10n.homeStart,
+      confirmText: l10n.homeStart,
+      loadingMessage: l10n.homeStarting,
+      failLabel: l10n.homeStartAllFailed,
+      started: true,
       action: () => ref.read(homePageProvider.notifier).startDisplayedTorrents(),
     );
   }
 
   Future<void> _confirmStopDisplayed() {
+    final l10n = context.l10n;
     return _confirmBatchAction(
-      title: '一键停止',
-      messagePrefix: '停止',
-      confirmText: '停止',
-      loadingMessage: '停止中…',
-      failLabel: '一键停止失败',
-      successLabel: '已停止',
+      title: l10n.homeStopAll,
+      messagePrefix: l10n.homeStop,
+      confirmText: l10n.homeStop,
+      loadingMessage: l10n.homeStopping,
+      failLabel: l10n.homeStopAllFailed,
+      started: false,
       destructive: true,
       action: () => ref.read(homePageProvider.notifier).stopDisplayedTorrents(),
     );
@@ -94,21 +99,22 @@ class _HomePageState extends ConsumerState<HomePage> {
     required String confirmText,
     required String loadingMessage,
     required String failLabel,
-    required String successLabel,
+    required bool started,
     required Future<String?> Function() action,
     bool destructive = false,
   }) async {
+    final l10n = context.l10n;
     final count = ref.read(homePageProvider).pageListState.items.length;
     if (count == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('当前列表没有种子')),
+        SnackBar(content: Text(l10n.homeNoTorrentsInList)),
       );
       return;
     }
     final confirmed = await ConfirmDialog.show(
       context,
       title: title,
-      message: '确定$messagePrefix当前列表中的 $count 个种子？',
+      message: l10n.homeConfirmBatch(messagePrefix, count),
       confirmText: confirmText,
       destructive: destructive,
     );
@@ -119,7 +125,13 @@ class _HomePageState extends ConsumerState<HomePage> {
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(error == null ? '$successLabel $count 个种子' : '$failLabel：$error'),
+        content: Text(
+          error == null
+              ? (started
+                  ? l10n.homeBatchStarted(count)
+                  : l10n.homeBatchStopped(count))
+              : l10n.homeBatchFailed(failLabel, error),
+        ),
       ),
     );
   }
@@ -132,7 +144,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (!mounted) return;
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('切换备用速度限制失败：$error')),
+        SnackBar(content: Text(context.l10n.homeAltSpeedToggleFailed(error))),
       );
       return;
     }
@@ -141,7 +153,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (wasOn == nowOn) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(nowOn ? '已开启备用速度限制' : '已关闭备用速度限制'),
+        content: Text(nowOn ? context.l10n.homeAltSpeedOn : context.l10n.homeAltSpeedOff),
       ),
     );
   }
@@ -164,15 +176,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         !ui.tagFilter.isAll;
     final sorting = ui.sortKey != TorrentSortKey.state || !ui.sortAscending;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: ui.activeServer == null ? const Text('qBPanel')
+        title: ui.activeServer == null ? Text(l10n.appTitle)
             : _AppBarTitle(name: ui.activeServer!.name),
         actions: [
           if (ui.activeServer != null) ...[
             IconButton(
-              tooltip: filtering ? '筛选中' : '筛选',
+              tooltip: filtering ? l10n.homeFiltering : l10n.homeFilter,
               icon: Icon(
                 filtering ? Icons.filter_alt_outlined : Icons.filter_alt_off_outlined,
                 color: filtering ? scheme.primary : null,
@@ -180,7 +193,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               onPressed: () => TorrentFilterSheet.show(context),
             ),
             IconButton(
-              tooltip: sorting ? '排序中' : '排序',
+              tooltip: sorting ? l10n.homeSorting : l10n.homeSort,
               icon: Icon(
                 sorting ? Icons.sort : Icons.filter_list_off_outlined,
                 color: sorting ? scheme.primary : null,
@@ -189,7 +202,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           ],
           PopupMenuButton<_HomeMoreAction>(
-            tooltip: '更多',
+            tooltip: l10n.actionMore,
             icon: const Icon(Icons.more_vert),
             onSelected: (action) {
               switch (action) {
@@ -205,56 +218,59 @@ class _HomePageState extends ConsumerState<HomePage> {
                   context.push(RouterPath.settings);
               }
             },
-            itemBuilder: (context) => [
+            itemBuilder: (context) {
+              final menuL10n = context.l10n;
+              return [
               if (ui.activeServer != null) ...[
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: _HomeMoreAction.startAll,
                   child: ListTile(
-                    leading: Icon(Icons.play_arrow_rounded),
-                    title: Text('一键开始'),
+                    leading: const Icon(Icons.play_arrow_rounded),
+                    title: Text(menuL10n.homeStartAll),
                     contentPadding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: _HomeMoreAction.stopAll,
                   child: ListTile(
-                    leading: Icon(Icons.stop_rounded),
-                    title: Text('一键停止'),
+                    leading: const Icon(Icons.stop_rounded),
+                    title: Text(menuL10n.homeStopAll),
                     contentPadding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
                 ),
                 const PopupMenuDivider(),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: _HomeMoreAction.search,
                   child: ListTile(
-                    leading: Icon(Icons.travel_explore_outlined),
-                    title: Text('搜索种子'),
+                    leading: const Icon(Icons.travel_explore_outlined),
+                    title: Text(menuL10n.homeSearchTorrents),
                     contentPadding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: _HomeMoreAction.logs,
                   child: ListTile(
-                    leading: Icon(Icons.receipt_long_outlined),
-                    title: Text('日志'),
+                    leading: const Icon(Icons.receipt_long_outlined),
+                    title: Text(menuL10n.homeLogs),
                     contentPadding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
                 ),
               ],
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: _HomeMoreAction.settings,
                 child: ListTile(
-                  leading: Icon(Icons.settings_outlined),
-                  title: Text('设置'),
+                  leading: const Icon(Icons.settings_outlined),
+                  title: Text(menuL10n.homeSettings),
                   contentPadding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
                 ),
               ),
-            ],
+            ];
+            },
           ),
         ],
       ),
@@ -262,7 +278,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ? null
           : FloatingActionButton(
               heroTag: 'addTorrent',
-              tooltip: '添加种子',
+              tooltip: l10n.homeAddTorrent,
               onPressed: () => context.push(RouterPath.addTorrent),
               child: const Icon(Icons.add),
             ),
@@ -286,15 +302,15 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
         onRefresh: vm.refresh,
         emptyTitle: ui.activeServer == null
-            ? '还没有活跃的服务器'
-            : (filteredEmpty ? '没有符合条件的种子' : '暂无种子'),
-        emptySubtitle: ui.activeServer == null ? '去服务器列表添加或点选一台' : null,
+            ? l10n.homeNoActiveServer
+            : (filteredEmpty ? l10n.homeNoMatchingTorrents : l10n.homeNoTorrents),
+        emptySubtitle: ui.activeServer == null ? l10n.homeNoActiveServerHint : null,
         emptyIcon: ui.activeServer == null
             ? Icons.dns_outlined
             : (filteredEmpty ? Icons.filter_alt_outlined : null),
         emptyActionText: ui.activeServer == null
-            ? '去选择服务器'
-            : (filteredEmpty ? '清除筛选' : null),
+            ? l10n.homeChooseServer
+            : (filteredEmpty ? l10n.homeClearFilters : null),
         onEmptyAction: ui.activeServer == null
             ? () async {
                 await context.push(RouterPath.serverList);

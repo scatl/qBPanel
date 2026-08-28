@@ -1,3 +1,4 @@
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 /// WebUI「行为」页状态。
@@ -148,13 +149,18 @@ class BehaviorLocaleOption {
 }
 
 enum BehaviorLogAgeType {
-  days('天', 0),
-  months('月', 1),
-  years('年', 2);
+  days(0),
+  months(1),
+  years(2);
 
-  const BehaviorLogAgeType(this.label, this.apiValue);
-  final String label;
+  const BehaviorLogAgeType(this.apiValue);
   final int apiValue;
+
+  String label(AppLocalizations l10n) => switch (this) {
+        BehaviorLogAgeType.days => l10n.logAgeDays,
+        BehaviorLogAgeType.months => l10n.logAgeMonths,
+        BehaviorLogAgeType.years => l10n.logAgeYears,
+      };
 
   static BehaviorLogAgeType fromApi(int? value) {
     for (final item in values) {

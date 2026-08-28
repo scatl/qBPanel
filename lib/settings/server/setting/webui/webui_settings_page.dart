@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
@@ -133,24 +134,23 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
 
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '确认保存 WebUI 设置',
-      message: '修改地址、端口、HTTPS、用户名密码或安全选项后，本 App 可能暂时无法连接服务器。'
-          '请确认你仍能通过其他方式访问 qBittorrent。确定继续保存吗？',
-      confirmText: '保存',
+      title: context.l10n.confirmSaveWebUiTitle,
+      message: context.l10n.confirmSaveWebUi,
+      confirmText: context.l10n.actionSave,
       destructive: true,
       confirmCountdownSeconds: 5,
     );
     if (confirmed != true || !mounted) return;
 
     _syncTextFieldsToVm();
-    LoadingDialog.show(context, message: '保存中…');
+    LoadingDialog.show(context, message: context.l10n.saving);
     await Future<void>.delayed(Duration.zero);
 
     final error = await ref.read(webUiSettingsProvider.notifier).save();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error == null ? '已保存' : '保存失败：$error')),
+      SnackBar(content: Text(error == null ? context.l10n.saved : context.l10n.saveFailed(error))),
     );
   }
 
@@ -160,7 +160,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
     await Clipboard.setData(ClipboardData(text: key));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('已复制 API 密钥')),
+      SnackBar(content: Text(context.l10n.copiedApiKey)),
     );
   }
 
@@ -171,19 +171,17 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
     final hasKey = ui.hasApiKey;
     final confirmed = await ConfirmDialog.show(
       context,
-      title: hasKey ? '重置 API key' : '生成 API 密钥',
+      title: hasKey ? context.l10n.resetApiKey : context.l10n.generateApiKey,
       message: hasKey
-          ? '重置该 API key 吗？当前 key 会立即停止工作，会生成新 key。'
-              '本 App 会自动更新本地保存的密钥。'
-          : '生成 API key 吗？这枚 key 可用于和 qBittorrent 的 API 互动。'
-              '本 App 会自动保存到本地服务器配置。',
-      confirmText: hasKey ? '重置' : '生成',
+          ? context.l10n.confirmResetApiKey
+          : context.l10n.confirmGenerateApiKey,
+      confirmText: hasKey ? context.l10n.actionReset : context.l10n.actionGenerate,
       destructive: hasKey,
       confirmCountdownSeconds: hasKey ? 5 : 0,
     );
     if (confirmed != true || !mounted) return;
 
-    LoadingDialog.show(context, message: hasKey ? '重置中…' : '生成中…');
+    LoadingDialog.show(context, message: hasKey ? context.l10n.resetting : context.l10n.generating);
     await Future<void>.delayed(Duration.zero);
     final error = await ref
         .read(webUiSettingsProvider.notifier)
@@ -193,7 +191,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          error ?? (hasKey ? '已重置 API key' : '已生成 API 密钥'),
+          error ?? (hasKey ? context.l10n.apiKeyReset : context.l10n.apiKeyGenerated),
         ),
       ),
     );
@@ -205,16 +203,15 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
 
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '删除 API 密钥',
-      message: '删除此 API key 吗？当前 key 会立即停止工作。'
-          '本 App 将无法继续连接，请随后在服务器设置中重新配置密钥。',
-      confirmText: '删除',
+      title: context.l10n.deleteApiKey,
+      message: context.l10n.confirmDeleteApiKey,
+      confirmText: context.l10n.actionDelete,
       destructive: true,
       confirmCountdownSeconds: 5,
     );
     if (confirmed != true || !mounted) return;
 
-    LoadingDialog.show(context, message: '删除中…');
+    LoadingDialog.show(context, message: context.l10n.deleting);
     await Future<void>.delayed(Duration.zero);
     final error = await ref
         .read(webUiSettingsProvider.notifier)
@@ -222,7 +219,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error ?? '已删除 API 密钥')),
+      SnackBar(content: Text(error ?? context.l10n.apiKeyDeleted)),
     );
   }
 
@@ -248,7 +245,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
         title: const Text('WebUI'),
         actions: [
           IconButton(
-            tooltip: '保存',
+            tooltip: context.l10n.actionSave,
             icon: const Icon(Icons.save),
             onPressed: canEdit ? _onSave : null,
           ),
@@ -274,9 +271,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              '此处修改的是服务器 WebUI 自身配置。错误地更改地址、端口、'
-                              'HTTPS、认证或安全选项可能导致本 App 无法再连接该服务器，'
-                              '请谨慎操作并确保仍有其他方式访问 qBittorrent。',
+                              context.l10n.webUiWarning,
                               style: textTheme.bodySmall?.copyWith(
                                 color: scheme.error,
                               ),
@@ -287,7 +282,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: 'Web 用户界面（远程控制）',
+                      title: context.l10n.webUiRemoteControl,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -295,8 +290,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                           TextField(
                             controller: _addressController,
                             enabled: canEdit,
-                            decoration: const InputDecoration(
-                              labelText: 'IP 地址',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.ipAddress,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -307,17 +302,17 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration: const InputDecoration(
-                              labelText: '端口',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.port,
                             ),
                           ),
                           SettingsSwitchTile(
-                            title: '使用我的路由器的 UPnP / NAT-PMP 端口转发',
+                            title: context.l10n.upnpPortForward,
                             value: ui.webUiUpnp,
                             onChanged: canEdit ? vm.setWebUiUpnp : null,
                           ),
                           SettingsSwitchTile(
-                            title: '使用 HTTPS 而不是 HTTP',
+                            title: context.l10n.useHttpsInsteadOfHttp,
                             value: ui.useHttps,
                             onChanged: canEdit ? vm.setUseHttps : null,
                           ),
@@ -326,8 +321,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             enabled: httpsOn,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '证书',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.certificate,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -336,8 +331,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             enabled: httpsOn,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '密钥',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.privateKey,
                             ),
                           ),
                         ],
@@ -345,7 +340,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '验证',
+                      title: context.l10n.authentication,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -353,8 +348,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                           TextField(
                             controller: _usernameController,
                             enabled: canEdit,
-                            decoration: const InputDecoration(
-                              labelText: '用户名',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.username,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -362,13 +357,13 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             controller: _passwordController,
                             enabled: canEdit,
                             obscureText: true,
-                            decoration: const InputDecoration(
-                              labelText: '密码',
-                              hintText: '留空表示不修改',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.password,
+                              hintText: context.l10n.passwordLeaveBlank,
                             ),
                           ),
                           SettingsSwitchTile(
-                            title: '对本地主机上的客户端跳过身份验证',
+                            title: context.l10n.bypassAuthLocalhost,
                             value: ui.bypassLocalAuth,
                             onChanged: canEdit ? vm.setBypassLocalAuth : null,
                           ),
@@ -377,7 +372,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 SettingsSwitchTile(
-                                  title: '对 IP 子网白名单中的客户端跳过身份验证',
+                                  title: context.l10n.bypassAuthWhitelist,
                                   value: ui.bypassAuthSubnetWhitelistEnabled,
                                   onChanged: canEdit
                                       ? vm.setBypassAuthSubnetWhitelistEnabled
@@ -388,8 +383,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                                   enabled: subnetOn,
                                   minLines: 2,
                                   maxLines: 5,
-                                  decoration: const InputDecoration(
-                                    hintText: '例如 192.168.1.0/24',
+                                  decoration: InputDecoration(
+                                    hintText: context.l10n.subnetWhitelistHint,
                                     alignLabelWithHint: true,
                                   ),
                                 ),
@@ -398,30 +393,30 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                           ),
                           const SizedBox(height: 8),
                           _LabeledNumberField(
-                            label: '连续失败后禁止客户端',
+                            label: context.l10n.banAfterFailedAttempts,
                             controller: _maxAuthFailController,
                             enabled: canEdit,
                           ),
                           const SizedBox(height: 8),
                           _LabeledNumberField(
-                            label: '禁止',
+                            label: context.l10n.banFor,
                             controller: _banDurationController,
                             enabled: canEdit,
-                            suffix: '秒',
+                            suffix: context.l10n.unitSeconds,
                           ),
                           const SizedBox(height: 8),
                           _LabeledNumberField(
-                            label: '会话超时',
+                            label: context.l10n.sessionTimeout,
                             controller: _sessionTimeoutController,
                             enabled: canEdit,
-                            suffix: '秒',
+                            suffix: context.l10n.unitSeconds,
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: 'API 密钥',
+                      title: context.l10n.apiKey,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -430,8 +425,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             key: ValueKey('api-key-${ui.webUiApiKey}'),
                             initialValue: ui.maskedApiKey,
                             readOnly: true,
-                            decoration: const InputDecoration(
-                              labelText: '密钥',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.privateKey,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -443,13 +438,13 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                                 onPressed: apiKeyActionsOn && ui.hasApiKey
                                     ? _copyApiKey
                                     : null,
-                                child: const Text('复制'),
+                                child: Text(context.l10n.copy),
                               ),
                               TextButton(
                                 onPressed:
                                     apiKeyActionsOn ? _rotateApiKey : null,
                                 child: Text(
-                                  ui.hasApiKey ? '重置 API key' : '生成 API 密钥',
+                                  ui.hasApiKey ? context.l10n.resetApiKey : context.l10n.generateApiKey,
                                 ),
                               ),
                               TextButton(
@@ -459,7 +454,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: scheme.error,
                                 ),
-                                child: const Text('删除'),
+                                child: Text(context.l10n.actionDelete),
                               ),
                             ],
                           ),
@@ -473,7 +468,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '使用备选 WebUI',
+                            title: context.l10n.useAlternativeWebUi,
                             value: ui.alternativeWebuiEnabled,
                             onChanged:
                                 canEdit ? vm.setAlternativeWebuiEnabled : null,
@@ -483,8 +478,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             enabled: altOn,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '文件路径',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.filePath,
                             ),
                           ),
                         ],
@@ -492,27 +487,27 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                     ),
                     const SizedBox(height: 12),
                     SettingsGroupCard(
-                      title: '安全',
+                      title: context.l10n.security,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '启用“点击劫持”保护',
+                            title: context.l10n.clickjackingProtection,
                             value: ui.webUiClickjackingProtectionEnabled,
                             onChanged: canEdit
                                 ? vm.setWebUiClickjackingProtectionEnabled
                                 : null,
                           ),
                           SettingsSwitchTile(
-                            title: '启用跨站请求伪造 (CSRF) 保护',
+                            title: context.l10n.csrfProtection,
                             value: ui.webUiCsrfProtectionEnabled,
                             onChanged: canEdit
                                 ? vm.setWebUiCsrfProtectionEnabled
                                 : null,
                           ),
                           SettingsSwitchTile(
-                            title: '启用 cookie Secure 标志（需要 HTTPS 或本机连接）',
+                            title: context.l10n.secureCookie,
                             value: ui.webUiSecureCookieEnabled,
                             onChanged: canEdit
                                 ? vm.setWebUiSecureCookieEnabled
@@ -523,7 +518,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 SettingsSwitchTile(
-                                  title: '启用 Host 标头验证',
+                                  title: context.l10n.hostHeaderValidation,
                                   value: ui.webUiHostHeaderValidationEnabled,
                                   onChanged: canEdit
                                       ? vm.setWebUiHostHeaderValidationEnabled
@@ -534,8 +529,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                                   enabled: hostHeaderOn,
                                   minLines: 1,
                                   maxLines: 3,
-                                  decoration: const InputDecoration(
-                                    labelText: '服务器域名',
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.serverDomains,
                                     hintText: '*',
                                   ),
                                 ),
@@ -552,7 +547,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '启用自定义 HTTP 头',
+                            title: context.l10n.customHttpHeaders,
                             value: ui.webUiUseCustomHttpHeadersEnabled,
                             onChanged: canEdit
                                 ? vm.setWebUiUseCustomHttpHeadersEnabled
@@ -563,8 +558,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             enabled: headersOn,
                             minLines: 3,
                             maxLines: 6,
-                            decoration: const InputDecoration(
-                              hintText: '每行一个 Header',
+                            decoration: InputDecoration(
+                              hintText: context.l10n.oneHeaderPerLine,
                               alignLabelWithHint: true,
                             ),
                           ),
@@ -578,7 +573,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '启用反向代理支持',
+                            title: context.l10n.reverseProxySupport,
                             value: ui.webUiReverseProxyEnabled,
                             onChanged: canEdit
                                 ? vm.setWebUiReverseProxyEnabled
@@ -589,9 +584,9 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             enabled: reverseOn,
                             minLines: 2,
                             maxLines: 4,
-                            decoration: const InputDecoration(
-                              labelText: '受信任的代理列表',
-                              hintText: '每行一个',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.trustedProxiesList,
+                              hintText: context.l10n.onePerLine,
                               alignLabelWithHint: true,
                             ),
                           ),
@@ -605,12 +600,12 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           SettingsSwitchTile(
-                            title: '更新我的动态域名',
+                            title: context.l10n.updateDynDns,
                             value: ui.dyndnsEnabled,
                             onChanged: canEdit ? vm.setDyndnsEnabled : null,
                           ),
                           DropdownField<WebUiDynDnsService>(
-                            label: '服务',
+                            label: context.l10n.dynDnsService,
                             value: ui.dyndnsService,
                             enabled: dyndnsOn,
                             items: [
@@ -625,16 +620,16 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                           TextField(
                             controller: _dyndnsDomainController,
                             enabled: dyndnsOn,
-                            decoration: const InputDecoration(
-                              labelText: '域名',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.domain,
                             ),
                           ),
                           const SizedBox(height: 8),
                           TextField(
                             controller: _dyndnsUsernameController,
                             enabled: dyndnsOn,
-                            decoration: const InputDecoration(
-                              labelText: '用户名',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.username,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -642,8 +637,8 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             controller: _dyndnsPasswordController,
                             enabled: dyndnsOn,
                             obscureText: true,
-                            decoration: const InputDecoration(
-                              labelText: '密码',
+                            decoration: InputDecoration(
+                              labelText: context.l10n.password,
                             ),
                           ),
                         ],

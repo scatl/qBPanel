@@ -6,6 +6,7 @@ import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_ui_state.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
@@ -36,7 +37,7 @@ class DownloadsSettingsViewModel extends Notifier<DownloadsSettingsUiState> {
 
     if (prefs == null) {
       state = state.copyWith(
-        emptyState: EmptyState.error(error ?? '加载设置失败'),
+        emptyState: EmptyState.error(error ?? ref.read(appLocalizationsProvider).loadSettingsFailed),
       );
       return false;
     }
@@ -232,7 +233,7 @@ class DownloadsSettingsViewModel extends Notifier<DownloadsSettingsUiState> {
   Future<String?> sendTestEmail() async {
     if (state.testingEmail || state.saving) return null;
     if (!state.mailNotificationEnabled) {
-      return '请先启用邮件通知';
+      return ref.read(appLocalizationsProvider).enableMailNotificationFirst;
     }
 
     state = state.copyWith(testingEmail: true);
@@ -263,7 +264,7 @@ class DownloadsSettingsViewModel extends Notifier<DownloadsSettingsUiState> {
   Future<String?> save({bool keepBusy = false}) async {
     if (state.saving && !keepBusy) return null;
     if (state.savePath.trim().isEmpty) {
-      return '请填写默认保存路径';
+      return ref.read(appLocalizationsProvider).enterDefaultSavePath;
     }
 
     if (!keepBusy) {

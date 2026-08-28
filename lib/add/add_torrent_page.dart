@@ -16,6 +16,7 @@ import 'package:qbpanel/add/ui/add_torrent_save_section.dart';
 import 'package:qbpanel/add/ui/add_torrent_settings_section.dart';
 import 'package:qbpanel/home/entity/torrent_category_node.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 
 class AddTorrentPage extends ConsumerStatefulWidget {
@@ -81,7 +82,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
       if (!await file.exists()) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('无法读取种子文件')),
+          SnackBar(content: Text(context.l10n.cannotReadTorrentFile)),
         );
         return;
       }
@@ -89,7 +90,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
       if (!mounted) return;
       if (bytes.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('无法读取种子文件')),
+          SnackBar(content: Text(context.l10n.cannotReadTorrentFile)),
         );
         return;
       }
@@ -101,7 +102,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('无法读取种子文件')),
+        SnackBar(content: Text(context.l10n.cannotReadTorrentFile)),
       );
     }
   }
@@ -140,16 +141,16 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
       bytes = await file.readAsBytes();
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('无法读取所选文件')),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.cannotReadSelectedFile)),
+        );
       return;
     }
     if (!mounted) return;
     if (bytes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('无法读取所选文件')),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.cannotReadSelectedFile)),
+        );
       return;
     }
 
@@ -170,7 +171,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
     final ui = ref.read(addTorrentProvider);
     if (!ui.canSubmit) return;
 
-    LoadingDialog.show(context, message: '添加中…');
+    LoadingDialog.show(context, message: context.l10n.adding);
     await Future<void>.delayed(Duration.zero);
 
     final error = await ref.read(addTorrentProvider.notifier).submit(
@@ -189,7 +190,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('添加失败：$error')),
+      SnackBar(content: Text(context.l10n.addFailed(error))),
     );
   }
 
@@ -209,13 +210,13 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
       appBar: AppBar(
         title: Text(
           ui.torrentName == null || ui.torrentName!.isEmpty
-              ? '添加种子'
+              ? context.l10n.homeAddTorrent
               : ui.torrentName!,
         ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'addTorrent',
-        tooltip: '添加种子',
+        tooltip: context.l10n.homeAddTorrent,
         onPressed: ui.canSubmit ? _submit : null,
         child: const Icon(Icons.check),
       ),

@@ -1,15 +1,22 @@
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 
 enum ContentSortKey {
-  priority('下载优先级'),
-  size('总大小'),
-  progress('进度'),
-  availability('可用性'),
-  remaining('剩余'),
-  name('名称');
+  priority,
+  size,
+  progress,
+  availability,
+  remaining,
+  name;
 
-  const ContentSortKey(this.label);
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+        ContentSortKey.priority => l10n.sortContentPriority,
+        ContentSortKey.size => l10n.sortTotalSize,
+        ContentSortKey.progress => l10n.sortProgress,
+        ContentSortKey.availability => l10n.sortAvailability,
+        ContentSortKey.remaining => l10n.sortRemaining,
+        ContentSortKey.name => l10n.sortName,
+      };
 }
 
 List<TorrentContentNode> sortContentTree(

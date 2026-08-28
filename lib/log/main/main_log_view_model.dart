@@ -11,6 +11,7 @@ import 'package:qbpanel/log/model/log_level.dart';
 import 'package:qbpanel/log/model/log_main_entry.dart';
 import 'package:qbpanel/log/util/log_grouping.dart';
 import 'package:qbpanel/log/util/log_search.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final mainLogProvider =
@@ -134,7 +135,9 @@ class MainLogViewModel extends Notifier<MainLogUiState> {
       state = state.copyWith(refreshing: false);
       if (_entriesById.isEmpty) {
         state = state.copyWith(
-          emptyState: EmptyState.error(error ?? '加载失败'),
+          emptyState: EmptyState.error(
+            error ?? ref.read(appLocalizationsProvider).loadFailed,
+          ),
         );
       }
       return;
@@ -163,7 +166,12 @@ class MainLogViewModel extends Notifier<MainLogUiState> {
           .toList();
     }
 
-    final sections = groupLogEntriesByDay(entries, (e) => e.timestamp);
+    final l10n = ref.read(appLocalizationsProvider);
+    final sections = groupLogEntriesByDay(
+      entries,
+      (e) => e.timestamp,
+      l10n,
+    );
     final hasCache = _entriesById.isNotEmpty;
 
     if (!hasCache) {
@@ -171,8 +179,8 @@ class MainLogViewModel extends Notifier<MainLogUiState> {
         sections: sections,
         emptyState: _initialLoadDone
             ? EmptyState.empty(
-                title: '暂无日志',
-                subtitle: '服务器尚未产生日志记录',
+                title: l10n.noLogs,
+                subtitle: l10n.noLogsHint,
                 icon: Icons.receipt_long_outlined,
               )
             : state.emptyState,
@@ -185,8 +193,8 @@ class MainLogViewModel extends Notifier<MainLogUiState> {
       state = state.copyWith(
         sections: sections,
         emptyState: EmptyState.empty(
-          title: '无匹配日志',
-          subtitle: '试试调整筛选或搜索关键词',
+          title: l10n.noMatchingLogs,
+          subtitle: l10n.adjustFiltersOrSearchHint,
           icon: Icons.search_off_outlined,
         ),
         refreshing: false,

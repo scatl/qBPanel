@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/log/model/log_peer_entry.dart';
 import 'package:qbpanel/log/widget/log_item_meta_row.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -13,7 +14,8 @@ class PeerLogItem extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final statusColor = entry.blocked ? scheme.error : scheme.onSurfaceVariant;
-    final statusLabel = entry.blocked ? '已屏蔽' : '已封禁';
+    final l10n = context.l10n;
+    final statusLabel = entry.blocked ? l10n.logPeerBlocked : l10n.logPeerBanned;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(

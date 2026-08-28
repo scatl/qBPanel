@@ -7,6 +7,7 @@ import 'package:qbpanel/home/entity/torrent_tag.dart';
 import 'package:qbpanel/home/ui/dialog/category_edit_dialog.dart';
 import 'package:qbpanel/home/ui/dialog/tag_edit_dialog.dart';
 import 'package:qbpanel/home/ui/torrent_category_tree.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -63,21 +64,21 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
           child: Row(
             children: [
               Expanded(
-                child: Text('筛选', style: textTheme.titleMedium),
+                child: Text(context.l10n.homeFilter, style: textTheme.titleMedium),
               ),
               TextButton(
                 onPressed: filtering
                     ? () =>
                         ref.read(homePageProvider.notifier).clearFilters()
                     : null,
-                child: const Text('清除筛选'),
+                child: Text(context.l10n.homeClearFilters),
               ),
             ],
           ),
         ),
         _FilterSection(
-            title: '状态',
-            selectedLabel: statusFilter.displayText,
+            title: context.l10n.status,
+            selectedLabel: statusFilter.label(context.l10n),
             expanded: _statusExpanded,
             onToggle: () {
               setState(() => _statusExpanded = !_statusExpanded);
@@ -112,15 +113,15 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
             ),
           ),
           _FilterSection(
-            title: '分类',
-            selectedLabel: categoryFilter.displayText,
+            title: context.l10n.category,
+            selectedLabel: categoryFilter.displayText(context.l10n),
             expanded: _categoryExpanded,
             onToggle: () {
               setState(() => _categoryExpanded = !_categoryExpanded);
             },
             actions: [
               FilterIconButton(
-                tooltip: '添加分类',
+                tooltip: context.l10n.addCategory,
                 iconSize: 22,
                 icon: Icons.create_new_folder_outlined,
                 onPressed: () => CategoryEditDialog.show(
@@ -130,7 +131,7 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
               ),
               const SizedBox(width: 16),
               FilterIconButton(
-                tooltip: '删除未使用的分类',
+                tooltip: context.l10n.deleteUnusedCategories,
                 iconSize: 22,
                 icon: Icons.folder_delete_outlined,
                 onPressed: () => confirmRemoveUnusedCategories(context, ref),
@@ -160,22 +161,22 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
             ),
           ),
           _FilterSection(
-            title: '标签',
-            selectedLabel: tagFilter.displayText,
+            title: context.l10n.tags,
+            selectedLabel: tagFilter.displayText(context.l10n),
             expanded: _tagExpanded,
             onToggle: () {
               setState(() => _tagExpanded = !_tagExpanded);
             },
             actions: [
               FilterIconButton(
-                tooltip: '添加标签',
+                tooltip: context.l10n.addTag,
                 iconSize: 22,
                 icon: Icons.new_label_outlined,
                 onPressed: () => TagEditDialog.show(context),
               ),
               const SizedBox(width: 16),
               FilterIconButton(
-                tooltip: '删除未使用的标签',
+                tooltip: context.l10n.deleteUnusedTags,
                 iconSize: 22,
                 icon: Icons.label_off_outlined,
                 onPressed: _onRemoveUnusedTags,
@@ -188,14 +189,14 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
                 child: Column(
                   children: [
                     CategoryRow(
-                      label: '全部',
+                      label: context.l10n.filterAll,
                       icon: Icons.apps_outlined,
                       count: tagCounts.all,
                       selected: tagFilter.isAll,
                       onTap: () => _onSelectTag(TorrentTagFilter.all),
                     ),
                     CategoryRow(
-                      label: '无标签',
+                      label: context.l10n.filterUntagged,
                       icon: Icons.label_off_outlined,
                       count: tagCounts.untagged,
                       selected: tagFilter.isUntagged,
@@ -210,7 +211,7 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
                         onTap: () => _onSelectTag(TorrentTagFilter.named(tag)),
                         actions: [
                           FilterIconButton(
-                            tooltip: '删除标签',
+                            tooltip: context.l10n.deleteTag,
                             icon: Icons.delete_outline,
                             onPressed: () => _onRemoveTag(tag),
                           )
@@ -236,49 +237,51 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
   }
 
   Future<void> _onRemoveTag(String tag) async {
+    final l10n = context.l10n;
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '删除标签',
-      message: '确定删除标签「$tag」？种子不会被删除。',
-      confirmText: '删除',
+      title: l10n.deleteTag,
+      message: l10n.confirmDeleteTag(tag),
+      confirmText: l10n.actionDelete,
     );
     if (confirmed != true || !mounted) return;
 
-    LoadingDialog.show(context, message: '删除中…');
+    LoadingDialog.show(context, message: l10n.deleting);
     final error = await ref.read(homePageProvider.notifier).deleteTag(tag);
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     if (error == null) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('删除失败：$error')),
+      SnackBar(content: Text(l10n.deleteFailed(error))),
     );
   }
 
   Future<void> _onRemoveUnusedTags() async {
     final vm = ref.read(homePageProvider.notifier);
     final names = vm.unusedTagNames();
+    final l10n = context.l10n;
     if (names.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('没有未使用的标签')),
+        SnackBar(content: Text(l10n.noUnusedTags)),
       );
       return;
     }
 
     final confirmed = await ConfirmDialog.show(
       context,
-      title: '删除未使用的标签',
-      message: '确定删除 ${names.length} 个未使用的标签？种子不会被删除。',
-      confirmText: '删除',
+      title: l10n.deleteUnusedTags,
+      message: l10n.confirmDeleteUnusedTags(names.length),
+      confirmText: l10n.actionDelete,
     );
     if (confirmed != true || !mounted) return;
 
-    LoadingDialog.show(context, message: '删除中…');
+    LoadingDialog.show(context, message: l10n.deleting);
     final error = await vm.deleteUnusedTags();
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     if (error == null) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('删除失败：$error')),
+      SnackBar(content: Text(l10n.deleteFailed(error))),
     );
   }
 }
@@ -439,7 +442,7 @@ class _StatusCell extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  filter.displayText,
+                  filter.label(context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodyMedium?.copyWith(color: labelColor),

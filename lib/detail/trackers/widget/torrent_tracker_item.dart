@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_tracker_response.dart';
 import 'package:qbpanel/detail/trackers/torrent_tracker_format.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
 class TorrentTrackerItem extends StatelessWidget {
@@ -19,11 +20,13 @@ class TorrentTrackerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final statusText = trackerStatusLabel(
       status: tracker.status,
       updating: tracker.updating,
+      l10n: l10n,
     );
     final statusColor = trackerStatusColor(
       scheme,
@@ -80,17 +83,17 @@ class TorrentTrackerItem extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     if (tracker.tier != null && tracker.tier! >= 0)
-                      _InfoChip(label: '层级', value: '${tracker.tier}'),
+                      _InfoChip(label: l10n.tier, value: '${tracker.tier}'),
                     _InfoChip(
-                      label: '种子',
+                      label: l10n.seeds,
                       value: formatTrackerCount(tracker.numSeeds),
                     ),
                     _InfoChip(
-                      label: '用户',
+                      label: l10n.peers,
                       value: formatTrackerCount(tracker.numPeers),
                     ),
                     _InfoChip(
-                      label: '下载者',
+                      label: l10n.leeches,
                       value: formatTrackerCount(tracker.numLeeches),
                     ),
                   ],
@@ -123,15 +126,15 @@ class _ExpandedDetails extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 12),
-        _Kv(label: '完成次数', value: formatTrackerCount(tracker.numDownloaded)),
-        _Kv(label: '消息', value: _text(tracker.msg)),
+        _Kv(label: context.l10n.timesCompleted, value: formatTrackerCount(tracker.numDownloaded)),
+        _Kv(label: context.l10n.message, value: _text(tracker.msg)),
         _Kv(
-          label: '下次宣告',
-          value: formatAnnounceRemaining(tracker.nextAnnounce),
+          label: context.l10n.sortNextAnnounce,
+          value: formatAnnounceRemaining(tracker.nextAnnounce, context.l10n),
         ),
         _Kv(
-          label: '最短宣告间隔',
-          value: formatAnnounceRemaining(tracker.minAnnounce),
+          label: context.l10n.minAnnounce,
+          value: formatAnnounceRemaining(tracker.minAnnounce, context.l10n),
         ),
         if (tracker.hasEndpoints) ...[
           const SizedBox(height: 8),
@@ -150,11 +153,13 @@ class _EndpointCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final statusText = trackerStatusLabel(
       status: endpoint.status,
       updating: endpoint.updating,
+      l10n: l10n,
     );
     final statusColor = trackerStatusColor(
       scheme,
@@ -188,7 +193,7 @@ class _EndpointCard extends StatelessWidget {
                     statusText,
                     style: textTheme.labelLarge?.copyWith(color: statusColor),
                   ),
-                  _InfoChip(label: 'BT 协议', value: endpoint.btProtocolLabel),
+                  _InfoChip(label: l10n.btProtocol, value: endpoint.btProtocolLabel),
                 ],
               ),
               const SizedBox(height: 10),
@@ -197,32 +202,32 @@ class _EndpointCard extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   _InfoChip(
-                    label: '种子',
+                    label: l10n.seeds,
                     value: formatTrackerCount(endpoint.numSeeds),
                   ),
                   _InfoChip(
-                    label: '用户',
+                    label: l10n.peers,
                     value: formatTrackerCount(endpoint.numPeers),
                   ),
                   _InfoChip(
-                    label: '下载者',
+                    label: l10n.leeches,
                     value: formatTrackerCount(endpoint.numLeeches),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               _Kv(
-                label: '完成次数',
+                label: l10n.timesCompleted,
                 value: formatTrackerCount(endpoint.numDownloaded),
               ),
-              _Kv(label: '消息', value: _text(endpoint.msg)),
+              _Kv(label: l10n.message, value: _text(endpoint.msg)),
               _Kv(
-                label: '下次宣告',
-                value: formatAnnounceRemaining(endpoint.nextAnnounce),
+                label: l10n.sortNextAnnounce,
+                value: formatAnnounceRemaining(endpoint.nextAnnounce, context.l10n),
               ),
               _Kv(
-                label: '最短宣告间隔',
-                value: formatAnnounceRemaining(endpoint.minAnnounce),
+                label: l10n.minAnnounce,
+                value: formatAnnounceRemaining(endpoint.minAnnounce, context.l10n),
               ),
             ],
           ),

@@ -1,18 +1,21 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/l10n/app_locale.dart';
+import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/widget/setting_subtitle.dart';
 import 'package:qbpanel/theme/system_ui.dart';
 import 'package:qbpanel/theme/theme_controller.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
-/// 设置页「外观」区块
+/// 设置页「显示」区块
 ///
 /// 层级：
-/// - 大标题：外观
-/// - 选项标题：显示模式 / 主题色 / 预览（更小、更淡）
-/// - 选项正文：按钮、开关、说明文字
+/// - 大标题：显示
+/// - 选项标题：语言 / 显示模式 / 主题色（更小、更淡）
+/// - 选项正文：下拉、按钮、开关、说明文字
 class SettingAppearance extends ConsumerWidget {
   const SettingAppearance({super.key});
 
@@ -29,44 +32,61 @@ class SettingAppearance extends ConsumerWidget {
       orElse: () => false,
     );
 
+    final l10n = context.l10n;
+    final localeMode = ref.watch(appLocaleModeProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 大标题
         Padding(
           padding: PageInsets.content,
           child: Text(
-            '外观',
-            style: TextStyle(
-              fontSize: 20
-            ),
+            l10n.settingsAppearance,
+            style: const TextStyle(fontSize: 20),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: PageInsets.content,
+          child: DropdownField<AppLocaleMode>(
+            label: l10n.settingsLanguage,
+            value: localeMode,
+            items: [
+              for (final mode in AppLocaleMode.values)
+                DropdownMenuItem(
+                  value: mode,
+                  child: Text(mode.label(l10n)),
+                ),
+            ],
+            onChanged: (value) {
+              ref.read(appLocaleModeProvider.notifier).setMode(value);
+            },
           ),
         ),
         const SizedBox(height: 16),
-        // 选项：显示模式
-        const Padding(
+        Padding(
           padding: PageInsets.content,
-          child: SettingSubtitle('显示模式'),
+          child: SettingSubtitle(l10n.settingsDisplayMode),
         ),
         const SizedBox(height: 8),
         Padding(
           padding: PageInsets.content,
           child: SegmentedButton<ThemeMode>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: ThemeMode.system,
-                label: Text('跟随系统'),
-                icon: Icon(Icons.brightness_auto),
+                label: Text(l10n.settingsThemeSystem),
+                icon: const Icon(Icons.brightness_auto),
               ),
               ButtonSegment(
                 value: ThemeMode.light,
-                label: Text('浅色'),
-                icon: Icon(Icons.light_mode_outlined),
+                label: Text(l10n.settingsThemeLight),
+                icon: const Icon(Icons.light_mode_outlined),
               ),
               ButtonSegment(
                 value: ThemeMode.dark,
-                label: Text('深色'),
-                icon: Icon(Icons.dark_mode_outlined),
+                label: Text(l10n.settingsThemeDark),
+                icon: const Icon(Icons.dark_mode_outlined),
               ),
             ],
             selected: {settings.themeMode},
@@ -79,23 +99,22 @@ class SettingAppearance extends ConsumerWidget {
         Padding(
           padding: PageInsets.content,
           child: Text(
-            '跟随系统时，自动匹配设备的浅色 / 深色模式。',
+            l10n.settingsThemeHint,
             style: textTheme.bodySmall?.copyWith(color: scheme.outline),
           ),
         ),
         const SizedBox(height: 20),
-        // 选项：主题色
-        const Padding(
+        Padding(
           padding: PageInsets.content,
-          child: SettingSubtitle('主题色'),
+          child: SettingSubtitle(l10n.settingsThemeColor),
         ),
         const SizedBox(height: 4),
         if (showDynamicSwitch) ...[
           SwitchListTile(
             contentPadding: PageInsets.content,
-            title: Text('使用系统强调色', style: textTheme.bodyLarge),
+            title: Text(l10n.settingsUseDynamicColor, style: textTheme.bodyLarge),
             subtitle: Text(
-              '使用 Android 12+ 的 Material You 配色。',
+              l10n.settingsUseDynamicColorHint,
               style: textTheme.bodySmall?.copyWith(color: scheme.outline),
             ),
             value: settings.useDynamicColor,
@@ -104,11 +123,11 @@ class SettingAppearance extends ConsumerWidget {
         ],
         ListTile(
           contentPadding: PageInsets.content,
-          title: Text('自定义主题色', style: textTheme.bodyLarge),
+          title: Text(l10n.settingsCustomThemeColor, style: textTheme.bodyLarge),
           subtitle: Text(
             showDynamicSwitch && settings.useDynamicColor
-                ? '关闭上方开关后生效；系统色不可用时也会回退到此颜色'
-                : '任意选取一个颜色，作为 Material 3 种子色',
+                ? l10n.settingsCustomThemeColorHintDynamic
+                : l10n.settingsCustomThemeColorHint,
             style: textTheme.bodySmall?.copyWith(color: scheme.outline),
           ),
           trailing: _ColorDot(color: settings.seedColor),
@@ -130,6 +149,7 @@ class SettingAppearance extends ConsumerWidget {
       barrierColor: Colors.transparent,
       transitionDuration: BlurDialogMotion.duration,
       pageBuilder: (ctx, animation, secondaryAnimation) {
+        final l10n = ctx.l10n;
         final scheme = Theme.of(ctx).colorScheme;
         final textTheme = Theme.of(ctx).textTheme;
         final dialogWidth = MediaQuery.sizeOf(ctx).width * 0.8;
@@ -144,7 +164,7 @@ class SettingAppearance extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '选择主题色',
+                  l10n.settingsPickThemeColor,
                   style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
                 ),
                 const SizedBox(height: 12),
@@ -155,11 +175,11 @@ class SettingAppearance extends ConsumerWidget {
                   height: 40,
                   borderRadius: 8,
                   heading: Text(
-                    '取色',
+                    l10n.settingsPickColor,
                     style: textTheme.titleSmall,
                   ),
                   subheading: Text(
-                    '选中后点「应用」立即生效',
+                    l10n.settingsPickColorHint,
                     style: textTheme.bodySmall,
                   ),
                   pickersEnabled: const {
@@ -175,12 +195,12 @@ class SettingAppearance extends ConsumerWidget {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(false),
-                      child: const Text('取消'),
+                      child: Text(l10n.actionCancel),
                     ),
                     const SizedBox(width: 8),
                     FilledButton(
                       onPressed: () => Navigator.of(ctx).pop(true),
-                      child: const Text('应用'),
+                      child: Text(l10n.actionApply),
                     ),
                   ],
                 ),
