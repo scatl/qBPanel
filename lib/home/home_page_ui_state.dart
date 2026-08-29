@@ -17,6 +17,7 @@ class HomePageUiState {
     this.tagFilter = TorrentTagFilter.all,
     this.sortKey = TorrentSortKey.state,
     this.sortAscending = true,
+    this.searchQuery = '',
     this.hasTorrents = false,
     Map<TorrentStatusFilter, int>? statusCounts,
     List<TorrentCategoryNode>? categoryTree,
@@ -52,6 +53,9 @@ class HomePageUiState {
   /// `true` 为升序。
   final bool sortAscending;
 
+  /// 名称搜索（空格分词 AND）；与筛选同时生效。
+  final String searchQuery;
+
   /// 当前服务器缓存里是否有种子（未过滤）。
   final bool hasTorrents;
 
@@ -79,6 +83,7 @@ class HomePageUiState {
     TorrentTagFilter? tagFilter,
     TorrentSortKey? sortKey,
     bool? sortAscending,
+    String? searchQuery,
     bool? hasTorrents,
     Map<TorrentStatusFilter, int>? statusCounts,
     List<TorrentCategoryNode>? categoryTree,
@@ -95,6 +100,7 @@ class HomePageUiState {
       tagFilter: tagFilter ?? this.tagFilter,
       sortKey: sortKey ?? this.sortKey,
       sortAscending: sortAscending ?? this.sortAscending,
+      searchQuery: searchQuery ?? this.searchQuery,
       hasTorrents: hasTorrents ?? this.hasTorrents,
       statusCounts: statusCounts ?? this.statusCounts,
       categoryTree: categoryTree ?? this.categoryTree,

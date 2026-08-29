@@ -564,6 +564,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeFiltering => '筛选中';
 
   @override
+  String get homeClearSearch => '清除搜索';
+
+  @override
+  String get searchTorrentsHint => '过滤种子';
+
+  @override
   String get homeSort => '排序';
 
   @override
@@ -3715,6 +3721,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get homeFiltering => '篩選中';
+
+  @override
+  String get homeClearSearch => '清除搜尋';
+
+  @override
+  String get searchTorrentsHint => '過濾種子';
 
   @override
   String get homeSort => '排序';

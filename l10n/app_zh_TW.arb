@@ -310,6 +310,8 @@
   "speedPeriod30m": "30 分鐘",
   "homeFilter": "篩選",
   "homeFiltering": "篩選中",
+  "homeClearSearch": "清除搜尋",
+  "searchTorrentsHint": "過濾種子",
   "homeSort": "排序",
   "homeSorting": "排序中",
   "homeStartAll": "一鍵開始",

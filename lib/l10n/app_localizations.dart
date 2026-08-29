@@ -1149,6 +1149,18 @@ abstract class AppLocalizations {
   /// **'筛选中'**
   String get homeFiltering;
 
+  /// No description provided for @homeClearSearch.
+  ///
+  /// In zh, this message translates to:
+  /// **'清除搜索'**
+  String get homeClearSearch;
+
+  /// No description provided for @searchTorrentsHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'过滤种子'**
+  String get searchTorrentsHint;
+
   /// No description provided for @homeSort.
   ///
   /// In zh, this message translates to:

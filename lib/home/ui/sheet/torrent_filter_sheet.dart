@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_category_filter.dart';
+import 'package:qbpanel/home/entity/torrent_sort.dart';
 import 'package:qbpanel/home/entity/torrent_status_filter.dart';
 import 'package:qbpanel/home/entity/torrent_tag.dart';
 import 'package:qbpanel/home/ui/dialog/category_edit_dialog.dart';
@@ -39,6 +40,7 @@ class TorrentFilterSheet extends ConsumerStatefulWidget {
 }
 
 class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
+  bool _sortExpanded = true;
   bool _statusExpanded = true;
   bool _categoryExpanded = true;
   bool _tagExpanded = true;
@@ -51,10 +53,16 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
     final tags = ref.watch(homePageProvider.select((s) => s.tags));
     final tagCounts = ref.watch(homePageProvider.select((s) => s.tagCounts));
     final tagFilter = ref.watch(homePageProvider.select((s) => s.tagFilter));
+    final sortKey = ref.watch(homePageProvider.select((s) => s.sortKey));
+    final sortAscending = ref.watch(
+      homePageProvider.select((s) => s.sortAscending),
+    );
     final filtering = statusFilter != TorrentStatusFilter.all
         || !categoryFilter.isAll || !tagFilter.isAll;
 
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final sortLabel = '${sortKey.label(l10n)} ${sortAscending ? '↑' : '↓'}';
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 16),
@@ -64,16 +72,49 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
           child: Row(
             children: [
               Expanded(
-                child: Text(context.l10n.homeFilter, style: textTheme.titleMedium),
+                child: Text(l10n.homeFilter, style: textTheme.titleMedium),
               ),
               TextButton(
                 onPressed: filtering
                     ? () =>
                         ref.read(homePageProvider.notifier).clearFilters()
                     : null,
-                child: Text(context.l10n.homeClearFilters),
+                child: Text(l10n.homeClearFilters),
               ),
             ],
+          ),
+        ),
+        _FilterSection(
+          title: l10n.homeSort,
+          selectedLabel: sortLabel,
+          expanded: _sortExpanded,
+          onToggle: () {
+            setState(() => _sortExpanded = !_sortExpanded);
+          },
+          child: _FilterCard(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisExtent: 48,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 4,
+              ),
+              itemCount: TorrentSortKey.values.length,
+              itemBuilder: (context, index) {
+                final key = TorrentSortKey.values[index];
+                final selected = key == sortKey;
+                return _SortCell(
+                  label: key.label(l10n),
+                  selected: selected,
+                  ascending: sortAscending,
+                  onTap: () =>
+                      ref.read(homePageProvider.notifier).setSort(key),
+                );
+              },
+            ),
           ),
         ),
         _FilterSection(
@@ -452,6 +493,60 @@ class _StatusCell extends StatelessWidget {
               Text(
                 '($count)',
                 style: textTheme.bodyMedium?.copyWith(color: labelColor),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SortCell extends StatelessWidget {
+  const _SortCell({
+    required this.label,
+    required this.selected,
+    required this.ascending,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final bool ascending;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final labelColor =
+        selected ? scheme.onPrimaryContainer : scheme.onSurface;
+
+    return Material(
+      color: selected ? scheme.secondaryContainer : Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              if (selected) ...[
+                Icon(
+                  ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                  size: 18,
+                  color: scheme.primary,
+                ),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(color: labelColor),
+                ),
               ),
             ],
           ),
