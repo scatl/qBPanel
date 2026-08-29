@@ -274,6 +274,8 @@
 
   "homeFilter": "筛选",
   "homeFiltering": "筛选中",
+  "homeClearSearch": "清除搜索",
+  "searchTorrentsHint": "过滤种子",
   "homeSort": "排序",
   "homeSorting": "排序中",
   "homeStartAll": "一键开始",

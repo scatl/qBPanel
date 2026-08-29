@@ -17,6 +17,7 @@ class LogPage extends ConsumerStatefulWidget {
 class _LogPageState extends ConsumerState<LogPage>
     with TickerProviderStateMixin {
   static const _searchAnimDuration = Duration(milliseconds: 260);
+  static const _appBarScrolledUnderElevation = 3.0;
 
   TabController? _tabController;
   AnimationController? _searchAnim;
@@ -25,6 +26,7 @@ class _LogPageState extends ConsumerState<LogPage>
   final _searchController = TextEditingController();
   final _searchFocusNode = FocusNode();
   bool _searchActive = false;
+  bool _appBarScrolledUnder = false;
 
   void _ensureControllers() {
     _tabController ??= TabController(length: 2, vsync: this)
@@ -94,6 +96,15 @@ class _LogPageState extends ConsumerState<LogPage>
     ref.read(peerLogProvider.notifier).setSearchQuery(value);
   }
 
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+    final scrolled = notification.metrics.pixels > 0.5;
+    if (scrolled != _appBarScrolledUnder) {
+      setState(() => _appBarScrolledUnder = scrolled);
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     _ensureControllers();
@@ -116,6 +127,8 @@ class _LogPageState extends ConsumerState<LogPage>
               focusNode: _searchFocusNode,
               onClose: _closeSearch,
               onChanged: _onSearchChanged,
+              scrolledUnder: _appBarScrolledUnder,
+              scrolledUnderElevation: _appBarScrolledUnderElevation,
             ),
             actions: [
               ClipRect(
@@ -145,7 +158,10 @@ class _LogPageState extends ConsumerState<LogPage>
               ],
             ),
           ),
-          body: body,
+          body: NotificationListener<ScrollNotification>(
+            onNotification: _onScrollNotification,
+            child: body!,
+          ),
         );
       },
       child: TabBarView(
@@ -167,6 +183,8 @@ class _LogAppBarSearchTitle extends StatelessWidget {
     required this.focusNode,
     required this.onClose,
     required this.onChanged,
+    required this.scrolledUnder,
+    required this.scrolledUnderElevation,
   });
 
   final Animation<double> progress;
@@ -175,9 +193,21 @@ class _LogAppBarSearchTitle extends StatelessWidget {
   final FocusNode focusNode;
   final VoidCallback onClose;
   final ValueChanged<String> onChanged;
+  final bool scrolledUnder;
+  final double scrolledUnderElevation;
 
   static const _fieldHeight = 40.0;
   static const _fieldRadius = 20.0;
+
+  Color _searchFieldColor(ColorScheme scheme) {
+    final base = scheme.surfaceContainerHighest;
+    if (!scrolledUnder) return base;
+    return ElevationOverlay.applySurfaceTint(
+      base,
+      scheme.surfaceTint,
+      scrolledUnderElevation,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -213,9 +243,13 @@ class _LogAppBarSearchTitle extends StatelessWidget {
                     child: Transform.scale(
                       scale: fieldScale,
                       alignment: Alignment.centerLeft,
-                      child: Material(
-                        color: scheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(_fieldRadius),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 120),
+                        curve: Curves.easeOut,
+                        decoration: BoxDecoration(
+                          color: _searchFieldColor(scheme),
+                          borderRadius: BorderRadius.circular(_fieldRadius),
+                        ),
                         clipBehavior: Clip.antiAlias,
                         child: TextField(
                           controller: controller,
@@ -224,6 +258,7 @@ class _LogAppBarSearchTitle extends StatelessWidget {
                           textInputAction: TextInputAction.search,
                           decoration: InputDecoration(
                             isDense: true,
+                            filled: false,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 10,

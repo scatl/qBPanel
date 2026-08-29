@@ -23,6 +23,7 @@ import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/http/poll_loop.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/l10n/app_localizations.dart';
+import 'package:qbpanel/log/util/log_search.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
 import 'package:qbpanel/storage/db/app_database_provider.dart';
 import 'package:qbpanel/widget/refresh/paged_refresh_state.dart';
@@ -46,6 +47,8 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   /// 备用限速切换进行中，避免连点打成两次 toggle。
   bool _altSpeedBusy = false;
 
+  Timer? _searchDebounce;
+
   late PollLoop _poll;
 
   AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
@@ -65,7 +68,10 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     final sub = (db.select(db.qbServers)..where((t) => t.isActive.equals(true)))
         .watchSingleOrNull()
         .listen(_onActiveServerChanged);
-    ref.onDispose(sub.cancel);
+    ref.onDispose(() {
+      sub.cancel();
+      _searchDebounce?.cancel();
+    });
 
     return ui;
   }
@@ -104,6 +110,23 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     } else {
       state = state.copyWith(sortKey: key, sortAscending: true);
     }
+    _reapplyListFilter();
+  }
+
+  void setSearchQuery(String query) {
+    if (query == state.searchQuery) return;
+    state = state.copyWith(searchQuery: query);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (!ref.mounted) return;
+      _reapplyListFilter();
+    });
+  }
+
+  void clearSearchQuery() {
+    _searchDebounce?.cancel();
+    if (state.searchQuery.isEmpty) return;
+    state = state.copyWith(searchQuery: '');
     _reapplyListFilter();
   }
 
@@ -1013,12 +1036,14 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     final tag = state.tagFilter;
     final sortKey = state.sortKey;
     final sortAscending = state.sortAscending;
+    final searchTerms = parseLogSearchTerms(state.searchQuery);
     final items =
         [
           for (final torrent in _torrentsByHash.values)
             if (status.matches(torrent) &&
                 category.matches(torrent.category) &&
-                tag.matches(torrent.tags))
+                tag.matches(torrent.tags) &&
+                logContainsAllTerms(torrent.name ?? '', searchTerms))
               torrent,
         ]..sort((a, b) {
           final order = sortKey.compare(a, b, ascending: sortAscending);

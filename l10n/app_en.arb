@@ -189,6 +189,8 @@
 
   "homeFilter": "Filter",
   "homeFiltering": "Filtering",
+  "homeClearSearch": "Clear search",
+  "searchTorrentsHint": "Filter torrents",
   "homeSort": "Sort",
   "homeSorting": "Sorting",
   "homeStartAll": "Start all",

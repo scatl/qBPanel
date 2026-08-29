@@ -570,6 +570,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeFiltering => 'Filtering';
 
   @override
+  String get homeClearSearch => 'Clear search';
+
+  @override
+  String get searchTorrentsHint => 'Filter torrents';
+
+  @override
   String get homeSort => 'Sort';
 
   @override
