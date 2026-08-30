@@ -111,6 +111,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsThemeHint => '跟随系统时，自动匹配设备的浅色 / 深色模式。';
 
   @override
+  String get settingsListDensity => '列表密度';
+
+  @override
+  String get settingsListDensityStandard => '标准';
+
+  @override
+  String get settingsListDensityCompact => '紧凑';
+
+  @override
+  String get settingsListDensityHint => '紧凑模式减少每条种子占用的高度，适合列表很长时浏览。';
+
+  @override
   String get settingsThemeColor => '主题色';
 
   @override
@@ -3268,6 +3280,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get settingsThemeHint => '跟隨系統時，自動匹配裝置的淺色 / 深色模式。';
+
+  @override
+  String get settingsListDensity => '列表密度';
+
+  @override
+  String get settingsListDensityStandard => '標準';
+
+  @override
+  String get settingsListDensityCompact => '緊湊';
+
+  @override
+  String get settingsListDensityHint => '緊湊模式減少每條種子佔用的高度，適合列表很長時瀏覽。';
 
   @override
   String get settingsThemeColor => '主題色';

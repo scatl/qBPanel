@@ -112,6 +112,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'When set to System, the app follows the device light or dark theme.';
 
   @override
+  String get settingsListDensity => 'List density';
+
+  @override
+  String get settingsListDensityStandard => 'Standard';
+
+  @override
+  String get settingsListDensityCompact => 'Compact';
+
+  @override
+  String get settingsListDensityHint =>
+      'Compact rows take less space, which helps when the torrent list is long.';
+
+  @override
   String get settingsThemeColor => 'Theme color';
 
   @override

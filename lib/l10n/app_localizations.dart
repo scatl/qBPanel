@@ -303,6 +303,30 @@ abstract class AppLocalizations {
   /// **'跟随系统时，自动匹配设备的浅色 / 深色模式。'**
   String get settingsThemeHint;
 
+  /// No description provided for @settingsListDensity.
+  ///
+  /// In zh, this message translates to:
+  /// **'列表密度'**
+  String get settingsListDensity;
+
+  /// No description provided for @settingsListDensityStandard.
+  ///
+  /// In zh, this message translates to:
+  /// **'标准'**
+  String get settingsListDensityStandard;
+
+  /// No description provided for @settingsListDensityCompact.
+  ///
+  /// In zh, this message translates to:
+  /// **'紧凑'**
+  String get settingsListDensityCompact;
+
+  /// No description provided for @settingsListDensityHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'紧凑模式减少每条种子占用的高度，适合列表很长时浏览。'**
+  String get settingsListDensityHint;
+
   /// No description provided for @settingsThemeColor.
   ///
   /// In zh, this message translates to:

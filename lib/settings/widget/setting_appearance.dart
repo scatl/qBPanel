@@ -1,6 +1,7 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/home/list_density.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/widget/setting_subtitle.dart';
@@ -14,7 +15,7 @@ import 'package:qbpanel/widget/page_insets.dart';
 ///
 /// 层级：
 /// - 大标题：显示
-/// - 选项标题：语言 / 显示模式 / 主题色（更小、更淡）
+/// - 选项标题：语言 / 显示模式 / 列表密度 / 主题色（更小、更淡）
 /// - 选项正文：下拉、按钮、开关、说明文字
 class SettingAppearance extends ConsumerWidget {
   const SettingAppearance({super.key});
@@ -34,6 +35,7 @@ class SettingAppearance extends ConsumerWidget {
 
     final l10n = context.l10n;
     final localeMode = ref.watch(appLocaleModeProvider);
+    final listDensity = ref.watch(listDensityProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,10 +55,7 @@ class SettingAppearance extends ConsumerWidget {
             value: localeMode,
             items: [
               for (final mode in AppLocaleMode.values)
-                DropdownMenuItem(
-                  value: mode,
-                  child: Text(mode.label(l10n)),
-                ),
+                DropdownMenuItem(value: mode, child: Text(mode.label(l10n))),
             ],
             onChanged: (value) {
               ref.read(appLocaleModeProvider.notifier).setMode(value);
@@ -106,13 +105,51 @@ class SettingAppearance extends ConsumerWidget {
         const SizedBox(height: 20),
         Padding(
           padding: PageInsets.content,
+          child: SettingSubtitle(l10n.settingsListDensity),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: PageInsets.content,
+          child: SegmentedButton<ListDensity>(
+            segments: [
+              ButtonSegment(
+                value: ListDensity.standard,
+                label: Text(l10n.settingsListDensityStandard),
+                icon: const Icon(Icons.view_agenda_outlined),
+              ),
+              ButtonSegment(
+                value: ListDensity.compact,
+                label: Text(l10n.settingsListDensityCompact),
+                icon: const Icon(Icons.density_small),
+              ),
+            ],
+            selected: {listDensity},
+            onSelectionChanged: (value) {
+              ref.read(listDensityProvider.notifier).setDensity(value.first);
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: PageInsets.content,
+          child: Text(
+            l10n.settingsListDensityHint,
+            style: textTheme.bodySmall?.copyWith(color: scheme.outline),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: PageInsets.content,
           child: SettingSubtitle(l10n.settingsThemeColor),
         ),
         const SizedBox(height: 4),
         if (showDynamicSwitch) ...[
           SwitchListTile(
             contentPadding: PageInsets.content,
-            title: Text(l10n.settingsUseDynamicColor, style: textTheme.bodyLarge),
+            title: Text(
+              l10n.settingsUseDynamicColor,
+              style: textTheme.bodyLarge,
+            ),
             subtitle: Text(
               l10n.settingsUseDynamicColorHint,
               style: textTheme.bodySmall?.copyWith(color: scheme.outline),
@@ -123,7 +160,10 @@ class SettingAppearance extends ConsumerWidget {
         ],
         ListTile(
           contentPadding: PageInsets.content,
-          title: Text(l10n.settingsCustomThemeColor, style: textTheme.bodyLarge),
+          title: Text(
+            l10n.settingsCustomThemeColor,
+            style: textTheme.bodyLarge,
+          ),
           subtitle: Text(
             showDynamicSwitch && settings.useDynamicColor
                 ? l10n.settingsCustomThemeColorHintDynamic
@@ -165,7 +205,9 @@ class SettingAppearance extends ConsumerWidget {
               children: [
                 Text(
                   l10n.settingsPickThemeColor,
-                  style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
+                  style: textTheme.titleLarge?.copyWith(
+                    color: scheme.onSurface,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 ColorPicker(
@@ -231,9 +273,7 @@ class _ColorDot extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
     );
   }

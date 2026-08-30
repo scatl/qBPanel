@@ -1,6 +1,7 @@
 abstract final class SpKey {
   static const theme = _Theme();
   static const locale = _Locale();
+  static const list = _List();
 }
 
 class _Theme {
@@ -15,3 +16,7 @@ class _Locale {
   final keyMode = 'app_locale_mode';
 }
 
+class _List {
+  const _List();
+  final keyDensity = 'list_density';
+}
