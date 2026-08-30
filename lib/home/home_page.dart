@@ -5,6 +5,7 @@ import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
 import 'package:qbpanel/home/entity/torrent_status_filter.dart';
+import 'package:qbpanel/home/list_density.dart';
 import 'package:qbpanel/home/ui/dialog/global_speed_limit_dialog.dart';
 import 'package:qbpanel/home/ui/home_bottom_bar.dart';
 import 'package:qbpanel/home/ui/sheet/server_state_sheet.dart';
@@ -114,15 +115,15 @@ class _HomePageState extends ConsumerState<HomePage>
       useAltSpeedLimits: serverState.useAltSpeedLimits == true,
       initialDownloadBytesPerSec: serverState.dlRateLimit,
       initialUploadBytesPerSec: serverState.upRateLimit,
-      onSubmit: ({
-        required int downloadBytesPerSec,
-        required int uploadBytesPerSec,
-      }) {
-        return ref.read(homePageProvider.notifier).setGlobalSpeedLimits(
-              downloadBytesPerSec: downloadBytesPerSec,
-              uploadBytesPerSec: uploadBytesPerSec,
-            );
-      },
+      onSubmit:
+          ({required int downloadBytesPerSec, required int uploadBytesPerSec}) {
+            return ref
+                .read(homePageProvider.notifier)
+                .setGlobalSpeedLimits(
+                  downloadBytesPerSec: downloadBytesPerSec,
+                  uploadBytesPerSec: uploadBytesPerSec,
+                );
+          },
     );
     if (!mounted || !saved) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -145,7 +146,8 @@ class _HomePageState extends ConsumerState<HomePage>
       loadingMessage: l10n.homeStarting,
       failLabel: l10n.homeStartAllFailed,
       started: true,
-      action: () => ref.read(homePageProvider.notifier).startDisplayedTorrents(),
+      action: () =>
+          ref.read(homePageProvider.notifier).startDisplayedTorrents(),
     );
   }
 
@@ -176,9 +178,9 @@ class _HomePageState extends ConsumerState<HomePage>
     final l10n = context.l10n;
     final count = ref.read(homePageProvider).pageListState.items.length;
     if (count == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.homeNoTorrentsInList)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.homeNoTorrentsInList)));
       return;
     }
     final confirmed = await ConfirmDialog.show(
@@ -198,8 +200,8 @@ class _HomePageState extends ConsumerState<HomePage>
         content: Text(
           error == null
               ? (started
-                  ? l10n.homeBatchStarted(count)
-                  : l10n.homeBatchStopped(count))
+                    ? l10n.homeBatchStarted(count)
+                    : l10n.homeBatchStopped(count))
               : l10n.homeBatchFailed(failLabel, error),
         ),
       ),
@@ -209,8 +211,9 @@ class _HomePageState extends ConsumerState<HomePage>
   Future<void> _toggleAltSpeed() async {
     final wasOn =
         ref.read(homePageProvider).serverState?.useAltSpeedLimits == true;
-    final error =
-        await ref.read(homePageProvider.notifier).toggleAltSpeedLimits();
+    final error = await ref
+        .read(homePageProvider.notifier)
+        .toggleAltSpeedLimits();
     if (!mounted) return;
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -223,7 +226,9 @@ class _HomePageState extends ConsumerState<HomePage>
     if (wasOn == nowOn) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(nowOn ? context.l10n.homeAltSpeedOn : context.l10n.homeAltSpeedOff),
+        content: Text(
+          nowOn ? context.l10n.homeAltSpeedOn : context.l10n.homeAltSpeedOff,
+        ),
       ),
     );
   }
@@ -232,14 +237,17 @@ class _HomePageState extends ConsumerState<HomePage>
   Widget build(BuildContext context) {
     final ui = ref.watch(homePageProvider);
     final vm = ref.read(homePageProvider.notifier);
+    final compact = ref.watch(listDensityProvider) == ListDensity.compact;
 
     final searching = ui.searchQuery.trim().isNotEmpty;
-    final filtering = ui.statusFilter != TorrentStatusFilter.all ||
+    final filtering =
+        ui.statusFilter != TorrentStatusFilter.all ||
         !ui.categoryFilter.isAll ||
         !ui.tagFilter.isAll;
     final sortActive = ui.sortKey != TorrentSortKey.state || !ui.sortAscending;
     final listConstrained = filtering || searching;
-    final filteredEmpty = ui.activeServer != null &&
+    final filteredEmpty =
+        ui.activeServer != null &&
         ui.hasTorrents &&
         listConstrained &&
         ui.pageListState.isEmpty &&
@@ -298,8 +306,7 @@ class _HomePageState extends ConsumerState<HomePage>
                                     ? scheme.primary
                                     : null,
                               ),
-                              onPressed: () =>
-                                  TorrentFilterSheet.show(context),
+                              onPressed: () => TorrentFilterSheet.show(context),
                             ),
                           ],
                           PopupMenuButton<_HomeMoreAction>(
@@ -399,15 +406,14 @@ class _HomePageState extends ConsumerState<HomePage>
                   onPressed: () => context.push(RouterPath.addTorrent),
                   child: const Icon(Icons.add),
                 ),
-          bottomNavigationBar:
-              ui.activeServer == null || ui.serverState == null
-                  ? null
-                  : HomeBottomBar(
-                      serverState: ui.serverState!,
-                      onStatusTap: _showServerStateSheet,
-                      onSpeedTap: _showGlobalSpeedLimitDialog,
-                      onAltSpeedPressed: _toggleAltSpeed,
-                    ),
+          bottomNavigationBar: ui.activeServer == null || ui.serverState == null
+              ? null
+              : HomeBottomBar(
+                  serverState: ui.serverState!,
+                  onStatusTap: _showServerStateSheet,
+                  onSpeedTap: _showGlobalSpeedLimitDialog,
+                  onAltSpeedPressed: _toggleAltSpeed,
+                ),
           body: NotificationListener<ScrollNotification>(
             onNotification: _onScrollNotification,
             child: body!,
@@ -418,52 +424,49 @@ class _HomePageState extends ConsumerState<HomePage>
         state: ui.pageListState,
         enableLoadMore: false,
         enableRefresh: ui.activeServer != null,
-        padding: EdgeInsets.fromLTRB(
-          0,
-          8,
-          0,
-          ui.activeServer == null ? 8 : 88,
-        ),
+        padding: EdgeInsets.fromLTRB(0, 8, 0, ui.activeServer == null ? 8 : 88),
         onRefresh: vm.refresh,
         emptyTitle: ui.activeServer == null
             ? l10n.homeNoActiveServer
             : (filteredEmpty
-                ? l10n.homeNoMatchingTorrents
-                : l10n.homeNoTorrents),
-        emptySubtitle:
-            ui.activeServer == null ? l10n.homeNoActiveServerHint : null,
+                  ? l10n.homeNoMatchingTorrents
+                  : l10n.homeNoTorrents),
+        emptySubtitle: ui.activeServer == null
+            ? l10n.homeNoActiveServerHint
+            : null,
         emptyIcon: ui.activeServer == null
             ? Icons.dns_outlined
             : (filteredEmpty
-                ? (searching && !filtering
-                    ? Icons.search_off_outlined
-                    : Icons.filter_alt_outlined)
-                : null),
+                  ? (searching && !filtering
+                        ? Icons.search_off_outlined
+                        : Icons.filter_alt_outlined)
+                  : null),
         emptyActionText: ui.activeServer == null
             ? l10n.homeChooseServer
             : (filteredEmpty
-                ? (searching && !filtering
-                    ? l10n.homeClearSearch
-                    : l10n.homeClearFilters)
-                : null),
+                  ? (searching && !filtering
+                        ? l10n.homeClearSearch
+                        : l10n.homeClearFilters)
+                  : null),
         onEmptyAction: ui.activeServer == null
             ? () async {
                 await context.push(RouterPath.serverList);
               }
             : (filteredEmpty
-                ? () {
-                    if (searching && !filtering) {
-                      _closeSearch();
-                    } else {
-                      _clearListConstraints();
+                  ? () {
+                      if (searching && !filtering) {
+                        _closeSearch();
+                      } else {
+                        _clearListConstraints();
+                      }
                     }
-                  }
-                : null),
+                  : null),
         itemBuilder: (context, index, torrent) {
           return TorrentItem(
             key: ValueKey(torrent.hash ?? index),
             torrent: torrent,
             queueing: ui.serverState?.queueing == true,
+            compact: compact,
             onTap: () {
               final hash = torrent.hash;
               if (hash == null || hash.isEmpty) return;
@@ -619,11 +622,7 @@ class _ServerTitle extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
-              child: Text(
-                name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             const Icon(Icons.expand_more),
           ],
