@@ -82,3 +82,7 @@ flutter_launcher_icons:
     image_path: assets/icons/qbpanel_launcher.png
     background_color: "#15897C"
     theme_color: "#1B6B5A"
+  windows:
+    generate: true
+    image_path: assets/icons/qbpanel_launcher.png
+    icon_size: 256
