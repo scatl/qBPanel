@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>qBPanel Privacy Policy / 隐私政策</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+      line-height: 1.65;
+      max-width: 44rem;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.15rem; margin-top: 1.75rem; }
+    .meta { color: #666; margin-bottom: 2rem; }
+    nav { margin: 1rem 0 2rem; }
+    hr { border: none; border-top: 1px solid #ccc; margin: 2.5rem 0; }
+    ul { padding-left: 1.2rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#zh">中文</a> · <a href="#en">English</a>
+  </nav>
+
+  <article id="zh">
+    <h1>qBPanel 隐私政策</h1>
+    <p class="meta">生效日期：2026 年 9 月 3 日 · 适用于 Android 应用 qBPanel（包名 <code>com.scatl.qbpanel</code>）</p>
+
+    <p>qBPanel 是一款用于<strong>远程管理您自己的 qBittorrent</strong>（通过 WebUI API）的工具。本政策说明应用会处理哪些信息。我们不运营账号系统，也不把您的数据上传到开发者服务器。</p>
+
+    <h2>1. 我们收集哪些信息</h2>
+    <p><strong>我们（开发者）不收集、不接收您的个人信息。</strong>应用没有开发者后台、没有分析统计、没有广告 SDK、没有崩溃上报服务。</p>
+    <p>以下信息仅保存在<strong>您的设备本地</strong>，或仅发送到<strong>您配置的 qBittorrent 服务器</strong>：</p>
+    <ul>
+      <li><strong>服务器连接信息：</strong>显示名称、主机地址、端口、是否使用 HTTPS、WebUI 路径、API 密钥，以及该服务器返回的版本信息。</li>
+      <li><strong>界面偏好：</strong>语言、主题、列表密度等，保存在本机。</li>
+      <li><strong>种子相关数据：</strong>种子列表、进度、分类、标签等来自您的 qBittorrent，由应用展示；不会发送给开发者。</li>
+      <li><strong>您选择的文件：</strong>当您添加或通过系统分享打开 <code>.torrent</code> 文件时，应用会读取该文件内容，并提交到您指定的 qBittorrent 服务器。应用不会扫描相册或其它未选择的文件。</li>
+      <li><strong>磁力链接：</strong>当您用本应用打开 <code>magnet:</code> 链接时，链接会发往您的 qBittorrent 服务器以添加任务。</li>
+      <li><strong>本机诊断日志：</strong>应用可能在设备上写入调试日志（例如接口路径、错误信息、文件名），默认保留约 7 天，仅用于排查问题，不会自动上传。</li>
+    </ul>
+
+    <h2>2. 信息如何使用与传输</h2>
+    <ul>
+      <li>连接信息用于登录并调用您自己的 qBittorrent WebUI API（查看列表、添加/暂停/删除种子、修改服务器设置等）。</li>
+      <li>网络请求的目标是您填写的主机。开发者无法访问该服务器，除非您主动把同一台机器提供给他人（例如应用商店审核）。</li>
+      <li>若您关闭 HTTPS（常见于家庭局域网），请求可能以 HTTP 明文传输。请仅在可信网络中使用 HTTP。</li>
+      <li>您主动使用系统「分享」时，分享内容会交给您选择的其它应用，适用该应用的隐私政策。</li>
+    </ul>
+
+    <h2>3. 权限</h2>
+    <p>Android 上本应用声明的权限为：</p>
+    <ul>
+      <li><strong>网络（INTERNET）：</strong>用于连接您的 qBittorrent WebUI。</li>
+    </ul>
+    <p>添加种子时通过系统文件选择器或系统分享获取文件，不申请读取全部照片/媒体库的权限。</p>
+
+    <h2>4. 存储与安全</h2>
+    <ul>
+      <li>连接配置（含 API 密钥）保存在设备本地数据库中，卸载应用后会被系统删除。</li>
+      <li>我们不会将上述数据出售或提供给广告商、分析商或其它第三方。</li>
+      <li>请妥善保管设备与 API 密钥。获得设备访问权限的人可能读取本机保存的连接信息。</li>
+    </ul>
+
+    <h2>5. 儿童</h2>
+    <p>本应用不面向 13 岁以下儿童，也不会故意收集儿童的个人信息。</p>
+
+    <h2>6. 合法使用</h2>
+    <p>本应用仅用于管理您有权管理的 qBittorrent 实例。请确保通过本应用添加或下载的内容符合您所在地区的法律法规。开发者不对用户通过 qBittorrent 传输的内容负责。</p>
+
+    <h2>7. 政策变更</h2>
+    <p>若本政策有重大更新，我们将修改本页面的生效日期。继续使用应用即表示您了解更新后的政策。</p>
+
+    <h2>8. 联系我们</h2>
+    <p>如对隐私有疑问，请发送邮件至：<strong>sca_tl@foxmail.com</strong></p>
+  </article>
+
+  <hr />
+
+  <article id="en">
+    <h1>qBPanel Privacy Policy</h1>
+    <p class="meta">Effective date: 3 September 2026 · Applies to the Android app qBPanel (package <code>com.scatl.qbpanel</code>)</p>
+
+    <p>qBPanel is a tool for <strong>remotely managing your own qBittorrent instance</strong> via the WebUI API. This policy describes what information the app processes. We do not run user accounts, and we do not upload your data to developer-operated servers.</p>
+
+    <h2>1. Information we collect</h2>
+    <p><strong>We (the developer) do not collect or receive your personal information.</strong> The app has no developer backend, analytics, advertising SDKs, or crash-reporting service.</p>
+    <p>The following stays on <strong>your device</strong> or is sent only to <strong>the qBittorrent server you configure</strong>:</p>
+    <ul>
+      <li><strong>Server connection details:</strong> display name, host, port, HTTPS flag, WebUI path, API key, and version information returned by that server.</li>
+      <li><strong>Preferences:</strong> language, theme, list density, stored on-device.</li>
+      <li><strong>Torrent data:</strong> lists, progress, categories, tags, and similar data come from your qBittorrent and are shown in the app; they are not sent to the developer.</li>
+      <li><strong>Files you choose:</strong> if you add or share a <code>.torrent</code> file into the app, the file is read and submitted to your qBittorrent server. The app does not scan your gallery or other files you did not select.</li>
+      <li><strong>Magnet links:</strong> if you open a <code>magnet:</code> link with this app, the link is sent to your qBittorrent server to add a torrent.</li>
+      <li><strong>On-device diagnostic logs:</strong> the app may write debug logs (API paths, error messages, file names) on the device, retained for about 7 days, and not uploaded automatically.</li>
+    </ul>
+
+    <h2>2. How information is used and transferred</h2>
+    <ul>
+      <li>Connection details are used to call your qBittorrent WebUI API (list torrents, add/pause/delete, change server settings, and similar).</li>
+      <li>Network requests go to the host you enter. The developer cannot access that server unless you choose to share it (for example with Play review).</li>
+      <li>If you disable HTTPS (common on a home LAN), traffic may be sent in cleartext HTTP. Use HTTP only on networks you trust.</li>
+      <li>If you use the system Share sheet, the content goes to the app you pick and is covered by that app’s policy.</li>
+    </ul>
+
+    <h2>3. Permissions</h2>
+    <p>On Android this app declares:</p>
+    <ul>
+      <li><strong>Internet:</strong> to reach your qBittorrent WebUI.</li>
+    </ul>
+    <p>Torrent files are obtained through the system file picker or share intent. The app does not request access to your entire photo or media library.</p>
+
+    <h2>4. Storage and security</h2>
+    <ul>
+      <li>Connection settings (including the API key) are stored in a local database on the device and are removed if you uninstall the app.</li>
+      <li>We do not sell this data or share it with advertisers, analytics providers, or other third parties.</li>
+      <li>Anyone with access to your unlocked device may be able to read locally stored connection details. Keep your device and API key secure.</li>
+    </ul>
+
+    <h2>5. Children</h2>
+    <p>This app is not directed at children under 13, and we do not knowingly collect personal information from children.</p>
+
+    <h2>6. Lawful use</h2>
+    <p>Use qBPanel only with qBittorrent instances you are authorized to manage. You are responsible for ensuring that content added or downloaded through qBittorrent complies with applicable law. The developer is not responsible for content transferred by your qBittorrent server.</p>
+
+    <h2>7. Changes</h2>
+    <p>If this policy changes in a material way, we will update the effective date on this page. Continued use of the app means you are aware of the updated policy.</p>
+
+    <h2>8. Contact</h2>
+    <p>For privacy questions, email: <strong>sca_tl@foxmail.com</strong></p>
+  </article>
+</body>
+</html>
