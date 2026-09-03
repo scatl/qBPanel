@@ -10,14 +10,16 @@ import 'package:qbpanel/theme/system_ui.dart';
 import 'package:qbpanel/theme/theme_builder.dart';
 import 'package:qbpanel/theme/theme_controller.dart';
 
-void main() {
+void main(List<String> args) {
   WidgetsFlutterBinding.ensureInitialized();
   enableEdgeToEdge();
-  runApp(const ProviderScope(child: QBPanelApp()));
+  runApp(ProviderScope(child: QBPanelApp(launchArgs: args)));
 }
 
 class QBPanelApp extends ConsumerStatefulWidget {
-  const QBPanelApp({super.key});
+  const QBPanelApp({super.key, this.launchArgs = const []});
+
+  final List<String> launchArgs;
 
   @override
   ConsumerState<QBPanelApp> createState() => _QBPanelAppState();
@@ -36,7 +38,7 @@ class _QBPanelAppState extends ConsumerState<QBPanelApp>
         if (!mounted) return;
         final inbound = InboundTorrentOpen(ref);
         _inboundOpen = inbound;
-        inbound.start();
+        inbound.start(launchArgs: widget.launchArgs);
       });
     }
   }

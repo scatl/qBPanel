@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/util/app_log.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/torrent_metadata_response.dart';
@@ -56,6 +57,7 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
   }
 
   void importMagnet(String url) {
+    appLog('add', 'vm.importMagnet ${appLogPreview(url)}');
     _beginImport(
       kind: AddTorrentImportKind.magnet,
       sourceUrl: url,
@@ -64,6 +66,10 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
   }
 
   void importFile(String name, Uint8List bytes) {
+    appLog(
+      'add',
+      'vm.importFile name=$name ${appLogHeadHex(bytes)}',
+    );
     _beginImport(
       kind: AddTorrentImportKind.file,
       sourceFileName: name,
@@ -172,9 +178,7 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
     }
     if (state.isFromFile) {
       final bytes = _sourceFileBytes;
-      final useCache =
-          state.metadataStatus == AddTorrentMetadataStatus.ready;
-      if (!useCache && (bytes == null || bytes.isEmpty)) {
+      if (bytes == null || bytes.isEmpty) {
         return _l10n.cannotReadTorrentFile;
       }
     }
@@ -188,6 +192,12 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
       dlLimitKib: dlLimitKib.trim(),
       upLimitKib: upLimitKib.trim(),
     );
+    appLog(
+      'add',
+      'vm.submit kind=${state.importKind} metadata=${state.metadataStatus} '
+      'bytes=${appLogHeadHex(_sourceFileBytes)}',
+    );
+    appLogFormData('add', formData);
 
     String? error;
     await ref
@@ -197,9 +207,13 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
           data: formData,
           parser: (_) {},
         )
-        .onSuccess((_) {})
+        .onSuccess((_) async {
+          appLog('add', 'vm.submit success');
+          await _applyFilePrioritiesAfterAdd();
+        })
         .onFail((e) {
           if (e.isCancel) return;
+          appLog('add', 'vm.submit fail ${appLogApiFailure(e)}');
           error = e.message;
         });
 
@@ -256,28 +270,85 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
       if (kib != null && kib > 0) map['upLimit'] = kib * 1024;
     }
 
-    final useMetadataCache =
-        ui.metadataStatus == AddTorrentMetadataStatus.ready;
-    final priorities =
-        useMetadataCache ? _filePrioritiesFromTree(ui.fileRoots) : const <int>[];
-
     if (ui.isFromMagnet) {
       map['urls'] = ui.sourceUrl!.trim();
-    } else if (useMetadataCache) {
-      // parseMetadata 缓存：用 file:文件名，才能带 filePriorities
-      map['urls'] = 'file:${ui.sourceFileName}';
+      // filePriorities 只能跟 urls 一起发（磁力，且元数据已在 qB 缓存里）。
+      final useMetadataCache =
+          ui.metadataStatus == AddTorrentMetadataStatus.ready;
+      final priorities = useMetadataCache
+          ? _filePrioritiesFromTree(ui.fileRoots)
+          : const <int>[];
+      if (priorities.isNotEmpty) {
+        map['filePriorities'] = priorities.join(',');
+      }
     } else {
+      // 本地 .torrent：上传文件字节。不要用 urls=file:文件名——
+      // parseMetadata 缓存在 infohash 上，不在文件名上；那条 URL 会变成在 qB 本机找文件。
       map['torrents'] = MultipartFile.fromBytes(
         _sourceFileBytes!,
-        filename: ui.sourceFileName ?? 'torrent.torrent',
+        filename: _uploadTorrentFileName(ui.sourceFileName),
       );
     }
 
-    if (priorities.isNotEmpty) {
-      map['filePriorities'] = priorities.join(',');
+    return FormData.fromMap(map);
+  }
+
+  /// 上传 .torrent 时不能在 add 里带 filePriorities，添加成功后再按文件设置。
+  Future<void> _applyFilePrioritiesAfterAdd() async {
+    if (!state.isFromFile) return;
+    final hash = _torrentHashForApi();
+    if (hash == null) {
+      appLog('add', 'vm.filePrio skip no hash');
+      return;
     }
 
-    return FormData.fromMap(map);
+    final byPrio = <int, List<int>>{};
+    void walk(TorrentContentNode node) {
+      if (!node.isFolder &&
+          node.fileIndex != null &&
+          node.priority != 1) {
+        byPrio.putIfAbsent(node.priority, () => []).add(node.fileIndex!);
+      }
+      for (final child in node.children) {
+        walk(child);
+      }
+    }
+
+    for (final root in state.fileRoots) {
+      walk(root);
+    }
+    if (byPrio.isEmpty) return;
+
+    for (final entry in byPrio.entries) {
+      appLog(
+        'add',
+        'vm.filePrio hash=$hash prio=${entry.key} ids=${entry.value}',
+      );
+      await ref
+          .read(apiClientProvider)
+          .post<void>(
+            ApiPath.torrentManagement.filePrio,
+            data: {
+              'hash': hash,
+              'id': entry.value.join('|'),
+              'priority': '${entry.key}',
+            },
+            options: Options(contentType: Headers.formUrlEncodedContentType),
+            parser: (_) {},
+          )
+          .onFail((e) {
+            if (e.isCancel) return;
+            appLog('add', 'vm.filePrio fail ${appLogApiFailure(e)}');
+          });
+    }
+  }
+
+  String? _torrentHashForApi() {
+    final v1 = state.infohashV1?.trim();
+    if (v1 != null && v1.isNotEmpty) return v1;
+    final v2 = state.infohashV2?.trim();
+    if (v2 != null && v2.isNotEmpty) return v2;
+    return null;
   }
 
   void _beginImport({
@@ -370,6 +441,10 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
         )
         .onSuccess((data) {
           if (gen != _generation) return;
+          appLog(
+            'add',
+            'vm.parseMetadata ok hasFullInfo=${data.hasFullInfo}',
+          );
           _applyMetadata(data);
           state = state.copyWith(
             metadataStatus: data.hasFullInfo
@@ -380,6 +455,10 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
         })
         .onFail((e) {
           if (gen != _generation || e.isCancel) return;
+          appLog(
+            'add',
+            'vm.parseMetadata fail ${appLogApiFailure(e)}',
+          );
           if (e.statusCode == 404) {
             state = state.copyWith(
               metadataStatus: AddTorrentMetadataStatus.unavailable,
@@ -399,7 +478,7 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
     final roots = files.isEmpty ? state.fileRoots : buildContentTree(files);
     state = state.copyWith(
       torrentName: data.info?.name ?? state.torrentName,
-      infohashV1: data.infohashV1 ?? state.infohashV1,
+      infohashV1: data.infohashV1 ?? data.hash ?? state.infohashV1,
       infohashV2: data.infohashV2 ?? state.infohashV2,
       creationDate: (data.creationDate != null && data.creationDate! > 1)
           ? data.creationDate
@@ -436,6 +515,17 @@ TorrentMetadataResponse _parseMetadataPayload(dynamic data) {
     }
   }
   return const TorrentMetadataResponse();
+}
+
+/// multipart 文件名只用 ASCII，避免 Content-Disposition 在部分 qB 上 400。
+String _uploadTorrentFileName(String? name) {
+  final raw = (name ?? 'torrent.torrent').trim();
+  final base = raw.replaceAll(RegExp(r'[^\w.\-]+'), '_');
+  if (base.toLowerCase().endsWith('.torrent') &&
+      base.length > '.torrent'.length) {
+    return base;
+  }
+  return 'import.torrent';
 }
 
 /// 按文件 index 收集优先级；缺号则不发送（避免与服务端 filesCount 不一致）。
