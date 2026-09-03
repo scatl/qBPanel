@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
+import 'package:qbpanel/util/app_log.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/add/add_torrent_view_model.dart';
 import 'package:qbpanel/add/ui/add_torrent_files_section.dart';
@@ -70,16 +71,20 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
 
     final url = widget.initialUrl?.trim();
     if (url != null && url.isNotEmpty) {
+      appLog('add', 'page.importMagnet ${appLogPreview(url)}');
       ref.read(addTorrentProvider.notifier).importMagnet(url);
       return;
     }
 
     final path = widget.initialTorrentPath?.trim();
+    appLog('add', 'page.importPath ${appLogPreview(path)}');
     if (path == null || path.isEmpty) return;
 
     try {
       final file = File(path);
-      if (!await file.exists()) {
+      final exists = await file.exists();
+      appLog('add', 'page.file exists=$exists');
+      if (!exists) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.l10n.cannotReadTorrentFile)),
@@ -87,6 +92,10 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
         return;
       }
       final bytes = await file.readAsBytes();
+      appLog(
+        'add',
+        'page.file ${appLogHeadHex(bytes)} name=${p.basename(path)}',
+      );
       if (!mounted) return;
       if (bytes.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,7 +108,8 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
             name.isEmpty ? 'torrent.torrent' : name,
             bytes,
           );
-    } catch (_) {
+    } catch (e, st) {
+      appLog('add', 'page.import error=$e $st');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.cannotReadTorrentFile)),
@@ -174,6 +184,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
     LoadingDialog.show(context, message: context.l10n.adding);
     await Future<void>.delayed(Duration.zero);
 
+    appLog('add', 'page.submit tap');
     final error = await ref.read(addTorrentProvider.notifier).submit(
           savePath: _savePathController.text,
           incompletePath: _incompletePathController.text,

@@ -8,12 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:receive_intent/receive_intent.dart';
+import 'package:qbpanel/util/app_log.dart';
 import 'package:qbpanel/router/app_router.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/storage/db/app_database_provider.dart';
 import 'package:uri_content/uri_content.dart';
 
 const _intentChannel = MethodChannel('qbpanel/intent');
+const _windowsInboundChannel = MethodChannel('qbpanel/inbound');
 
 /// 监听系统打开 / 分享的 `.torrent` 或 `magnet:`，导入到添加页或在首页提示。
 class InboundTorrentOpen {
@@ -24,47 +26,122 @@ class InboundTorrentOpen {
   bool _started = false;
   String? _lastHandledKey;
 
-  Future<void> start() async {
+  Future<void> start({List<String> launchArgs = const []}) async {
     if (_started || kIsWeb) return;
     _started = true;
 
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        appLog('inbound', 'start android');
+        await _startAndroid();
+      case TargetPlatform.windows:
+        appLog(
+          'inbound',
+          'start windows args=${launchArgs.map(appLogPreview).toList()}',
+        );
+        await _startWindows(launchArgs);
+      default:
+        appLog('inbound', 'start skip platform=$defaultTargetPlatform');
+        break;
+    }
+  }
+
+  Future<void> _startAndroid() async {
     try {
       final initial = await ReceiveIntent.getInitialIntent();
-      await _handle(initial);
+      await _handleIntent(initial);
     } catch (e, st) {
       debugPrint('InboundTorrentOpen initial: $e\n$st');
     }
 
     _sub = ReceiveIntent.receivedIntentStream.listen(
-      _handle,
+      _handleIntent,
       onError: (Object e, StackTrace st) {
         debugPrint('InboundTorrentOpen stream: $e\n$st');
       },
     );
   }
 
+  Future<void> _startWindows(List<String> launchArgs) async {
+    _windowsInboundChannel.setMethodCallHandler((call) async {
+      if (call.method == 'opened') {
+        final raw = call.arguments;
+        if (raw is List) {
+          await _handleLaunchArgs(raw.map((e) => '$e').toList());
+        }
+      }
+    });
+    try {
+      await _windowsInboundChannel.invokeMethod<void>('ready');
+    } catch (e, st) {
+      debugPrint('InboundTorrentOpen windows ready: $e\n$st');
+    }
+    await _handleLaunchArgs(launchArgs);
+  }
+
+  Future<void> _handleLaunchArgs(List<String> args) async {
+    for (final arg in args) {
+      await _handleRaw(arg);
+    }
+  }
+
   void dispose() {
     _sub?.cancel();
     _sub = null;
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      _windowsInboundChannel.setMethodCallHandler(null);
+    }
   }
 
-  Future<void> _handle(Intent? intent) async {
+  Future<void> _handleRaw(String raw) async {
+    appLog('inbound', 'raw ${appLogPreview(raw)}');
+    final normalized = _normalizeLaunchArg(raw);
+    if (normalized == null) {
+      appLog('inbound', 'raw skipped after normalize');
+      return;
+    }
+
+    final magnet = _asMagnetUrl(normalized);
+    if (magnet != null) {
+      appLog('inbound', 'magnet ${appLogPreview(magnet)}');
+      await _openPayload(_InboundPayload.magnet(magnet));
+      return;
+    }
+
+    final path = _asLocalTorrentPath(normalized);
+    if (path != null) {
+      appLog('inbound', 'file path=${appLogPreview(path)}');
+      await _openPayload(_InboundPayload.file(path));
+      return;
+    }
+    appLog('inbound', 'raw unmatched');
+  }
+
+  Future<void> _handleIntent(Intent? intent) async {
     if (intent == null || intent.isNull) return;
     if (intent.action == 'android.intent.action.MAIN') return;
 
     final payload = _payloadFromIntent(intent);
     if (payload == null) return;
+    await _openPayload(payload, clearAndroidIntent: true);
+  }
 
+  Future<void> _openPayload(
+    _InboundPayload payload, {
+    bool clearAndroidIntent = false,
+  }) async {
     final key = payload.key;
     if (key == _lastHandledKey) {
-      await _clearLaunchIntent();
+      appLog('inbound', 'skip duplicate key=${appLogPreview(key)}');
+      if (clearAndroidIntent) await _clearLaunchIntent();
       return;
     }
     _lastHandledKey = key;
 
     final hasActive = await _hasActiveServer();
     if (!hasActive) {
-      await _clearLaunchIntent();
+      appLog('inbound', 'skip no active server');
+      if (clearAndroidIntent) await _clearLaunchIntent();
       return;
     }
 
@@ -72,25 +149,34 @@ class InboundTorrentOpen {
     if (payload.magnetUrl != null) {
       location = RouterPath.addTorrentWithParams(url: payload.magnetUrl);
     } else {
-      final fileUri = Uri.tryParse(payload.fileUri!);
-      if (fileUri == null) {
-        await _clearLaunchIntent();
-        return;
+      final fileRef = payload.fileUri!;
+      if (_isContentOrFileUri(fileRef)) {
+        final fileUri = Uri.tryParse(fileRef);
+        if (fileUri == null) {
+          if (clearAndroidIntent) await _clearLaunchIntent();
+          return;
+        }
+        final bytes = await fileUri.getContentOrNull();
+        if (bytes == null || bytes.isEmpty) {
+          if (clearAndroidIntent) await _clearLaunchIntent();
+          return;
+        }
+        final tempPath = await _saveTorrentToTemp(
+          bytes,
+          _fileNameFromUri(fileUri),
+        );
+        if (tempPath == null) {
+          if (clearAndroidIntent) await _clearLaunchIntent();
+          return;
+        }
+        location = RouterPath.addTorrentWithParams(torrentPath: tempPath);
+      } else {
+        location = RouterPath.addTorrentWithParams(torrentPath: fileRef);
       }
-      final bytes = await fileUri.getContentOrNull();
-      if (bytes == null || bytes.isEmpty) {
-        await _clearLaunchIntent();
-        return;
-      }
-      final tempPath = await _saveTorrentToTemp(bytes, _fileNameFromUri(fileUri),);
-      if (tempPath == null) {
-        await _clearLaunchIntent();
-        return;
-      }
-      location = RouterPath.addTorrentWithParams(torrentPath: tempPath);
     }
 
-    await _clearLaunchIntent();
+    if (clearAndroidIntent) await _clearLaunchIntent();
+    appLog('inbound', 'open $location');
     _openAddTorrent(location);
   }
 
@@ -195,6 +281,40 @@ String? _asMagnetUrl(String raw) {
   if (match != null) return match.group(0);
   if (trimmed.toLowerCase().startsWith('magnet:')) return trimmed;
   return null;
+}
+
+String? _normalizeLaunchArg(String raw) {
+  var s = raw.trim();
+  if (s.isEmpty || s.startsWith('--')) return null;
+  if ((s.startsWith('"') && s.endsWith('"')) ||
+      (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.substring(1, s.length - 1).trim();
+  }
+  return s.isEmpty ? null : s;
+}
+
+bool _isContentOrFileUri(String raw) {
+  final lower = raw.toLowerCase();
+  return lower.startsWith('content:') || lower.startsWith('file:');
+}
+
+String? _asLocalTorrentPath(String raw) {
+  if (_isContentOrFileUri(raw)) {
+    final uri = Uri.tryParse(raw);
+    if (uri == null || !uri.isScheme('file')) return null;
+    try {
+      final path = uri.toFilePath();
+      return path.toLowerCase().endsWith('.torrent') ? path : null;
+    } catch (_) {
+      return null;
+    }
+  }
+  final lower = raw.toLowerCase();
+  if (!lower.endsWith('.torrent')) return null;
+  try {
+    if (File(raw).existsSync()) return raw;
+  } catch (_) {}
+  return raw;
 }
 
 String? _extraText(Map<String, dynamic>? extra) {

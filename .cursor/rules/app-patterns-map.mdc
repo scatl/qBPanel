@@ -5,18 +5,20 @@ alwaysApply: true
 
 # 项目架构地图
 
-新任务先读本规则 + 已有专项规则（`architecture-feature-layer`、`api-client-conventions`、`routing-conventions` 等），再 **targeted read/grep** 具体文件。不要为「项目怎么组织」做 broad explore。
+新任务先读本规则 + 已有专项规则（`architecture-feature-layer`、`platform-compat`、`api-client-conventions`、`routing-conventions` 等），再 **targeted read/grep** 具体文件。不要为「项目怎么组织」做 broad explore。
 
 ## 目录速查
 
 | 区域 | 路径 | 说明 |
 |---|---|---|
 | 首页 | `lib/home/` | 种子列表、AppBar、底部栏 |
+| 外部打开 | `lib/inbound/` | `.torrent` / `magnet:`：Android Intent；Windows 只接收系统传入的路径/链接，不写注册表 |
 | 种子详情 | `lib/detail/` | Tab 页 + PollLoop 子 Tab |
 | 设置 | `lib/settings/` | 服务器列表/编辑、preferences 表单 |
 | API | `lib/api/` | `api_path.dart`、`entity/request|response/` |
 | HTTP | `lib/http/` | `api_client.dart`、`poll_loop.dart` |
 | 共用 UI | `lib/widget/` | 列表刷新、空态、Dialog、Sheet |
+| 诊断日志 | `lib/util/app_log.dart` | 控制台 + 本地 `app_debug.log`（保留 7 天）；`appLog('tag', msg)`。与 `lib/log/`（qB 服务器日志页）无关 |
 | 路由 | `lib/router/` | `router_path.dart`、`app_router.dart` |
 | 本地库 | `lib/storage/db/` | Drift |
 | qB API 文档 | `docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md` | 优先读本地，勿联网全量拉 Wiki |
@@ -114,6 +116,7 @@ alwaysApply: true
 - 加载/确认：`LoadingDialog`（**不要 await show**）、`ConfirmDialog`
 - Sheet：`showBlurModalBottomSheet`
 - 时间格式化：`formatUnixDate`（`lib/detail/general/torrent_general_format.dart`，秒级 epoch）
+- 诊断日志：`appLog('tag', 'msg')`（`lib/util/app_log.dart`）；另有 `appLogPreview` / `appLogHeadHex` / `appLogApiFailure` / `appLogFormData`
 
 ## 新功能落地 checklist
 
