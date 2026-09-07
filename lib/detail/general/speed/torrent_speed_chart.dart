@@ -249,8 +249,14 @@ class _ScrubTooltip extends StatelessWidget {
         layout.chartRect.left + t.clamp(0.0, 1.0) * layout.chartRect.width;
 
     const tooltipWidth = 128.0;
-    final left = (x + 8)
-        .clamp(8.0, math.max(8.0, chartSize.width - tooltipWidth - 8))
+    const gap = 8.0;
+    const edgePad = 8.0;
+    final minLeft = edgePad;
+    final maxLeft = math.max(minLeft, chartSize.width - tooltipWidth - edgePad);
+    // Prefer right of the scrub line; flip to left when that would cover it.
+    final placeOnLeft = x + gap + tooltipWidth > chartSize.width - edgePad;
+    final left = (placeOnLeft ? x - gap - tooltipWidth : x + gap)
+        .clamp(minLeft, maxLeft)
         .toDouble();
     final style = textTheme.labelSmall?.copyWith(
       color: scheme.onSurface,
