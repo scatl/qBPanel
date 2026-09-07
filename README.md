@@ -105,7 +105,7 @@ flutter build windows
 
 ## 隐私政策
 
-[隐私政策](docs/privacy-policy.html)
+[隐私政策](https://scatl.github.io/qBPanel/privacy-policy.html)
 
 ## 鸣谢
 

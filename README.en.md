@@ -105,7 +105,7 @@ This project is not affiliated with qBittorrent. Follow local law and copyright 
 
 ## Privacy policy
 
-[Privacy Policy](docs/privacy-policy.html)
+[Privacy Policy](https://scatl.github.io/qBPanel/privacy-policy.html)
 
 ## Acknowledgements
 
