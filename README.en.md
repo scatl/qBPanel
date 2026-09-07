@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/icons/qbpanel_launcher.png" width="128" alt="qBPanel" />
+  <img src="assets/icons/qbpanel_splash.png" width="128" alt="qBPanel" />
   <h1>qBPanel</h1>
   <p>A Flutter client for remotely managing qBittorrent via the WebUI API</p>
   <p>
