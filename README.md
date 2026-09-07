@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/icons/qbpanel_splash.png" width="128" alt="qBPanel" />
+  <img src="art/readme_icon.png" width="200" alt="qBPanel" />
   <h1>qBPanel</h1>
   <p>通过 qBittorrent WebUI API 远程管理种子的 Flutter 客户端</p>
   <p>
