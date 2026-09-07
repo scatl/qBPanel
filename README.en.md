@@ -102,3 +102,11 @@ flutter build windows
 ## Disclaimer
 
 This project is not affiliated with qBittorrent. Follow local law and copyright rules. Before downloading via search plugins, make sure the source is legal in your jurisdiction.
+
+## Privacy policy
+
+[Privacy Policy](docs/privacy-policy.html)
+
+## Acknowledgements
+
+Thanks to [Cursor](https://cursor.com) 😊

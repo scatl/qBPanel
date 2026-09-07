@@ -102,3 +102,11 @@ flutter build windows
 ## 声明
 
 本项目与 qBittorrent 官方无隶属关系。请遵守所在地法律法规与版权规定；通过搜索插件下载种子前，请确认来源合法。
+
+## 隐私政策
+
+[隐私政策](docs/privacy-policy.html)
+
+## 鸣谢
+
+感谢 [Cursor](https://cursor.com) 😊
