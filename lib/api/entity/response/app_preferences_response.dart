@@ -225,7 +225,11 @@ class AppPreferencesResponse {
     this.i2pOutboundQuantity,
     this.i2pInboundLength,
     this.i2pOutboundLength,
+    this.presentKeys = const {},
   });
+
+  /// GET `/app/preferences` 里实际出现过的 key。
+  final Set<String> presentKeys;
 
   // Behavior
   final String? locale;
@@ -465,6 +469,15 @@ class AppPreferencesResponse {
     return mailNotificationSslEnabled ?? false;
   }
 
+  bool hasKey(String key) => presentKeys.contains(key);
+
+  Map<String, dynamic> pickPayload(Map<String, dynamic> payload) {
+    return {
+      for (final e in payload.entries)
+        if (presentKeys.contains(e.key)) e.key: e.value,
+    };
+  }
+
   factory AppPreferencesResponse.fromJson(Map<String, dynamic> json) {
     return AppPreferencesResponse(
       locale: readString(json['locale']),
@@ -480,7 +493,8 @@ class AppPreferencesResponse {
       performanceWarning: readBool(json['performance_warning']),
       torrentContentLayout: readString(json['torrent_content_layout']),
       addToTopOfQueue: readBool(json['add_to_top_of_queue']),
-      addStoppedEnabled: readBool(json['add_stopped_enabled']),
+      addStoppedEnabled: readBool(json['add_stopped_enabled']) ??
+          readBool(json['start_paused_enabled']),
       torrentStopCondition: readString(json['torrent_stop_condition']),
       mergeTrackers: readBool(json['merge_trackers']),
       autoDeleteMode: readInt(json['auto_delete_mode']),
@@ -706,6 +720,7 @@ class AppPreferencesResponse {
       i2pOutboundQuantity: readInt(json['i2p_outbound_quantity']),
       i2pInboundLength: readInt(json['i2p_inbound_length']),
       i2pOutboundLength: readInt(json['i2p_outbound_length']),
+      presentKeys: {for (final key in json.keys) key.toString()},
     );
   }
 }

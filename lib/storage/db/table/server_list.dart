@@ -19,8 +19,14 @@ class QbServers extends Table {
   /// WebUI 路径前缀，不含首尾 `/`，如 `nas/qb`；无反向代理则空
   TextColumn get path => text().withDefault(const Constant(''))();
 
-  /// apikey
-  TextColumn get apiKey => text()();
+  /// WebUI API Key（qB 5.2+）；可空，与用户名密码二选一
+  TextColumn get apiKey => text().withDefault(const Constant(''))();
+
+  /// WebUI 用户名（Cookie 登录）
+  TextColumn get username => text().withDefault(const Constant(''))();
+
+  /// WebUI 密码（明文存本地，与 apiKey 相同约定）
+  TextColumn get password => text().withDefault(const Constant(''))();
 
   /// `/app/version`，保存时写入
   TextColumn get appVersion => text().withDefault(const Constant(''))();

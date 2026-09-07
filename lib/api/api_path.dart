@@ -1,10 +1,19 @@
 abstract final class ApiPath {
+  static const auth = _Auth();
   static const application = _Application();
   static const torrentManagement = _TorrentManagement();
   static const transfer = _Transfer();
   static const sync = _Sync();
   static const log = _Log();
   static const search = _Search();
+}
+
+class _Auth {
+  const _Auth();
+  static const _base = '/api/v2/auth';
+
+  final login = '$_base/login';
+  final logout = '$_base/logout';
 }
 
 class _Application {
@@ -105,11 +114,17 @@ class _TorrentManagement {
   /// Add peers to torrents
   final addPeers = '$_base/addPeers';
 
-  /// Stop torrents (qB 5.0；旧版为 `pause`)
+  /// Stop torrents（WebAPI ≥ 2.11 / qB 5.0；更早用 [pause]）
   final stop = '$_base/stop';
 
-  /// Start torrents (qB 5.0；旧版为 `resume`)
+  /// Start torrents（WebAPI ≥ 2.11 / qB 5.0；更早用 [resume]）
   final start = '$_base/start';
+
+  /// 停种（WebAPI 2.11 之前）
+  final pause = '$_base/pause';
+
+  /// 开种（WebAPI 2.11 之前）
+  final resume = '$_base/resume';
 
   /// Delete torrents
   final delete = '$_base/delete';

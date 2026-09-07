@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/add/add_torrent_view_model.dart';
 import 'package:qbpanel/add/ui/add_torrent_card.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/check_row.dart';
 
@@ -12,12 +13,14 @@ class AddTorrentSaveSection extends StatelessWidget {
     required this.viewModel,
     required this.savePathController,
     required this.incompletePathController,
+    required this.capabilities,
   });
 
   final AddTorrentUiState ui;
   final AddTorrentViewModel viewModel;
   final TextEditingController savePathController;
   final TextEditingController incompletePathController;
+  final QbApiCapabilities capabilities;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +60,7 @@ class AddTorrentSaveSection extends StatelessWidget {
               hintText: autoTmm ? l10n.autoTmmDecides : l10n.savePath,
             ),
           ),
+          if (capabilities.hasDownloadPath) ...[
           CheckRow(
             label: l10n.incompleteTorrentPath,
             value: ui.useIncompletePath,
@@ -75,6 +79,7 @@ class AddTorrentSaveSection extends StatelessWidget {
                   : l10n.notEnabled,
             ),
           ),
+          ],
         ],
       ),
     );

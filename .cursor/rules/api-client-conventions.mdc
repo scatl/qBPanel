@@ -9,7 +9,13 @@ alwaysApply: false
 - 客户端：`ApiClient` + `apiClientProvider`（`lib/http/api_client.dart`）
 - 路径常量：`ApiPath`（`lib/api/api_path.dart`），相对路径如 `/api/v2/...`
 - 请求/响应实体：见规则 **`api-entity-layout`**（`lib/api/entity/request|response/`）
-- 鉴权：`Authorization: Bearer <apiKey>`（由客户端写入）
+- 能力：`QbApiCapabilities` / `qbApiCapabilitiesProvider`（`lib/api/qb_api_capabilities.dart`）。业务层用具名 getter，不要自己比 `apiVersion` 字符串
+- 鉴权（二选一，由 `ServerConnection` 决定）：
+  - **Bearer**：有 API Key（qB 5.2 / WebAPI ≥ 2.14.1）→ `Authorization: Bearer <apiKey>`，不走 login
+  - **Cookie**：用户名+密码 → `POST /api/v2/auth/login`（form），后续带 SID；401/403 重登一次再重试
+- CSRF：请求带与 Host 一致的 `Referer` / `Origin`（WebUI 根 URL，含反代 `path`）
+- 旧版 login 失败常 **200 + body `Fails.`**；≥ 2.14.0 才是 401。探活要认这两种
+- 停/开种路径：`QbApiCapabilities.torrentStopPath` / `torrentStartPath`（≥2.11 用 `stop`/`start`，否则 `pause`/`resume`）
 - **API 文档**：优先读本地 `docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md`（Wiki 原文 Markdown），不要每次重新联网全量拉取
 - `get` / `post` / `getWithConfig` 返回 **`ApiCall<T>`**：内部判断 HTTP 成败，调用方不要再看 `Response` / `statusCode` / `try DioException`
 
@@ -33,9 +39,9 @@ await api.get(
 | 场景 | 方法 |
 |---|---|
 | 已有激活服务器（首页种子列表等） | `get` / `post`（自动读 `isActive == true`） |
-| 保存前探测、尚未入库 | `getWithConfig`（显式传 host/port/https/path/apiKey） |
+| 保存前探测、尚未入库 | `getWithConfig` / `postWithConfig`（传 `ServerConnection`：host/port/https/path + apiKey 或 user/pass） |
 
-无激活服务器时 `get`/`post` 会抛错；UI 需引导去服务器设置。
+无激活服务器时 `get`/`post` 会抛错；UI 需引导去服务器设置。下限 **WebAPI 2.0 / qB 4.1.0**。
 
 ## 错误文案
 

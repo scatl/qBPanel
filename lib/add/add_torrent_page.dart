@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:qbpanel/util/app_log.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/add/add_torrent_view_model.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/add/ui/add_torrent_files_section.dart';
 import 'package:qbpanel/add/ui/add_torrent_import_section.dart';
 import 'package:qbpanel/add/ui/add_torrent_info_section.dart';
@@ -210,6 +211,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
     final ui = ref.watch(addTorrentProvider);
     final vm = ref.read(addTorrentProvider.notifier);
     final home = ref.watch(homePageProvider);
+    final cap = ref.watch(qbApiCapabilitiesProvider);
     final categories = _flattenCategories(home.categoryTree);
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
 
@@ -245,6 +247,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
             viewModel: vm,
             savePathController: _savePathController,
             incompletePathController: _incompletePathController,
+            capabilities: cap,
           ),
           const SizedBox(height: 12),
           AddTorrentSettingsSection(
@@ -255,6 +258,7 @@ class _AddTorrentPageState extends ConsumerState<AddTorrentPage> {
             upLimitController: _upLimitController,
             categories: categories,
             tags: home.tags,
+            capabilities: cap,
           ),
           const SizedBox(height: 12),
           AddTorrentInfoSection(ui: ui),

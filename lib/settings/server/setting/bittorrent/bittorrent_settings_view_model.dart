@@ -7,6 +7,7 @@ import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/bittorrent/bittorrent_settings_ui_state.dart';
+import 'package:qbpanel/settings/server/setting/pref_keys.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final bittorrentSettingsProvider =
@@ -79,6 +80,7 @@ class BittorrentSettingsViewModel
       addTrackersFromUrlEnabled: data.addTrackersFromUrlEnabled ?? false,
       addTrackersUrl: data.addTrackersUrl ?? '',
       addTrackersUrlList: data.addTrackersUrlList ?? '',
+      presentKeys: data.presentKeys,
     );
     return true;
   }
@@ -213,7 +215,7 @@ class BittorrentSettingsViewModel
     }
 
     state = state.copyWith(saving: true);
-    final payload = <String, dynamic>{
+    final payload = pickPrefs(state.presentKeys, <String, dynamic>{
       'dht': state.dht,
       'pex': state.pex,
       'lsd': state.lsd,
@@ -242,7 +244,7 @@ class BittorrentSettingsViewModel
       'add_trackers': state.addTrackers,
       'add_trackers_from_url_enabled': state.addTrackersFromUrlEnabled,
       'add_trackers_url': state.addTrackersUrl.trim(),
-    };
+    });
 
     String? error;
     await ref

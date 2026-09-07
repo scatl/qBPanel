@@ -59,9 +59,9 @@ enum TorrentStatusFilter {
       case TorrentStatusFilter.completed:
         return state == 'uploading' || state.contains('UP');
       case TorrentStatusFilter.stopped:
-        return state.contains('stopped');
+        return state.contains('stopped') || state.contains('paused');
       case TorrentStatusFilter.running:
-        return !state.contains('stopped');
+        return !state.contains('stopped') && !state.contains('paused');
       case TorrentStatusFilter.stalled:
         return state == 'stalledUP' || state == 'stalledDL';
       case TorrentStatusFilter.stalledUploading:

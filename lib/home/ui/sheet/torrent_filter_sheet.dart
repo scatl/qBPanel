@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_category_filter.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
@@ -59,6 +60,7 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
     );
     final filtering = statusFilter != TorrentStatusFilter.all
         || !categoryFilter.isAll || !tagFilter.isAll;
+    final hasTags = ref.watch(qbApiCapabilitiesProvider).hasTags;
 
     final textTheme = Theme.of(context).textTheme;
     final l10n = context.l10n;
@@ -201,6 +203,7 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
               ),
             ),
           ),
+          if (hasTags)
           _FilterSection(
             title: context.l10n.tags,
             selectedLabel: tagFilter.displayText(context.l10n),

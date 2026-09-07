@@ -7,6 +7,7 @@ import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_ui_st
 import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
+import 'package:qbpanel/settings/widget/settings_input_field.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/settings/widget/settings_nested_card.dart';
 import 'package:qbpanel/settings/widget/settings_switch_tile.dart';
@@ -361,6 +362,7 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (ui.hasPref('resume_data_storage_type')) ...[
                   DropdownField<AdvancedResumeDataStorage>(
                     label: context.l10n.resumeDataStorage,
                     value: ui.resumeDataStorageType,
@@ -375,6 +377,8 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     onChanged: vm.setResumeDataStorageType,
                   ),
                   const SizedBox(height: 8),
+                  ],
+                  if (ui.hasPref('torrent_content_remove_option')) ...[
                   DropdownField<AdvancedTorrentRemoveOption>(
                     label: context.l10n.torrentContentRemoveOption,
                     value: ui.torrentContentRemoveOption,
@@ -389,6 +393,8 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     onChanged: vm.setTorrentContentRemoveOption,
                   ),
                   const SizedBox(height: 8),
+                  ],
+                  if (ui.hasPref('memory_working_set_limit')) ...[
                   _NumberField(
                     label: context.l10n.physicalMemoryLimit,
                     controller: _memoryLimitController,
@@ -396,6 +402,8 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     suffix: 'MiB',
                   ),
                   const SizedBox(height: 8),
+                  ],
+                  if (ui.networkInterfaces.isNotEmpty) ...[
                   DropdownField<String>(
                     label: context.l10n.networkInterface,
                     value: ui.currentNetworkInterface,
@@ -407,6 +415,8 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     onChanged: vm.setCurrentNetworkInterface,
                   ),
                   const SizedBox(height: 8),
+                  ],
+                  if (ui.interfaceAddresses.isNotEmpty) ...[
                   DropdownField<String>(
                     label: context.l10n.optionalBindAddress,
                     value: ui.currentInterfaceAddress,
@@ -418,6 +428,7 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     onChanged: vm.setCurrentInterfaceAddress,
                   ),
                   const SizedBox(height: 8),
+                  ],
                   _NumberField(
                     label: context.l10n.saveResumeDataInterval,
                     controller: _saveResumeIntervalController,
@@ -450,12 +461,10 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                         canEdit ? vm.setRecheckCompletedTorrents : null,
                   ),
                   const SizedBox(height: 8),
-                  TextField(
+                  SettingsInputField(
+                    label: context.l10n.appInstanceName,
                     controller: _appInstanceController,
                     enabled: canEdit,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.appInstanceName,
-                    ),
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
@@ -516,14 +525,12 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     onChanged: canEdit ? vm.setIgnoreSslErrors : null,
                   ),
                   const SizedBox(height: 8),
-                  TextField(
+                  SettingsInputField(
+                    label: context.l10n.pythonExecutablePath,
                     controller: _pythonPathController,
                     enabled: canEdit,
                     minLines: 1,
                     maxLines: 2,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.pythonExecutablePath,
-                    ),
                   ),
                 ],
               ),
@@ -825,12 +832,10 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     onChanged: canEdit ? vm.setAnnounceToAllTrackers : null,
                   ),
                   const SizedBox(height: 8),
-                  TextField(
+                  SettingsInputField(
+                    label: context.l10n.announceIp,
                     controller: _announceIpController,
                     enabled: canEdit,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.announceIp,
-                    ),
                   ),
                   const SizedBox(height: 8),
                   _NumberField(
@@ -885,15 +890,12 @@ class _AdvancedSettingsPageState extends ConsumerState<AdvancedSettingsPage> {
                     enabled: canEdit,
                   ),
                   const SizedBox(height: 8),
-                  TextField(
+                  SettingsInputField(
+                    label: context.l10n.dhtBootstrapNodes,
                     controller: _dhtBootstrapController,
                     enabled: canEdit,
                     minLines: 2,
                     maxLines: 4,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.dhtBootstrapNodes,
-                      alignLabelWithHint: true,
-                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -949,17 +951,13 @@ class _NumberField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return TextField(
+    return SettingsInputField(
+      label: label,
       controller: controller,
       enabled: enabled,
+      suffix: suffix,
       keyboardType: const TextInputType.numberWithOptions(signed: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'-?\d*'))],
-      decoration: InputDecoration(
-        labelText: label,
-        suffixText: suffix,
-        suffixStyle: TextStyle(color: scheme.outline),
-      ),
     );
   }
 }

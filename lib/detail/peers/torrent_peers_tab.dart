@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/detail/peers/dialog/peer_action_dialog.dart';
 import 'package:qbpanel/detail/peers/dialog/peer_flags_help_dialog.dart';
 import 'package:qbpanel/detail/peers/torrent_peers_view_model.dart';
@@ -18,6 +19,7 @@ class TorrentPeersTab extends ConsumerWidget {
     final ui = ref.watch(torrentPeersProvider(torrentHash));
     final vm = ref.read(torrentPeersProvider(torrentHash).notifier);
 
+    final cap = ref.watch(qbApiCapabilitiesProvider);
     final header = _PeersHeader(
       pollPaused: ui.pollPaused,
       onTogglePoll: vm.togglePoll,
@@ -47,6 +49,8 @@ class TorrentPeersTab extends ConsumerWidget {
                     context: context,
                     peer: peer,
                     viewModel: vm,
+                    showAdd: cap.hasAddPeers,
+                    showBan: cap.hasBanPeers,
                   ),
                 );
               },

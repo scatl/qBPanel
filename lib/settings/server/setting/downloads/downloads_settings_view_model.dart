@@ -8,6 +8,7 @@ import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_ui_state.dart';
+import 'package:qbpanel/settings/server/setting/pref_keys.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final downloadsSettingsProvider =
@@ -85,6 +86,7 @@ class DownloadsSettingsViewModel extends Notifier<DownloadsSettingsUiState> {
           data.autorunOnTorrentAddedProgram ?? '',
       autorunEnabled: data.autorunEnabled ?? false,
       autorunProgram: data.autorunProgram ?? '',
+      presentKeys: data.presentKeys,
     );
     return true;
   }
@@ -272,10 +274,11 @@ class DownloadsSettingsViewModel extends Notifier<DownloadsSettingsUiState> {
     }
 
     final ssl = state.mailNotificationSslEnabled;
-    final payload = <String, dynamic>{
+    final payload = pickPrefs(state.presentKeys, <String, dynamic>{
       'torrent_content_layout': state.contentLayout.apiValue,
       'add_to_top_of_queue': state.addToTopOfQueue,
       'add_stopped_enabled': state.addStoppedEnabled,
+      'start_paused_enabled': state.addStoppedEnabled,
       'torrent_stop_condition': state.stopCondition.apiValue,
       'merge_trackers': state.mergeTrackers,
       'auto_delete_mode': state.autoDeleteTorrentFile ? 1 : 0,
@@ -310,7 +313,7 @@ class DownloadsSettingsViewModel extends Notifier<DownloadsSettingsUiState> {
           state.autorunOnTorrentAddedProgram.trim(),
       'autorun_enabled': state.autorunEnabled,
       'autorun_program': state.autorunProgram.trim(),
-    };
+    });
 
     String? error;
     await ref

@@ -17,6 +17,7 @@ class BehaviorSettingsUiState {
     this.fileLogAge = 1,
     this.fileLogAgeType = BehaviorLogAgeType.months,
     this.performanceWarning = false,
+    this.presentKeys = const {},
   });
 
   final EmptyState emptyState;
@@ -55,6 +56,10 @@ class BehaviorSettingsUiState {
   /// `performance_warning`
   final bool performanceWarning;
 
+  final Set<String> presentKeys;
+
+  bool hasPref(String key) => presentKeys.contains(key);
+
   bool get ready => emptyState.ready;
 
   BehaviorSettingsUiState copyWith({
@@ -71,6 +76,7 @@ class BehaviorSettingsUiState {
     int? fileLogAge,
     BehaviorLogAgeType? fileLogAgeType,
     bool? performanceWarning,
+    Set<String>? presentKeys,
   }) {
     return BehaviorSettingsUiState(
       emptyState: emptyState ?? this.emptyState,
@@ -87,6 +93,7 @@ class BehaviorSettingsUiState {
       fileLogAge: fileLogAge ?? this.fileLogAge,
       fileLogAgeType: fileLogAgeType ?? this.fileLogAgeType,
       performanceWarning: performanceWarning ?? this.performanceWarning,
+      presentKeys: presentKeys ?? this.presentKeys,
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:qbpanel/settings/server/setting/bittorrent/bittorrent_settings_u
 import 'package:qbpanel/settings/server/setting/bittorrent/bittorrent_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
+import 'package:qbpanel/settings/widget/settings_input_field.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/settings/widget/settings_nested_card.dart';
 import 'package:qbpanel/settings/widget/settings_switch_tile.dart';
@@ -334,6 +335,7 @@ class _BittorrentSettingsPageState
                             enabled: canEdit && ui.maxSeedingTimeEnabled,
                             suffix: context.l10n.minutes,
                           ),
+                          if (ui.hasPref('max_inactive_seeding_time_enabled')) ...[
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
                             title: context.l10n.whenInactiveSeedingTimeReaches,
@@ -348,6 +350,7 @@ class _BittorrentSettingsPageState
                                 canEdit && ui.maxInactiveSeedingTimeEnabled,
                             suffix: context.l10n.minutes,
                           ),
+                          ],
                           DropdownField<BittorrentMaxRatioAct>(
                             label: context.l10n.then,
                             value: ui.maxRatioAct,
@@ -394,27 +397,21 @@ class _BittorrentSettingsPageState
                                 ? vm.setAddTrackersFromUrlEnabled
                                 : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.url,
                             controller: _addTrackersUrlController,
                             enabled:
                                 canEdit && ui.addTrackersFromUrlEnabled,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.url,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.fetchedTrackers,
                             controller: _fetchedTrackersController,
+                            enabled: true,
                             readOnly: true,
                             minLines: 4,
                             maxLines: 8,
                             keyboardType: TextInputType.multiline,
-                            scrollPhysics:
-                                const AlwaysScrollableScrollPhysics(),
-                            decoration: InputDecoration(
-                              labelText: context.l10n.fetchedTrackers,
-                              alignLabelWithHint: true,
-                            ),
                           ),
                         ],
                       ),
@@ -469,17 +466,16 @@ class _NumberField extends StatelessWidget {
       ],
     );
     if (label == null) return field;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label!,
-          style: textTheme.bodyLarge?.copyWith(
-            color: enabled ? null : scheme.onSurface.withValues(alpha: 0.38),
-          ),
+    return SettingsInputField(
+      label: label!,
+      controller: controller,
+      enabled: enabled,
+      suffix: suffix,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(
+          signed ? RegExp(r'^-?\d*') : RegExp(r'^\d*'),
         ),
-        const SizedBox(height: 4),
-        field,
       ],
     );
   }

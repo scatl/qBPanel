@@ -26,6 +26,9 @@ class ApiFailure {
     if (error is NoActiveServerError) {
       return ApiFailure(message: loc.apiNoActiveServer, error: error);
     }
+    if (error is MissingCredentialsError) {
+      return ApiFailure(message: loc.credentialsRequired, error: error);
+    }
     if (error is DioException) {
       return ApiFailure(
         message: _dioMessage(error, loc),
@@ -68,6 +71,11 @@ class ApiFailure {
 /// 没有激活服务器。
 class NoActiveServerError extends StateError {
   NoActiveServerError() : super('no_active_server');
+}
+
+/// 未提供 API Key 或用户名。
+class MissingCredentialsError extends StateError {
+  MissingCredentialsError() : super('missing_credentials');
 }
 
 /// 把 JSON object 转成实体；Dio 的 Map 可能不是 `Map<String, dynamic>`。

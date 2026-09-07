@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/api/entity/response/torrent_file_response.dart';
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
 import 'package:qbpanel/detail/content/torrent_content_sort.dart';
@@ -106,25 +107,69 @@ class TorrentContentViewModel extends Notifier<TorrentContentUiState> {
     _renameBusy = true;
     _poll.stop();
 
+    final cap = ref.read(qbApiCapabilitiesProvider);
     String? error;
-    await ref
-        .read(apiClientProvider)
-        .post<void>(
-          node.isFolder
-              ? ApiPath.torrentManagement.renameFolder
-              : ApiPath.torrentManagement.renameFile,
-          data: {'hash': hash, 'oldPath': oldPath, 'newPath': newPath},
-          options: Options(contentType: Headers.formUrlEncodedContentType),
-          parser: (_) {},
-        )
-        .onFail((e) {
-          error = switch (e.statusCode) {
-            400 => _l10n.enterNewName,
-            404 => _l10n.torrentNotFound,
-            409 => _l10n.nameTaken,
-            _ => e.message,
-          };
-        });
+    if (node.isFolder) {
+      if (!cap.hasRenameFolder) {
+        _renameBusy = false;
+        return _l10n.apiHttpStatus(404);
+      }
+      await ref
+          .read(apiClientProvider)
+          .post<void>(
+            ApiPath.torrentManagement.renameFolder,
+            data: {'hash': hash, 'oldPath': oldPath, 'newPath': newPath},
+            options: Options(contentType: Headers.formUrlEncodedContentType),
+            parser: (_) {},
+          )
+          .onFail((e) {
+            error = switch (e.statusCode) {
+              400 => _l10n.enterNewName,
+              404 => _l10n.torrentNotFound,
+              409 => _l10n.nameTaken,
+              _ => e.message,
+            };
+          });
+    } else if (cap.hasRenameFileByPath) {
+      await ref
+          .read(apiClientProvider)
+          .post<void>(
+            ApiPath.torrentManagement.renameFile,
+            data: {'hash': hash, 'oldPath': oldPath, 'newPath': newPath},
+            options: Options(contentType: Headers.formUrlEncodedContentType),
+            parser: (_) {},
+          )
+          .onFail((e) {
+            error = switch (e.statusCode) {
+              400 => _l10n.enterNewName,
+              404 => _l10n.torrentNotFound,
+              409 => _l10n.nameTaken,
+              _ => e.message,
+            };
+          });
+    } else {
+      final index = node.fileIndex;
+      if (index == null) {
+        _renameBusy = false;
+        return _l10n.torrentNotFound;
+      }
+      await ref
+          .read(apiClientProvider)
+          .post<void>(
+            ApiPath.torrentManagement.renameFile,
+            data: {'hash': hash, 'id': '$index', 'name': name},
+            options: Options(contentType: Headers.formUrlEncodedContentType),
+            parser: (_) {},
+          )
+          .onFail((e) {
+            error = switch (e.statusCode) {
+              400 => _l10n.enterNewName,
+              404 => _l10n.torrentNotFound,
+              409 => _l10n.nameTaken,
+              _ => e.message,
+            };
+          });
+    }
 
     if (!ref.mounted) {
       _renameBusy = false;

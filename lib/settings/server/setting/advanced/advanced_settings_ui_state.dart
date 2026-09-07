@@ -84,6 +84,7 @@ class AdvancedSettingsUiState {
     this.i2pOutboundQuantity = 3,
     this.i2pInboundLength = 3,
     this.i2pOutboundLength = 3,
+    this.presentKeys = const {},
   });
 
   final EmptyState emptyState;
@@ -168,6 +169,10 @@ class AdvancedSettingsUiState {
   final int i2pInboundLength;
   final int i2pOutboundLength;
 
+  final Set<String> presentKeys;
+
+  bool hasPref(String key) => presentKeys.contains(key);
+
   bool get ready => emptyState.ready;
 
   AdvancedSettingsUiState copyWith({
@@ -249,6 +254,7 @@ class AdvancedSettingsUiState {
     int? i2pOutboundQuantity,
     int? i2pInboundLength,
     int? i2pOutboundLength,
+    Set<String>? presentKeys,
   }) {
     return AdvancedSettingsUiState(
       emptyState: emptyState ?? this.emptyState,
@@ -365,6 +371,7 @@ class AdvancedSettingsUiState {
       i2pOutboundQuantity: i2pOutboundQuantity ?? this.i2pOutboundQuantity,
       i2pInboundLength: i2pInboundLength ?? this.i2pInboundLength,
       i2pOutboundLength: i2pOutboundLength ?? this.i2pOutboundLength,
+      presentKeys: presentKeys ?? this.presentKeys,
     );
   }
 }

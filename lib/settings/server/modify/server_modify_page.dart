@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/list/server_list_view_model.dart';
+import 'package:qbpanel/settings/server/modify/server_modify_ui_state.dart';
 import 'package:qbpanel/settings/server/modify/server_modify_view_model.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 import 'package:qbpanel/settings/widget/setting_subtitle.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
+import 'package:qbpanel/widget/dropdown_field.dart';
 
 /// 添加或编辑 qBittorrent 服务器。
 class ServerModifyPage extends ConsumerStatefulWidget {
@@ -26,6 +28,8 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
   final _portController = TextEditingController();
   final _pathController = TextEditingController();
   final _apiKeyController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _ready = false;
   bool get _isEdit => widget.serverId != null;
@@ -62,6 +66,8 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
     _portController.text = '${server.port}';
     _pathController.text = server.path;
     _apiKeyController.text = server.apiKey;
+    _usernameController.text = server.username;
+    _passwordController.text = server.password;
     setState(() => _ready = true);
   }
 
@@ -72,6 +78,8 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
     _portController.dispose();
     _pathController.dispose();
     _apiKeyController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -90,6 +98,8 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
       portText: _portController.text,
       path: _pathController.text,
       apiKey: _apiKeyController.text,
+      username: _usernameController.text,
+      password: _passwordController.text,
     );
 
     if (!mounted) return;
@@ -201,20 +211,70 @@ class _ServerModifyPageState extends ConsumerState<ServerModifyPage> {
                 ),
                 const SizedBox(height: 16),
                 SettingSubtitle(
-                  l10n.apiKeyHint,
+                  l10n.credentialsHint,
                   color: subtitleColor,
                 ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _apiKeyController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  onChanged: (_) => vm.clearFieldError(apiKey: true),
-                  decoration: _decoration(
-                    hintText: l10n.apiKey,
-                    hasError: ui.apiKeyError,
-                  ),
+                DropdownField<ServerLoginMethod>(
+                  label: l10n.loginMethod,
+                  value: ui.loginMethod,
+                  items: [
+                    for (final item in ServerLoginMethod.values)
+                      DropdownMenuItem(
+                        value: item,
+                        child: Text(item.label(l10n)),
+                      ),
+                  ],
+                  onChanged: vm.setLoginMethod,
                 ),
+                if (ui.loginMethod == ServerLoginMethod.apiKey) ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _apiKeyController,
+                    obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    onChanged: (_) => vm.clearFieldError(credentials: true),
+                    decoration: _decoration(
+                      hintText: l10n.apiKey,
+                      hasError: ui.credentialsError,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.apiKeyHint,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: subtitleColor,
+                        ),
+                  ),
+                ] else ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _usernameController,
+                    textInputAction: TextInputAction.next,
+                    onChanged: (_) => vm.clearFieldError(credentials: true),
+                    decoration: _decoration(
+                      hintText: l10n.usernameHint,
+                      hasError: ui.credentialsError,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    onChanged: (_) => vm.clearFieldError(credentials: true),
+                    decoration: _decoration(
+                      hintText: l10n.passwordHint,
+                      hasError: ui.credentialsError,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.loginAccountHint,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: subtitleColor,
+                        ),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

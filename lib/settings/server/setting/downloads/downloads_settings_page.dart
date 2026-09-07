@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_view_model.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
+import 'package:qbpanel/settings/widget/settings_input_field.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/settings/widget/settings_nested_card.dart';
 import 'package:qbpanel/settings/widget/settings_switch_tile.dart';
@@ -151,6 +153,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
     final canEdit = ui.ready && !ui.saving && !ui.testingEmail;
     final mailEnabled = ui.mailNotificationEnabled;
+    final cap = ref.watch(qbApiCapabilitiesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -176,6 +179,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          if (ui.hasPref('torrent_content_layout'))
                           DropdownField<TorrentContentLayout>(
                             label: context.l10n.torrentContentLayout,
                             value: ui.contentLayout,
@@ -189,17 +193,20 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             ],
                             onChanged: vm.setContentLayout,
                           ),
+                          if (ui.hasPref('add_to_top_of_queue'))
                           SettingsSwitchTile(
                             title: context.l10n.addToTopOfQueue,
                             value: ui.addToTopOfQueue,
                             onChanged: canEdit ? vm.setAddToTopOfQueue : null,
                           ),
+                          if (ui.hasAnyPref(['add_stopped_enabled', 'start_paused_enabled']))
                           SettingsSwitchTile(
                             title: context.l10n.doNotStartDownload,
                             value: ui.addStoppedEnabled,
                             onChanged:
                                 canEdit ? vm.setAddStoppedEnabled : null,
                           ),
+                          if (ui.hasPref('torrent_stop_condition'))
                           DropdownField<TorrentStopCondition>(
                             label: context.l10n.torrentStopCondition,
                             value: ui.stopCondition,
@@ -217,6 +224,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             title: context.l10n.whenDuplicateTorrent,
                             child: Column(
                               children: [
+                                if (ui.hasPref('merge_trackers'))
                                 SettingsSwitchTile(
                                   title: context.l10n.mergeTrackers,
                                   value: ui.mergeTrackers,
@@ -252,6 +260,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                             onChanged:
                                 canEdit ? vm.setIncompleteFilesExt : null,
                           ),
+                          if (ui.hasPref('use_unwanted_folder'))
                           SettingsSwitchTile(
                             title: context.l10n.keepUnwantedInFolder,
                             value: ui.useUnwantedFolder,
@@ -330,15 +339,13 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                                 ? vm.setUseCategoryPathsInManualMode
                                 : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.defaultSavePath,
                             controller: _savePathController,
                             enabled: canEdit,
                             minLines: 1,
                             maxLines: 3,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.defaultSavePath,
-                            ),
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
@@ -422,33 +429,27 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                                 ? vm.setMailNotificationEnabled
                                 : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.mailSender,
                             controller: _mailSenderController,
                             enabled: canEdit && mailEnabled,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.mailSender,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.mailRecipient,
                             controller: _mailEmailController,
                             enabled: canEdit && mailEnabled,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.mailRecipient,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.smtpServer,
                             controller: _mailSmtpController,
                             enabled: canEdit && mailEnabled,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.smtpServer,
-                              hintText: 'smtp.example.com:465',
-                            ),
+                            hintText: 'smtp.example.com:465',
                           ),
                           SettingsSwitchTile(
                             title: context.l10n.smtpRequiresSsl,
@@ -468,31 +469,28 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                                       ? vm.setMailNotificationAuthEnabled
                                       : null,
                                 ),
-                                TextField(
+                                SettingsInputField(
+                                  label: context.l10n.username,
                                   controller: _mailUsernameController,
                                   enabled: canEdit &&
                                       mailEnabled &&
                                       ui.mailNotificationAuthEnabled,
                                   textInputAction: TextInputAction.next,
-                                  decoration: InputDecoration(
-                                    labelText: context.l10n.username,
-                                  ),
                                 ),
                                 const SizedBox(height: 8),
-                                TextField(
+                                SettingsInputField(
+                                  label: context.l10n.password,
                                   controller: _mailPasswordController,
                                   enabled: canEdit &&
                                       mailEnabled &&
                                       ui.mailNotificationAuthEnabled,
                                   obscureText: true,
                                   textInputAction: TextInputAction.done,
-                                  decoration: InputDecoration(
-                                    labelText: context.l10n.password,
-                                  ),
                                 ),
                               ],
                             ),
                           ),
+                          if (cap.hasSendTestEmail) ...[
                           const SizedBox(height: 12),
                           Align(
                             alignment: Alignment.centerLeft,
@@ -503,6 +501,7 @@ class _DownloadsSettingsPageState extends ConsumerState<DownloadsSettingsPage> {
                               child: Text(context.l10n.sendTestEmail),
                             ),
                           ),
+                          ],
                         ],
                       ),
                     ),

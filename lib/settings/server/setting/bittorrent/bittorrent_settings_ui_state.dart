@@ -32,6 +32,7 @@ class BittorrentSettingsUiState {
     this.addTrackersFromUrlEnabled = false,
     this.addTrackersUrl = '',
     this.addTrackersUrlList = '',
+    this.presentKeys = const {},
   });
 
   final EmptyState emptyState;
@@ -67,6 +68,10 @@ class BittorrentSettingsUiState {
   final String addTrackersUrl;
   final String addTrackersUrlList;
 
+  final Set<String> presentKeys;
+
+  bool hasPref(String key) => presentKeys.contains(key);
+
   bool get ready => emptyState.ready;
 
   BittorrentSettingsUiState copyWith({
@@ -98,6 +103,7 @@ class BittorrentSettingsUiState {
     bool? addTrackersFromUrlEnabled,
     String? addTrackersUrl,
     String? addTrackersUrlList,
+    Set<String>? presentKeys,
   }) {
     return BittorrentSettingsUiState(
       emptyState: emptyState ?? this.emptyState,
@@ -137,6 +143,7 @@ class BittorrentSettingsUiState {
           addTrackersFromUrlEnabled ?? this.addTrackersFromUrlEnabled,
       addTrackersUrl: addTrackersUrl ?? this.addTrackersUrl,
       addTrackersUrlList: addTrackersUrlList ?? this.addTrackersUrlList,
+      presentKeys: presentKeys ?? this.presentKeys,
     );
   }
 }

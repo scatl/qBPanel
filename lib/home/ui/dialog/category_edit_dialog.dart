@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/torrent_category_response.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
@@ -185,6 +186,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
       CategoryEditMode.createSubcategory => l10n.addSubcategory,
       CategoryEditMode.edit => l10n.editCategory,
     };
+    final cap = ref.watch(qbApiCapabilitiesProvider);
 
     return BlurDialogScaffold(
       animation: widget.animation,
@@ -238,6 +240,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                     errorText: _nameError,
                   ),
                 ),
+                if (cap.hasCategorySavePath) ...[
                 const SizedBox(height: 12),
                 TextField(
                   controller: _savePathController,
@@ -257,6 +260,8 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                     ),
                   ),
                 ),
+                ],
+                if (cap.hasCategoryDownloadPath) ...[
                 const SizedBox(height: 16),
                 Text(
                   l10n.incompleteUseAnotherPath,
@@ -303,6 +308,7 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                     labelText: l10n.path,
                   ),
                 ),
+                ],
                 if (_submitError != null) ...[
                   const SizedBox(height: 12),
                   Text(

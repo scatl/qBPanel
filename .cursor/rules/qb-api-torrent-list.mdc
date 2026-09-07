@@ -1,23 +1,23 @@
 ---
-description: qBittorrent 5.0 种子单项字段（torrents/info 与 maindata.torrents）
+description: qBittorrent 种子单项字段（torrents/info 与 maindata.torrents）
 globs: lib/home/**/*.dart,lib/api/**/*.dart,lib/http/**/*.dart
 alwaysApply: false
 ---
 
-# 种子单项字段（qB 5.0）
+# 种子单项字段（qB 4.1+ / WebAPI 2.0+）
 
 官方全文（本地）：[`docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md`](docs/qbittorrent/WebUI-API-(qBittorrent-5.0).md) → 章节 `Get torrent list`  
 在线：[Wiki](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-5.0)#get-torrent-list)（优先读本地，勿重复全量拉取）
 
 - **`/api/v2/torrents/info`**：JSON **数组**；路径 `ApiPath.torrentManagement.torrentList`（按需过滤/排序时用）
 - **首页定时刷新**：用 **`sync/maindata`**（见 `qb-api-sync-maindata`）；其 `torrents[hash]` 字段形状与本规则相同
-- **Auth:** `Authorization: Bearer <API_KEY>`
+- **Auth:** Bearer API Key **或** Cookie（见 `api-client-conventions`）
 
 ## Query 参数（均 optional）
 
 | 参数 | 类型 | 说明 |
 |---|---|---|
-| `filter` | string | `all` / `downloading` / `seeding` / `completed` / `stopped` / `active` / `inactive` / `running` / `stalled` / `stalled_uploading` / `stalled_downloading` / `errored` |
+| `filter` | string | `all` / `downloading` / `seeding` / `completed` / `stopped` / `paused` / `active` / `inactive` / `running` / `resumed` / `stalled` / `stalled_uploading` / `stalled_downloading` / `errored` |
 | `category` | string | 指定分类；`""` = 无分类；缺省 = 任意。需 URL encode |
 | `tag` | string | ≥2.8.3；`""` = 无标签；缺省 = 任意。需 URL encode |
 | `sort` | string | 按响应字段名排序 |
@@ -27,6 +27,8 @@ alwaysApply: false
 | `hashes` | string | 多 hash 用 `\|` 分隔 |
 
 例：`/api/v2/torrents/info?filter=downloading&sort=ratio`
+
+本 App 首页筛选在本地做：`stopped` 匹配 `stopped*` **或** `paused*`；`running` 为反集。不要按服务器 `filter=` 把 5.x 专用值打到 4.x。
 
 ## 列表项常用字段（JSON）
 
@@ -38,7 +40,9 @@ alwaysApply: false
 
 ## `state` 取值
 
-枚举：`TorrentState`（`lib/api/entity/response/torrent_state.dart`）。只认 5.0：`stoppedUP` / `stoppedDL`。
+枚举：`TorrentState`（`lib/api/entity/response/torrent_state.dart`）。内部统一为 5.0 名：`stoppedUP` / `stoppedDL`。
+
+qB 4.x 的 `pausedDL` / `pausedUP` 在 `fromApi` 映射到 `stoppedDL` / `stoppedUP`（UI 文案仍用「停止」）。
 
 | Value | 含义 |
 |---|---|
@@ -47,6 +51,8 @@ alwaysApply: false
 | `uploading` / `forcedUP` / `stalledUP` / `queuedUP` / `stoppedUP` / `checkingUP` | 上传侧 |
 | `downloading` / `forcedDL` / `stalledDL` / `queuedDL` / `stoppedDL` / `checkingDL` / `metaDL` / `forcedMetaDL` | 下载侧 |
 | `allocating` / `moving` / `checkingResumeData` / `unknown` | 其它 |
+
+停/开种：WebAPI ≥ 2.11 用 `/torrents/stop|start`，更早用 `/pause|resume`（`QbApiCapabilities.torrentStopPath` / `torrentStartPath`）。
 
 ```dart
 // ✅ 需要 filter/sort 时用 info

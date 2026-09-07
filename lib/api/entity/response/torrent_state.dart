@@ -55,10 +55,17 @@ enum TorrentState {
       };
 
   /// 解析接口字段；缺省返回 `null`（便于增量 merge）；无法识别则为 [unknown]。
+  ///
+  /// qB 4.x 的 `pausedDL` / `pausedUP` 映射到 [stoppedDL] / [stoppedUP]。
   static TorrentState? fromApi(String? raw) {
     if (raw == null || raw.isEmpty) return null;
+    final mapped = switch (raw) {
+      'pausedDL' => 'stoppedDL',
+      'pausedUP' => 'stoppedUP',
+      _ => raw,
+    };
     for (final s in TorrentState.values) {
-      if (s.apiValue == raw) return s;
+      if (s.apiValue == mapped) return s;
     }
     return TorrentState.unknown;
   }

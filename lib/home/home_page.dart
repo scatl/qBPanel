@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
 import 'package:qbpanel/home/entity/torrent_status_filter.dart';
@@ -236,6 +237,7 @@ class _HomePageState extends ConsumerState<HomePage>
   @override
   Widget build(BuildContext context) {
     final ui = ref.watch(homePageProvider);
+    final cap = ref.watch(qbApiCapabilitiesProvider);
     final vm = ref.read(homePageProvider.notifier);
     final compact = ref.watch(listDensityProvider) == ListDensity.compact;
 
@@ -351,17 +353,18 @@ class _HomePageState extends ConsumerState<HomePage>
                                     ),
                                   ),
                                   const PopupMenuDivider(),
-                                  PopupMenuItem(
-                                    value: _HomeMoreAction.search,
-                                    child: ListTile(
-                                      leading: const Icon(
-                                        Icons.travel_explore_outlined,
+                                  if (cap.hasSearch)
+                                    PopupMenuItem(
+                                      value: _HomeMoreAction.search,
+                                      child: ListTile(
+                                        leading: const Icon(
+                                          Icons.travel_explore_outlined,
+                                        ),
+                                        title: Text(menuL10n.homeSearchTorrents),
+                                        contentPadding: EdgeInsets.zero,
+                                        visualDensity: VisualDensity.compact,
                                       ),
-                                      title: Text(menuL10n.homeSearchTorrents),
-                                      contentPadding: EdgeInsets.zero,
-                                      visualDensity: VisualDensity.compact,
                                     ),
-                                  ),
                                   PopupMenuItem(
                                     value: _HomeMoreAction.logs,
                                     child: ListTile(

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/util/app_log.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/api/api_path.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/api/entity/response/torrent_metadata_response.dart';
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
 import 'package:qbpanel/http/api_client.dart';
@@ -26,6 +27,8 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
   Uint8List? _sourceFileBytes;
 
   AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
+
+  QbApiCapabilities get _cap => ref.read(qbApiCapabilitiesProvider);
 
   /// 当前导入的 .torrent 文件字节（添加时上传用）。
   Uint8List? get sourceFileBytes => _sourceFileBytes;
@@ -62,6 +65,13 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
       kind: AddTorrentImportKind.magnet,
       sourceUrl: url,
     );
+    if (!_cap.hasMetadataPreview) {
+      state = state.copyWith(
+        metadataStatus: AddTorrentMetadataStatus.unavailable,
+        clearMetadataError: true,
+      );
+      return;
+    }
     _fetchMetadata(url);
   }
 
@@ -75,6 +85,13 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
       sourceFileName: name,
     );
     _sourceFileBytes = bytes;
+    if (!_cap.hasMetadataPreview) {
+      state = state.copyWith(
+        metadataStatus: AddTorrentMetadataStatus.unavailable,
+        clearMetadataError: true,
+      );
+      return;
+    }
     _parseFileMetadata(name, bytes);
   }
 
@@ -242,21 +259,29 @@ class AddTorrentViewModel extends Notifier<AddTorrentUiState> {
       'paused': stopped.toString(),
       'sequentialDownload': ui.sequentialDownload.toString(),
       'firstLastPiecePrio': ui.firstLastPiecePrio.toString(),
-      'addToTopOfQueue': ui.addToTopOfQueue.toString(),
-      'contentLayout': ui.contentLayout.apiValue,
-      'stopCondition': ui.stopCondition.apiValue,
     };
+    if (_cap.hasAddToTopOfQueue) {
+      map['addToTopOfQueue'] = ui.addToTopOfQueue.toString();
+    }
+    if (_cap.hasContentLayout) {
+      map['contentLayout'] = ui.contentLayout.apiValue;
+    }
+    if (_cap.hasStopCondition) {
+      map['stopCondition'] = ui.stopCondition.apiValue;
+    }
 
     if (!autoTmm) {
       if (savePath.isNotEmpty) map['savepath'] = savePath;
-      map['useDownloadPath'] = ui.useIncompletePath.toString();
-      if (ui.useIncompletePath && incompletePath.isNotEmpty) {
-        map['downloadPath'] = incompletePath;
+      if (_cap.hasDownloadPath) {
+        map['useDownloadPath'] = ui.useIncompletePath.toString();
+        if (ui.useIncompletePath && incompletePath.isNotEmpty) {
+          map['downloadPath'] = incompletePath;
+        }
       }
     }
 
     if (ui.category.isNotEmpty) map['category'] = ui.category;
-    if (ui.selectedTags.isNotEmpty) {
+    if (_cap.hasAddTagsOnAdd && ui.selectedTags.isNotEmpty) {
       map['tags'] = ui.selectedTags.join(',');
     }
     if (rename.isNotEmpty) map['rename'] = rename;

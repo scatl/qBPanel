@@ -6,6 +6,7 @@ import 'package:qbpanel/settings/server/setting/connection/connection_settings_u
 import 'package:qbpanel/settings/server/setting/connection/connection_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
+import 'package:qbpanel/settings/widget/settings_input_field.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/settings/widget/settings_nested_card.dart';
 import 'package:qbpanel/settings/widget/settings_switch_tile.dart';
@@ -190,38 +191,27 @@ class _ConnectionSettingsPageState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            context.l10n.incomingConnectionsPort,
-                            style: textTheme.bodyLarge,
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _listenPortController,
-                                  enabled: canEdit,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              TextButton(
-                                onPressed: canEdit ? _onRandomPort : null,
-                                style: TextButton.styleFrom(
-                                  minimumSize: Size.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                ),
-                                child: Text(context.l10n.actionRandom),
-                              ),
+                          SettingsInputField(
+                            label: context.l10n.incomingConnectionsPort,
+                            controller: _listenPortController,
+                            enabled: canEdit,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
                             ],
+                            trailing: TextButton(
+                              onPressed: canEdit ? _onRandomPort : null,
+                              style: TextButton.styleFrom(
+                                minimumSize: Size.zero,
+                                tapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                              ),
+                              child: Text(context.l10n.actionRandom),
+                            ),
                           ),
                           SettingsSwitchTile(
                             title: context.l10n.upnpPortForward,
@@ -305,6 +295,7 @@ class _ConnectionSettingsPageState
                       ),
                     ),
                     const SizedBox(height: 12),
+                    if (ui.hasPref('i2p_enabled'))
                     SettingsGroupCard(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       child: Column(
@@ -315,25 +306,21 @@ class _ConnectionSettingsPageState
                             value: ui.i2pEnabled,
                             onChanged: canEdit ? vm.setI2pEnabled : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.host,
                             controller: _i2pAddressController,
                             enabled: i2pOn,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.host,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.port,
                             controller: _i2pPortController,
                             enabled: i2pOn,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration: InputDecoration(
-                              labelText: context.l10n.port,
-                            ),
                           ),
                           SettingsSwitchTile(
                             title: context.l10n.mixedMode,
@@ -363,25 +350,21 @@ class _ConnectionSettingsPageState
                             ],
                             onChanged: vm.setProxyType,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.host,
                             controller: _proxyHostController,
                             enabled: proxyEnabled,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.host,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.port,
                             controller: _proxyPortController,
                             enabled: proxyEnabled,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration: InputDecoration(
-                              labelText: context.l10n.port,
-                            ),
                           ),
                           SettingsSwitchTile(
                             title: context.l10n.proxyHostnameLookup,
@@ -401,25 +384,21 @@ class _ConnectionSettingsPageState
                                       ? vm.setProxyAuthEnabled
                                       : null,
                                 ),
-                                TextField(
+                                SettingsInputField(
+                                  label: context.l10n.username,
                                   controller: _proxyUsernameController,
                                   enabled: proxyAuthCapable &&
                                       ui.proxyAuthEnabled,
                                   textInputAction: TextInputAction.next,
-                                  decoration: InputDecoration(
-                                    labelText: context.l10n.username,
-                                  ),
                                 ),
                                 const SizedBox(height: 8),
-                                TextField(
+                                SettingsInputField(
+                                  label: context.l10n.password,
                                   controller: _proxyPasswordController,
                                   enabled: proxyAuthCapable &&
                                       ui.proxyAuthEnabled,
                                   obscureText: true,
                                   textInputAction: TextInputAction.done,
-                                  decoration: InputDecoration(
-                                    labelText: context.l10n.password,
-                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -471,14 +450,12 @@ class _ConnectionSettingsPageState
                             onChanged:
                                 canEdit ? vm.setIpFilterEnabled : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.ipFilterPath,
                             controller: _ipFilterPathController,
                             enabled: canEdit && ui.ipFilterEnabled,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.ipFilterPath,
-                            ),
                           ),
                           SettingsSwitchTile(
                             title: context.l10n.filterTrackers,
@@ -488,16 +465,13 @@ class _ConnectionSettingsPageState
                                 : null,
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.manuallyBannedIps,
                             controller: _bannedIpsController,
                             enabled: canEdit,
                             minLines: 4,
                             maxLines: 8,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.manuallyBannedIps,
-                              alignLabelWithHint: true,
-                              hintText: context.l10n.oneIpPerLine,
-                            ),
+                            hintText: context.l10n.oneIpPerLine,
                           ),
                         ],
                       ),

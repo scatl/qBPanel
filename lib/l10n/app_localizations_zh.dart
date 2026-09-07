@@ -2185,7 +2185,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get apiKey => 'API密钥';
 
   @override
-  String get apiKeyHint => 'API密钥，请在WebUI上生成密钥';
+  String get apiKeyHint => 'qB 5.2+ 可在 WebUI 生成';
+
+  @override
+  String get credentialsHint => 'qB 5.2+ 可用 API 密钥；更早版本请用 WebUI 账号密码';
+
+  @override
+  String get credentialsRequired => '请填写当前登录方式所需的凭证';
+
+  @override
+  String get loginMethod => '登录方式';
+
+  @override
+  String get loginMethodApiKey => 'API 密钥';
+
+  @override
+  String get loginMethodAccount => '用户名和密码';
+
+  @override
+  String get loginAccountHint => '使用 WebUI 账号登录';
+
+  @override
+  String get apiVersionTooOld => '仅支持 WebAPI 2.0 及以上（qBittorrent 4.1.0+）';
+
+  @override
+  String get usernameHint => 'WebUI 用户名';
+
+  @override
+  String get passwordHint => 'WebUI 密码';
 
   @override
   String get useHttps => '使用HTTPS';
@@ -5356,7 +5383,34 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get apiKey => 'API金鑰';
 
   @override
-  String get apiKeyHint => 'API金鑰，請在WebUI上生成金鑰';
+  String get apiKeyHint => 'qB 5.2+ 可在 WebUI 產生';
+
+  @override
+  String get credentialsHint => 'qB 5.2+ 可用 API 金鑰；更早版本請用 WebUI 帳號密碼';
+
+  @override
+  String get credentialsRequired => '請填寫目前登入方式所需的憑證';
+
+  @override
+  String get loginMethod => '登入方式';
+
+  @override
+  String get loginMethodApiKey => 'API 金鑰';
+
+  @override
+  String get loginMethodAccount => '使用者名和密碼';
+
+  @override
+  String get loginAccountHint => '使用 WebUI 帳號登入';
+
+  @override
+  String get apiVersionTooOld => '僅支援 WebAPI 2.0 及以上（qBittorrent 4.1.0+）';
+
+  @override
+  String get usernameHint => 'WebUI 使用者名';
+
+  @override
+  String get passwordHint => 'WebUI 密碼';
 
   @override
   String get useHttps => '使用HTTPS';

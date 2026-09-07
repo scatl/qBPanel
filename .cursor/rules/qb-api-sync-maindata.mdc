@@ -12,7 +12,7 @@ alwaysApply: false
 - **Method / Name:** `GET` · `maindata`
 - **Path:** `/api/v2/sync/maindata` → `ApiPath.sync.mainData`
 - **实体：** `MaindataResponse`（`lib/api/entity/response/maindata_response.dart`）
-- **Auth:** `Authorization: Bearer <API_KEY>`
+- **Auth:** Bearer API Key **或** Cookie（见 `api-client-conventions`）
 - **HTTP:** 始终 `200`；body 为 JSON **对象**
 
 ## Query
