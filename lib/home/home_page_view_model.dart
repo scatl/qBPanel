@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:qbpanel/api/api_path.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/api/entity/response/maindata_response.dart';
 import 'package:qbpanel/api/entity/response/server_state_response.dart';
 import 'package:qbpanel/api/entity/response/torrent_category_response.dart';
@@ -52,6 +53,9 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   late PollLoop _poll;
 
   AppLocalizations get _l10n => ref.read(appLocalizationsProvider);
+
+  QbApiCapabilities get _cap =>
+      QbApiCapabilities.parse(state.activeServer?.apiVersion);
 
   @override
   HomePageUiState build() {
@@ -321,15 +325,20 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     required CategoryIncompletePathMode incompletePathMode,
     required String downloadPath,
   }) async {
-    final data = <String, String>{'category': name, 'savePath': savePath};
-    switch (incompletePathMode) {
-      case CategoryIncompletePathMode.followDefault:
-        break;
-      case CategoryIncompletePathMode.yes:
-        data['downloadPathEnabled'] = 'true';
-        data['downloadPath'] = downloadPath.trim();
-      case CategoryIncompletePathMode.no:
-        data['downloadPathEnabled'] = 'false';
+    final data = <String, String>{'category': name};
+    if (_cap.hasCategorySavePath) {
+      data['savePath'] = savePath;
+    }
+    if (_cap.hasCategoryDownloadPath) {
+      switch (incompletePathMode) {
+        case CategoryIncompletePathMode.followDefault:
+          break;
+        case CategoryIncompletePathMode.yes:
+          data['downloadPathEnabled'] = 'true';
+          data['downloadPath'] = downloadPath.trim();
+        case CategoryIncompletePathMode.no:
+          data['downloadPathEnabled'] = 'false';
+      }
     }
     String? error;
     final api = ref.read(apiClientProvider);
@@ -467,19 +476,19 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
   }
 
   Future<String?> startTorrent(String hash) {
-    return _postTorrentHashes(ApiPath.torrentManagement.start, hash);
+    return _postTorrentHashes(_cap.torrentStartPath, hash);
   }
 
   Future<String?> stopTorrent(String hash) {
-    return _postTorrentHashes(ApiPath.torrentManagement.stop, hash);
+    return _postTorrentHashes(_cap.torrentStopPath, hash);
   }
 
   Future<String?> startDisplayedTorrents() {
-    return _postDisplayedTorrents(ApiPath.torrentManagement.start);
+    return _postDisplayedTorrents(_cap.torrentStartPath);
   }
 
   Future<String?> stopDisplayedTorrents() {
-    return _postDisplayedTorrents(ApiPath.torrentManagement.stop);
+    return _postDisplayedTorrents(_cap.torrentStopPath);
   }
 
   Future<String?> _postDisplayedTorrents(String path) {
@@ -726,7 +735,8 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       extra: {
         'ratioLimit': _shareLimitNumber(ratioLimit),
         'seedingTimeLimit': '$seedingTimeLimit',
-        'inactiveSeedingTimeLimit': '$inactiveSeedingTimeLimit',
+        if (_cap.hasInactiveSeedingLimit)
+          'inactiveSeedingTimeLimit': '$inactiveSeedingTimeLimit',
         'shareLimitAction': ?shareLimitAction,
       },
       errorOf: (e) => switch (e.statusCode) {

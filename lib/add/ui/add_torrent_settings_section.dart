@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:qbpanel/add/add_torrent_ui_state.dart';
 import 'package:qbpanel/add/add_torrent_view_model.dart';
 import 'package:qbpanel/add/ui/add_torrent_card.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/check_row.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
@@ -17,6 +18,7 @@ class AddTorrentSettingsSection extends StatelessWidget {
     required this.upLimitController,
     required this.categories,
     required this.tags,
+    required this.capabilities,
   });
 
   final AddTorrentUiState ui;
@@ -26,6 +28,7 @@ class AddTorrentSettingsSection extends StatelessWidget {
   final TextEditingController upLimitController;
   final List<String> categories;
   final List<String> tags;
+  final QbApiCapabilities capabilities;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +72,7 @@ class AddTorrentSettingsSection extends StatelessWidget {
                 ),
             ],
           ),
+          if (capabilities.hasTags) ...[
           const SizedBox(height: 16),
           Text(l10n.tags, style: textTheme.bodyMedium),
           const SizedBox(height: 8),
@@ -92,7 +96,8 @@ class AddTorrentSettingsSection extends StatelessWidget {
                   ),
               ],
             ),
-          const SizedBox(height: 8),
+          ],
+          if (capabilities.hasContentLayout)
           DropdownField<TorrentContentLayout>(
             label: l10n.contentLayout,
             value: ui.contentLayout,
@@ -102,6 +107,7 @@ class AddTorrentSettingsSection extends StatelessWidget {
             ],
             onChanged: viewModel.setContentLayout,
           ),
+          if (capabilities.hasStopCondition)
           DropdownField<TorrentStopCondition>(
             label: l10n.stopCondition,
             value: ui.stopCondition,
@@ -116,6 +122,7 @@ class AddTorrentSettingsSection extends StatelessWidget {
             value: ui.startTorrent,
             onChanged: viewModel.setStartTorrent,
           ),
+          if (capabilities.hasAddToTopOfQueue)
           CheckRow(
             label: l10n.addToTopOfQueue,
             value: ui.addToTopOfQueue,

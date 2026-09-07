@@ -36,6 +36,7 @@ class ConnectionSettingsUiState {
     this.ipFilterPath = '',
     this.ipFilterTrackers = false,
     this.bannedIps = '',
+    this.presentKeys = const {},
   });
 
   final EmptyState emptyState;
@@ -75,6 +76,10 @@ class ConnectionSettingsUiState {
   final String ipFilterPath;
   final bool ipFilterTrackers;
   final String bannedIps;
+
+  final Set<String> presentKeys;
+
+  bool hasPref(String key) => presentKeys.contains(key);
 
   bool get ready => emptyState.ready;
 
@@ -116,6 +121,7 @@ class ConnectionSettingsUiState {
     String? ipFilterPath,
     bool? ipFilterTrackers,
     String? bannedIps,
+    Set<String>? presentKeys,
   }) {
     return ConnectionSettingsUiState(
       emptyState: emptyState ?? this.emptyState,
@@ -154,6 +160,7 @@ class ConnectionSettingsUiState {
       ipFilterPath: ipFilterPath ?? this.ipFilterPath,
       ipFilterTrackers: ipFilterTrackers ?? this.ipFilterTrackers,
       bannedIps: bannedIps ?? this.bannedIps,
+      presentKeys: presentKeys ?? this.presentKeys,
     );
   }
 }

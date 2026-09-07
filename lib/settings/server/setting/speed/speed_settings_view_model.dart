@@ -7,6 +7,7 @@ import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/speed/speed_settings_ui_state.dart';
+import 'package:qbpanel/settings/server/setting/pref_keys.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final speedSettingsProvider =
@@ -57,6 +58,7 @@ class SpeedSettingsViewModel extends Notifier<SpeedSettingsUiState> {
       scheduleToHour: _clampHour(data.scheduleToHour, 20),
       scheduleToMin: _clampMin(data.scheduleToMin, 0),
       schedulerDays: SpeedSchedulerDays.fromApi(data.schedulerDays),
+      presentKeys: data.presentKeys,
     );
     return true;
   }
@@ -122,7 +124,7 @@ class SpeedSettingsViewModel extends Notifier<SpeedSettingsUiState> {
     }
 
     state = state.copyWith(saving: true);
-    final payload = <String, dynamic>{
+    final payload = pickPrefs(state.presentKeys, <String, dynamic>{
       'up_limit': _kibToBytes(state.upLimitKib),
       'dl_limit': _kibToBytes(state.dlLimitKib),
       'alt_up_limit': _kibToBytes(state.altUpLimitKib),
@@ -136,7 +138,7 @@ class SpeedSettingsViewModel extends Notifier<SpeedSettingsUiState> {
       'schedule_to_hour': state.scheduleToHour,
       'schedule_to_min': state.scheduleToMin,
       'scheduler_days': state.schedulerDays.apiValue,
-    };
+    });
 
     String? error;
     await ref

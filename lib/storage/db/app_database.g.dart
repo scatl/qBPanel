@@ -90,7 +90,32 @@ class $QbServersTable extends QbServers
     aliasedName,
     false,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _usernameMeta = const VerificationMeta(
+    'username',
+  );
+  @override
+  late final GeneratedColumn<String> username = GeneratedColumn<String>(
+    'username',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _passwordMeta = const VerificationMeta(
+    'password',
+  );
+  @override
+  late final GeneratedColumn<String> password = GeneratedColumn<String>(
+    'password',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
   );
   static const VerificationMeta _appVersionMeta = const VerificationMeta(
     'appVersion',
@@ -176,6 +201,8 @@ class $QbServersTable extends QbServers
     useHttps,
     path,
     apiKey,
+    username,
+    password,
     appVersion,
     apiVersion,
     buildInfo,
@@ -237,8 +264,18 @@ class $QbServersTable extends QbServers
         _apiKeyMeta,
         apiKey.isAcceptableOrUnknown(data['api_key']!, _apiKeyMeta),
       );
-    } else if (isInserting) {
-      context.missing(_apiKeyMeta);
+    }
+    if (data.containsKey('username')) {
+      context.handle(
+        _usernameMeta,
+        username.isAcceptableOrUnknown(data['username']!, _usernameMeta),
+      );
+    }
+    if (data.containsKey('password')) {
+      context.handle(
+        _passwordMeta,
+        password.isAcceptableOrUnknown(data['password']!, _passwordMeta),
+      );
     }
     if (data.containsKey('app_version')) {
       context.handle(
@@ -313,6 +350,14 @@ class $QbServersTable extends QbServers
         DriftSqlType.string,
         data['${effectivePrefix}api_key'],
       )!,
+      username: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}username'],
+      )!,
+      password: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}password'],
+      )!,
       appVersion: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}app_version'],
@@ -364,8 +409,14 @@ class QbServer extends DataClass implements Insertable<QbServer> {
   /// WebUI 路径前缀，不含首尾 `/`，如 `nas/qb`；无反向代理则空
   final String path;
 
-  /// apikey
+  /// WebUI API Key（qB 5.2+）；可空，与用户名密码二选一
   final String apiKey;
+
+  /// WebUI 用户名（Cookie 登录）
+  final String username;
+
+  /// WebUI 密码（明文存本地，与 apiKey 相同约定）
+  final String password;
 
   /// `/app/version`，保存时写入
   final String appVersion;
@@ -388,6 +439,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
     required this.useHttps,
     required this.path,
     required this.apiKey,
+    required this.username,
+    required this.password,
     required this.appVersion,
     required this.apiVersion,
     required this.buildInfo,
@@ -405,6 +458,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
     map['use_https'] = Variable<bool>(useHttps);
     map['path'] = Variable<String>(path);
     map['api_key'] = Variable<String>(apiKey);
+    map['username'] = Variable<String>(username);
+    map['password'] = Variable<String>(password);
     map['app_version'] = Variable<String>(appVersion);
     map['api_version'] = Variable<String>(apiVersion);
     map['build_info'] = Variable<String>(buildInfo);
@@ -423,6 +478,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
       useHttps: Value(useHttps),
       path: Value(path),
       apiKey: Value(apiKey),
+      username: Value(username),
+      password: Value(password),
       appVersion: Value(appVersion),
       apiVersion: Value(apiVersion),
       buildInfo: Value(buildInfo),
@@ -445,6 +502,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
       useHttps: serializer.fromJson<bool>(json['useHttps']),
       path: serializer.fromJson<String>(json['path']),
       apiKey: serializer.fromJson<String>(json['apiKey']),
+      username: serializer.fromJson<String>(json['username']),
+      password: serializer.fromJson<String>(json['password']),
       appVersion: serializer.fromJson<String>(json['appVersion']),
       apiVersion: serializer.fromJson<String>(json['apiVersion']),
       buildInfo: serializer.fromJson<String>(json['buildInfo']),
@@ -464,6 +523,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
       'useHttps': serializer.toJson<bool>(useHttps),
       'path': serializer.toJson<String>(path),
       'apiKey': serializer.toJson<String>(apiKey),
+      'username': serializer.toJson<String>(username),
+      'password': serializer.toJson<String>(password),
       'appVersion': serializer.toJson<String>(appVersion),
       'apiVersion': serializer.toJson<String>(apiVersion),
       'buildInfo': serializer.toJson<String>(buildInfo),
@@ -481,6 +542,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
     bool? useHttps,
     String? path,
     String? apiKey,
+    String? username,
+    String? password,
     String? appVersion,
     String? apiVersion,
     String? buildInfo,
@@ -495,6 +558,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
     useHttps: useHttps ?? this.useHttps,
     path: path ?? this.path,
     apiKey: apiKey ?? this.apiKey,
+    username: username ?? this.username,
+    password: password ?? this.password,
     appVersion: appVersion ?? this.appVersion,
     apiVersion: apiVersion ?? this.apiVersion,
     buildInfo: buildInfo ?? this.buildInfo,
@@ -511,6 +576,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
       useHttps: data.useHttps.present ? data.useHttps.value : this.useHttps,
       path: data.path.present ? data.path.value : this.path,
       apiKey: data.apiKey.present ? data.apiKey.value : this.apiKey,
+      username: data.username.present ? data.username.value : this.username,
+      password: data.password.present ? data.password.value : this.password,
       appVersion: data.appVersion.present
           ? data.appVersion.value
           : this.appVersion,
@@ -534,6 +601,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
           ..write('useHttps: $useHttps, ')
           ..write('path: $path, ')
           ..write('apiKey: $apiKey, ')
+          ..write('username: $username, ')
+          ..write('password: $password, ')
           ..write('appVersion: $appVersion, ')
           ..write('apiVersion: $apiVersion, ')
           ..write('buildInfo: $buildInfo, ')
@@ -553,6 +622,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
     useHttps,
     path,
     apiKey,
+    username,
+    password,
     appVersion,
     apiVersion,
     buildInfo,
@@ -571,6 +642,8 @@ class QbServer extends DataClass implements Insertable<QbServer> {
           other.useHttps == this.useHttps &&
           other.path == this.path &&
           other.apiKey == this.apiKey &&
+          other.username == this.username &&
+          other.password == this.password &&
           other.appVersion == this.appVersion &&
           other.apiVersion == this.apiVersion &&
           other.buildInfo == this.buildInfo &&
@@ -587,6 +660,8 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
   final Value<bool> useHttps;
   final Value<String> path;
   final Value<String> apiKey;
+  final Value<String> username;
+  final Value<String> password;
   final Value<String> appVersion;
   final Value<String> apiVersion;
   final Value<String> buildInfo;
@@ -601,6 +676,8 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
     this.useHttps = const Value.absent(),
     this.path = const Value.absent(),
     this.apiKey = const Value.absent(),
+    this.username = const Value.absent(),
+    this.password = const Value.absent(),
     this.appVersion = const Value.absent(),
     this.apiVersion = const Value.absent(),
     this.buildInfo = const Value.absent(),
@@ -615,7 +692,9 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
     this.port = const Value.absent(),
     this.useHttps = const Value.absent(),
     this.path = const Value.absent(),
-    required String apiKey,
+    this.apiKey = const Value.absent(),
+    this.username = const Value.absent(),
+    this.password = const Value.absent(),
     this.appVersion = const Value.absent(),
     this.apiVersion = const Value.absent(),
     this.buildInfo = const Value.absent(),
@@ -623,8 +702,7 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
-       host = Value(host),
-       apiKey = Value(apiKey);
+       host = Value(host);
   static Insertable<QbServer> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -633,6 +711,8 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
     Expression<bool>? useHttps,
     Expression<String>? path,
     Expression<String>? apiKey,
+    Expression<String>? username,
+    Expression<String>? password,
     Expression<String>? appVersion,
     Expression<String>? apiVersion,
     Expression<String>? buildInfo,
@@ -648,6 +728,8 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
       if (useHttps != null) 'use_https': useHttps,
       if (path != null) 'path': path,
       if (apiKey != null) 'api_key': apiKey,
+      if (username != null) 'username': username,
+      if (password != null) 'password': password,
       if (appVersion != null) 'app_version': appVersion,
       if (apiVersion != null) 'api_version': apiVersion,
       if (buildInfo != null) 'build_info': buildInfo,
@@ -665,6 +747,8 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
     Value<bool>? useHttps,
     Value<String>? path,
     Value<String>? apiKey,
+    Value<String>? username,
+    Value<String>? password,
     Value<String>? appVersion,
     Value<String>? apiVersion,
     Value<String>? buildInfo,
@@ -680,6 +764,8 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
       useHttps: useHttps ?? this.useHttps,
       path: path ?? this.path,
       apiKey: apiKey ?? this.apiKey,
+      username: username ?? this.username,
+      password: password ?? this.password,
       appVersion: appVersion ?? this.appVersion,
       apiVersion: apiVersion ?? this.apiVersion,
       buildInfo: buildInfo ?? this.buildInfo,
@@ -713,6 +799,12 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
     if (apiKey.present) {
       map['api_key'] = Variable<String>(apiKey.value);
     }
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (password.present) {
+      map['password'] = Variable<String>(password.value);
+    }
     if (appVersion.present) {
       map['app_version'] = Variable<String>(appVersion.value);
     }
@@ -744,6 +836,8 @@ class QbServersCompanion extends UpdateCompanion<QbServer> {
           ..write('useHttps: $useHttps, ')
           ..write('path: $path, ')
           ..write('apiKey: $apiKey, ')
+          ..write('username: $username, ')
+          ..write('password: $password, ')
           ..write('appVersion: $appVersion, ')
           ..write('apiVersion: $apiVersion, ')
           ..write('buildInfo: $buildInfo, ')
@@ -774,7 +868,9 @@ typedef $$QbServersTableCreateCompanionBuilder =
       Value<int> port,
       Value<bool> useHttps,
       Value<String> path,
-      required String apiKey,
+      Value<String> apiKey,
+      Value<String> username,
+      Value<String> password,
       Value<String> appVersion,
       Value<String> apiVersion,
       Value<String> buildInfo,
@@ -791,6 +887,8 @@ typedef $$QbServersTableUpdateCompanionBuilder =
       Value<bool> useHttps,
       Value<String> path,
       Value<String> apiKey,
+      Value<String> username,
+      Value<String> password,
       Value<String> appVersion,
       Value<String> apiVersion,
       Value<String> buildInfo,
@@ -840,6 +938,16 @@ class $$QbServersTableFilterComposer
 
   ColumnFilters<String> get apiKey => $composableBuilder(
     column: $table.apiKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get username => $composableBuilder(
+    column: $table.username,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get password => $composableBuilder(
+    column: $table.password,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -918,6 +1026,16 @@ class $$QbServersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get username => $composableBuilder(
+    column: $table.username,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get password => $composableBuilder(
+    column: $table.password,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get appVersion => $composableBuilder(
     column: $table.appVersion,
     builder: (column) => ColumnOrderings(column),
@@ -979,6 +1097,12 @@ class $$QbServersTableAnnotationComposer
   GeneratedColumn<String> get apiKey =>
       $composableBuilder(column: $table.apiKey, builder: (column) => column);
 
+  GeneratedColumn<String> get username =>
+      $composableBuilder(column: $table.username, builder: (column) => column);
+
+  GeneratedColumn<String> get password =>
+      $composableBuilder(column: $table.password, builder: (column) => column);
+
   GeneratedColumn<String> get appVersion => $composableBuilder(
     column: $table.appVersion,
     builder: (column) => column,
@@ -1037,6 +1161,8 @@ class $$QbServersTableTableManager
                 Value<bool> useHttps = const Value.absent(),
                 Value<String> path = const Value.absent(),
                 Value<String> apiKey = const Value.absent(),
+                Value<String> username = const Value.absent(),
+                Value<String> password = const Value.absent(),
                 Value<String> appVersion = const Value.absent(),
                 Value<String> apiVersion = const Value.absent(),
                 Value<String> buildInfo = const Value.absent(),
@@ -1051,6 +1177,8 @@ class $$QbServersTableTableManager
                 useHttps: useHttps,
                 path: path,
                 apiKey: apiKey,
+                username: username,
+                password: password,
                 appVersion: appVersion,
                 apiVersion: apiVersion,
                 buildInfo: buildInfo,
@@ -1066,7 +1194,9 @@ class $$QbServersTableTableManager
                 Value<int> port = const Value.absent(),
                 Value<bool> useHttps = const Value.absent(),
                 Value<String> path = const Value.absent(),
-                required String apiKey,
+                Value<String> apiKey = const Value.absent(),
+                Value<String> username = const Value.absent(),
+                Value<String> password = const Value.absent(),
                 Value<String> appVersion = const Value.absent(),
                 Value<String> apiVersion = const Value.absent(),
                 Value<String> buildInfo = const Value.absent(),
@@ -1081,6 +1211,8 @@ class $$QbServersTableTableManager
                 useHttps: useHttps,
                 path: path,
                 apiKey: apiKey,
+                username: username,
+                password: password,
                 appVersion: appVersion,
                 apiVersion: apiVersion,
                 buildInfo: buildInfo,

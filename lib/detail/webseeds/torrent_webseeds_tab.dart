@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/detail/webseeds/add_webseeds_dialog.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_view_model.dart';
 import 'package:qbpanel/detail/webseeds/webseed_action_dialog.dart';
@@ -18,9 +19,12 @@ class TorrentWebSeedsTab extends ConsumerWidget {
     final ui = ref.watch(torrentWebSeedsProvider(torrentHash));
     final vm = ref.read(torrentWebSeedsProvider(torrentHash).notifier);
 
-    final header = _WebSeedsHeader(
-      onAdd: () => AddWebSeedsDialog.show(context: context, viewModel: vm),
-    );
+    final cap = ref.watch(qbApiCapabilitiesProvider);
+    final header = cap.hasWebSeedMutate
+        ? _WebSeedsHeader(
+            onAdd: () => AddWebSeedsDialog.show(context: context, viewModel: vm),
+          )
+        : const SizedBox.shrink();
 
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
     return Column(
@@ -42,11 +46,13 @@ class TorrentWebSeedsTab extends ConsumerWidget {
                 return TorrentWebSeedItem(
                   key: ValueKey(webSeed.url),
                   webSeed: webSeed,
-                  onLongPress: () => WebSeedActionDialog.show(
-                    context: context,
-                    webSeed: webSeed,
-                    viewModel: vm,
-                  ),
+                  onLongPress: cap.hasWebSeedMutate
+                      ? () => WebSeedActionDialog.show(
+                            context: context,
+                            webSeed: webSeed,
+                            viewModel: vm,
+                          )
+                      : null,
                 );
               },
             ),

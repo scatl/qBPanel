@@ -8,6 +8,7 @@ import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_ui_state.dart';
+import 'package:qbpanel/settings/server/setting/pref_keys.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
 import 'package:qbpanel/storage/db/app_database_provider.dart';
@@ -82,6 +83,7 @@ class WebUiSettingsViewModel extends Notifier<WebUiSettingsUiState> {
       dyndnsDomain: data.dyndnsDomain ?? '',
       dyndnsUsername: data.dyndnsUsername ?? '',
       dyndnsPassword: data.dyndnsPassword ?? '',
+      presentKeys: data.presentKeys,
     );
     return true;
   }
@@ -317,7 +319,7 @@ class WebUiSettingsViewModel extends Notifier<WebUiSettingsUiState> {
     }
 
     state = state.copyWith(saving: true);
-    final payload = <String, dynamic>{
+    final payload = pickPrefs(state.presentKeys, <String, dynamic>{
       'web_ui_domain_list': state.webUiDomainList,
       'web_ui_address': state.webUiAddress.trim(),
       'web_ui_port': port,
@@ -351,7 +353,7 @@ class WebUiSettingsViewModel extends Notifier<WebUiSettingsUiState> {
       'dyndns_domain': state.dyndnsDomain.trim(),
       'dyndns_username': state.dyndnsUsername.trim(),
       'dyndns_password': state.dyndnsPassword,
-    };
+    });
     if (password.isNotEmpty) {
       payload['web_ui_password'] = password;
     }

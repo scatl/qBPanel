@@ -11,16 +11,25 @@ alwaysApply: false
 | `ServerListPage` | 卡片列表；FAB 添加；编辑带 id；侧滑删除 |
 | `ServerModifyPage` | 添加（无 id）/ 编辑（有 id）同一页 |
 | `ServerListViewModel` | Drift 全量查询 + 删除 + `refresh` |
-| `QbServers` | host/port/https/path/apiKey/`isActive` |
+| `QbServers` | host/port/https/path/`apiKey`/`username`/`password`/`isActive` |
 
 路由：`RouterPath.serverList`、`serverModify` / `serverModifyWithParams`。
 
+凭证：编辑页用 `DropdownField` 选 **API Key** 或 **用户名+密码**（二选一，保存时清空另一种）。5.2+ 可用密钥；4.x–5.1 用 WebUI 账号 Cookie 登录。明文存本地。
+
 ## 保存规则
 
-1. 必填：名称、域名或 IP、API 密钥；端口空 → **80**；路径空 → `""`
-2. `LoadingDialog`「校验中…」→ `getWithConfig` + `ApiPath.application.apiVersion`
+1. 必填：名称、域名或 IP；端口空 → **80**；路径空 → `""`；凭证见上
+2. `LoadingDialog`「校验中…」→ `getWithConfig` + `ServerConnection` + `ApiPath.application.apiVersion`（必成）；低于 WebAPI 2.0 拒绝。`version` / `buildInfo` 失败存空
 3. 成功才写库：无 id → insert（无 active 时新行 `isActive: true`）；有 id → update（**保留**原 `isActive`）
 4. 成功后 `serverListProvider.refresh()` 再 `pop`
+
+## Preferences 子页
+
+- GET 后字段为 null / 不在 `presentKeys` 的控件隐藏
+- `setPreferences` 用 `pickPrefs` **只提交该版本存在的 key**
+- 别名：`add_stopped_enabled` ↔ `start_paused_enabled`；`mail_notification_ssl_enabled` ↔ `mail_notification_encryption_type`
+- WebUI API Key 生成/轮换仅 `supportsApiKey` 时显示；网卡列表仅 `hasNetworkInterfaces` 时请求
 
 ## 别漏
 
@@ -31,4 +40,4 @@ alwaysApply: false
 // ❌ 校验失败仍 insert/update
 ```
 
-列表：active 用主色描边，不用勾选图标；API 密钥输入 `obscureText: true`。
+列表：active 用主色描边，不用勾选图标；API 密钥与密码输入 `obscureText: true`。

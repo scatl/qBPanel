@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_ui_state.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
+import 'package:qbpanel/settings/widget/settings_input_field.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/settings/widget/settings_nested_card.dart';
 import 'package:qbpanel/settings/widget/settings_switch_tile.dart';
@@ -237,6 +239,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
     final reverseOn = canEdit && ui.webUiReverseProxyEnabled;
     final dyndnsOn = canEdit && ui.dyndnsEnabled;
     final subnetOn = canEdit && ui.bypassAuthSubnetWhitelistEnabled;
+    final cap = ref.watch(qbApiCapabilitiesProvider);
     final hostHeaderOn = canEdit && ui.webUiHostHeaderValidationEnabled;
     final apiKeyActionsOn = canEdit;
 
@@ -287,24 +290,20 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.ipAddress,
                             controller: _addressController,
                             enabled: canEdit,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.ipAddress,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.port,
                             controller: _portController,
                             enabled: canEdit,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            decoration: InputDecoration(
-                              labelText: context.l10n.port,
-                            ),
                           ),
                           SettingsSwitchTile(
                             title: context.l10n.upnpPortForward,
@@ -316,24 +315,20 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             value: ui.useHttps,
                             onChanged: canEdit ? vm.setUseHttps : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.certificate,
                             controller: _httpsCertController,
                             enabled: httpsOn,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.certificate,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.privateKey,
                             controller: _httpsKeyController,
                             enabled: httpsOn,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.privateKey,
-                            ),
                           ),
                         ],
                       ),
@@ -345,22 +340,18 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.username,
                             controller: _usernameController,
                             enabled: canEdit,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.username,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.password,
                             controller: _passwordController,
                             enabled: canEdit,
                             obscureText: true,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.password,
-                              hintText: context.l10n.passwordLeaveBlank,
-                            ),
+                            hintText: context.l10n.passwordLeaveBlank,
                           ),
                           SettingsSwitchTile(
                             title: context.l10n.bypassAuthLocalhost,
@@ -392,28 +383,41 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          _LabeledNumberField(
+                          SettingsInputField(
                             label: context.l10n.banAfterFailedAttempts,
                             controller: _maxAuthFailController,
                             enabled: canEdit,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                           ),
                           const SizedBox(height: 8),
-                          _LabeledNumberField(
+                          SettingsInputField(
                             label: context.l10n.banFor,
                             controller: _banDurationController,
                             enabled: canEdit,
                             suffix: context.l10n.unitSeconds,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                           ),
                           const SizedBox(height: 8),
-                          _LabeledNumberField(
+                          SettingsInputField(
                             label: context.l10n.sessionTimeout,
                             controller: _sessionTimeoutController,
                             enabled: canEdit,
                             suffix: context.l10n.unitSeconds,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                           ),
                         ],
                       ),
                     ),
+                    if (cap.supportsApiKey) ...[
                     const SizedBox(height: 12),
                     SettingsGroupCard(
                       title: context.l10n.apiKey,
@@ -421,13 +425,20 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          TextFormField(
-                            key: ValueKey('api-key-${ui.webUiApiKey}'),
-                            initialValue: ui.maskedApiKey,
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.privateKey,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.l10n.privateKey,
+                                style: textTheme.bodyLarge,
+                              ),
+                              const SizedBox(height: 4),
+                              TextFormField(
+                                key: ValueKey('api-key-${ui.webUiApiKey}'),
+                                initialValue: ui.maskedApiKey,
+                                readOnly: true,
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 8),
                           Wrap(
@@ -461,6 +472,7 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                         ],
                       ),
                     ),
+                    ],
                     const SizedBox(height: 12),
                     SettingsGroupCard(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -473,14 +485,12 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             onChanged:
                                 canEdit ? vm.setAlternativeWebuiEnabled : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.filePath,
                             controller: _altWebuiPathController,
                             enabled: altOn,
                             minLines: 1,
                             maxLines: 3,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.filePath,
-                            ),
                           ),
                         ],
                       ),
@@ -524,15 +534,13 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                                       ? vm.setWebUiHostHeaderValidationEnabled
                                       : null,
                                 ),
-                                TextField(
+                                SettingsInputField(
+                                  label: context.l10n.serverDomains,
                                   controller: _domainListController,
                                   enabled: hostHeaderOn,
                                   minLines: 1,
                                   maxLines: 3,
-                                  decoration: InputDecoration(
-                                    labelText: context.l10n.serverDomains,
-                                    hintText: '*',
-                                  ),
+                                  hintText: '*',
                                 ),
                               ],
                             ),
@@ -579,16 +587,13 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                                 ? vm.setWebUiReverseProxyEnabled
                                 : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.trustedProxiesList,
                             controller: _reverseProxiesController,
                             enabled: reverseOn,
                             minLines: 2,
                             maxLines: 4,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.trustedProxiesList,
-                              hintText: context.l10n.onePerLine,
-                              alignLabelWithHint: true,
-                            ),
+                            hintText: context.l10n.onePerLine,
                           ),
                         ],
                       ),
@@ -617,29 +622,23 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                             ],
                             onChanged: vm.setDyndnsService,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.domain,
                             controller: _dyndnsDomainController,
                             enabled: dyndnsOn,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.domain,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.username,
                             controller: _dyndnsUsernameController,
                             enabled: dyndnsOn,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.username,
-                            ),
                           ),
                           const SizedBox(height: 8),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.password,
                             controller: _dyndnsPasswordController,
                             enabled: dyndnsOn,
                             obscureText: true,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.password,
-                            ),
                           ),
                         ],
                       ),
@@ -647,59 +646,6 @@ class _WebUiSettingsPageState extends ConsumerState<WebUiSettingsPage> {
                   ],
                 ),
       ),
-    );
-  }
-}
-
-class _LabeledNumberField extends StatelessWidget {
-  const _LabeledNumberField({
-    required this.label,
-    required this.controller,
-    required this.enabled,
-    this.suffix,
-  });
-
-  final String label;
-  final TextEditingController controller;
-  final bool enabled;
-  final String? suffix;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final scheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: textTheme.bodyLarge?.copyWith(
-            color: enabled ? null : scheme.onSurface.withValues(alpha: 0.38),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                enabled: enabled,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-              ),
-            ),
-            if (suffix != null) ...[
-              const SizedBox(width: 8),
-              Text(
-                suffix!,
-                style: textTheme.bodyMedium?.copyWith(color: scheme.outline),
-              ),
-            ],
-          ],
-        ),
-      ],
     );
   }
 }

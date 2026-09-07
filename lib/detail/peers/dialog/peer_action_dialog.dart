@@ -14,6 +14,8 @@ abstract final class PeerActionDialog {
     required BuildContext context,
     required TorrentPeerResponse peer,
     required TorrentPeersViewModel viewModel,
+    bool showAdd = true,
+    bool showBan = true,
   }) {
     return showGeneralDialog<void>(
       context: context,
@@ -30,6 +32,8 @@ abstract final class PeerActionDialog {
           panelPadding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
           child: _PeerActionContent(
             peer: peer,
+            showAdd: showAdd,
+            showBan: showBan,
             onAddPeers: () {
               Navigator.of(ctx).pop();
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -90,12 +94,16 @@ Future<void> _banPeer(
 class _PeerActionContent extends StatelessWidget {
   const _PeerActionContent({
     required this.peer,
+    required this.showAdd,
+    required this.showBan,
     required this.onAddPeers,
     required this.onCopy,
     required this.onBan,
   });
 
   final TorrentPeerResponse peer;
+  final bool showAdd;
+  final bool showBan;
   final VoidCallback onAddPeers;
   final VoidCallback onCopy;
   final VoidCallback onBan;
@@ -115,12 +123,14 @@ class _PeerActionContent extends StatelessWidget {
             style: textTheme.titleMedium?.copyWith(color: scheme.onSurface),
           ),
         ),
+        if (showAdd)
         _ActionTile(
           icon: Icons.person_add_outlined,
           label: context.l10n.addPeers,
           onTap: onAddPeers,
         ),
         _ActionTile(icon: Icons.copy_outlined, label: context.l10n.copyEndpoint, onTap: onCopy),
+        if (showBan)
         _ActionTile(
           icon: Icons.block,
           label: context.l10n.banPeer,

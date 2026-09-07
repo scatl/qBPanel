@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/detail/content/rename_content_dialog.dart';
 import 'package:qbpanel/detail/content/torrent_content_node.dart';
 import 'package:qbpanel/detail/content/torrent_content_view_model.dart';
@@ -17,6 +18,7 @@ class TorrentContentTab extends ConsumerWidget {
     final ui = ref.watch(torrentContentProvider(torrentHash));
     final vm = ref.read(torrentContentProvider(torrentHash).notifier);
 
+    final cap = ref.watch(qbApiCapabilitiesProvider);
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
     return EmptyStateHost(
       state: ui.emptyState,
@@ -33,11 +35,14 @@ class TorrentContentTab extends ConsumerWidget {
             onToggle: vm.toggleExpand,
             onPriorityChanged: (node, priority) =>
                 _setPriority(context, vm, node, priority),
-            onLongPress: (node) => RenameContentDialog.show(
-              context: context,
-              viewModel: vm,
-              node: node,
-            ),
+            onLongPress: (node) {
+              if (node.isFolder && !cap.hasRenameFolder) return;
+              RenameContentDialog.show(
+                context: context,
+                viewModel: vm,
+                node: node,
+              );
+            },
           ),
         ],
       ),

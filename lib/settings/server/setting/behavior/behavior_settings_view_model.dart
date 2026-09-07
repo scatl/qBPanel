@@ -7,6 +7,7 @@ import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/behavior/behavior_settings_ui_state.dart';
+import 'package:qbpanel/settings/server/setting/pref_keys.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final behaviorSettingsProvider =
@@ -61,6 +62,7 @@ class BehaviorSettingsViewModel extends Notifier<BehaviorSettingsUiState> {
       fileLogAge: data.fileLogAge ?? 1,
       fileLogAgeType: BehaviorLogAgeType.fromApi(data.fileLogAgeType),
       performanceWarning: data.performanceWarning ?? state.performanceWarning,
+      presentKeys: data.presentKeys,
     );
     return true;
   }
@@ -129,7 +131,7 @@ class BehaviorSettingsViewModel extends Notifier<BehaviorSettingsUiState> {
     }
 
     state = state.copyWith(saving: true);
-    final payload = <String, dynamic>{
+    final payload = pickPrefs(state.presentKeys, <String, dynamic>{
       'locale': state.locale,
       'confirm_torrent_deletion': state.confirmTorrentDeletion,
       'status_bar_external_ip': state.statusBarExternalIp,
@@ -141,7 +143,7 @@ class BehaviorSettingsViewModel extends Notifier<BehaviorSettingsUiState> {
       'file_log_age': state.fileLogAge,
       'file_log_age_type': state.fileLogAgeType.apiValue,
       'performance_warning': state.performanceWarning,
-    };
+    });
 
     String? error;
     await ref

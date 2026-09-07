@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_action.dart';
 import 'package:qbpanel/home/ui/dialog/torrent_location_dialog.dart';
@@ -222,6 +223,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     required HomePageViewModel vm,
   }) {
     final l10n = context.l10n;
+    final cap = ref.watch(qbApiCapabilitiesProvider);
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     return Column(
@@ -302,6 +304,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                 ),
                 onTap: () => _openSub(_SubPage.category),
               ),
+              if (cap.hasTags)
               TorrentActionTile(
                 icon: Icons.label_outlined,
                 label: l10n.tags,
@@ -441,6 +444,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                   ),
                   onTap: () => _openSub(_SubPage.copy),
                 ),
+              if (cap.hasExportTorrent)
               TorrentActionTile(
                 icon: Icons.share_outlined,
                 label: l10n.shareTorrent,

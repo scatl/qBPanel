@@ -2220,7 +2220,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get apiKey => 'API key';
 
   @override
-  String get apiKeyHint => 'API key — generate it in the WebUI';
+  String get apiKeyHint => 'Generate this in the WebUI on qB 5.2+';
+
+  @override
+  String get credentialsHint =>
+      'qB 5.2+ can use an API key; older versions need the WebUI username and password';
+
+  @override
+  String get credentialsRequired =>
+      'Enter the credentials for the selected login method';
+
+  @override
+  String get loginMethod => 'Login method';
+
+  @override
+  String get loginMethodApiKey => 'API key';
+
+  @override
+  String get loginMethodAccount => 'Username and password';
+
+  @override
+  String get loginAccountHint => 'Sign in with the WebUI account';
+
+  @override
+  String get apiVersionTooOld =>
+      'Only WebAPI 2.0 and later are supported (qBittorrent 4.1.0+)';
+
+  @override
+  String get usernameHint => 'WebUI username';
+
+  @override
+  String get passwordHint => 'WebUI password';
 
   @override
   String get useHttps => 'Use HTTPS';

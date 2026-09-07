@@ -8,6 +8,7 @@ import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/connection/connection_settings_ui_state.dart';
+import 'package:qbpanel/settings/server/setting/pref_keys.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final connectionSettingsProvider =
@@ -80,6 +81,7 @@ class ConnectionSettingsViewModel extends Notifier<ConnectionSettingsUiState> {
       ipFilterPath: data.ipFilterPath ?? '',
       ipFilterTrackers: data.ipFilterTrackers ?? false,
       bannedIps: data.bannedIps ?? '',
+      presentKeys: data.presentKeys,
     );
     return true;
   }
@@ -242,7 +244,7 @@ class ConnectionSettingsViewModel extends Notifier<ConnectionSettingsUiState> {
     }
 
     state = state.copyWith(saving: true);
-    final payload = <String, dynamic>{
+    final payload = pickPrefs(state.presentKeys, <String, dynamic>{
       'bittorrent_protocol': state.peerProtocol.apiValue,
       'listen_port': listenPort,
       'upnp': state.upnp,
@@ -271,7 +273,7 @@ class ConnectionSettingsViewModel extends Notifier<ConnectionSettingsUiState> {
       'ip_filter_path': state.ipFilterPath.trim(),
       'ip_filter_trackers': state.ipFilterTrackers,
       'banned_IPs': state.bannedIps,
-    };
+    });
 
     String? error;
     await ref

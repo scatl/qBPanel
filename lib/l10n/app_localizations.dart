@@ -4218,8 +4218,62 @@ abstract class AppLocalizations {
   /// No description provided for @apiKeyHint.
   ///
   /// In zh, this message translates to:
-  /// **'API密钥，请在WebUI上生成密钥'**
+  /// **'qB 5.2+ 可在 WebUI 生成'**
   String get apiKeyHint;
+
+  /// No description provided for @credentialsHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'qB 5.2+ 可用 API 密钥；更早版本请用 WebUI 账号密码'**
+  String get credentialsHint;
+
+  /// No description provided for @credentialsRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请填写当前登录方式所需的凭证'**
+  String get credentialsRequired;
+
+  /// No description provided for @loginMethod.
+  ///
+  /// In zh, this message translates to:
+  /// **'登录方式'**
+  String get loginMethod;
+
+  /// No description provided for @loginMethodApiKey.
+  ///
+  /// In zh, this message translates to:
+  /// **'API 密钥'**
+  String get loginMethodApiKey;
+
+  /// No description provided for @loginMethodAccount.
+  ///
+  /// In zh, this message translates to:
+  /// **'用户名和密码'**
+  String get loginMethodAccount;
+
+  /// No description provided for @loginAccountHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用 WebUI 账号登录'**
+  String get loginAccountHint;
+
+  /// No description provided for @apiVersionTooOld.
+  ///
+  /// In zh, this message translates to:
+  /// **'仅支持 WebAPI 2.0 及以上（qBittorrent 4.1.0+）'**
+  String get apiVersionTooOld;
+
+  /// No description provided for @usernameHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'WebUI 用户名'**
+  String get usernameHint;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'WebUI 密码'**
+  String get passwordHint;
 
   /// No description provided for @useHttps.
   ///

@@ -19,6 +19,7 @@ class SpeedSettingsUiState {
     this.scheduleToHour = 20,
     this.scheduleToMin = 0,
     this.schedulerDays = SpeedSchedulerDays.everyDay,
+    this.presentKeys = const {},
   });
 
   final EmptyState emptyState;
@@ -40,6 +41,10 @@ class SpeedSettingsUiState {
   final int scheduleToMin;
   final SpeedSchedulerDays schedulerDays;
 
+  final Set<String> presentKeys;
+
+  bool hasPref(String key) => presentKeys.contains(key);
+
   bool get ready => emptyState.ready;
 
   SpeedSettingsUiState copyWith({
@@ -58,6 +63,7 @@ class SpeedSettingsUiState {
     int? scheduleToHour,
     int? scheduleToMin,
     SpeedSchedulerDays? schedulerDays,
+    Set<String>? presentKeys,
   }) {
     return SpeedSettingsUiState(
       emptyState: emptyState ?? this.emptyState,
@@ -75,6 +81,7 @@ class SpeedSettingsUiState {
       scheduleToHour: scheduleToHour ?? this.scheduleToHour,
       scheduleToMin: scheduleToMin ?? this.scheduleToMin,
       schedulerDays: schedulerDays ?? this.schedulerDays,
+      presentKeys: presentKeys ?? this.presentKeys,
     );
   }
 }

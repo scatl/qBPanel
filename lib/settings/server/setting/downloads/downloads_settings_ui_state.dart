@@ -43,6 +43,7 @@ class DownloadsSettingsUiState {
     this.autorunOnTorrentAddedProgram = '',
     this.autorunEnabled = false,
     this.autorunProgram = '',
+    this.presentKeys = const {},
   });
 
   final EmptyState emptyState;
@@ -89,6 +90,12 @@ class DownloadsSettingsUiState {
   final bool autorunEnabled;
   final String autorunProgram;
 
+  final Set<String> presentKeys;
+
+  bool hasPref(String key) => presentKeys.contains(key);
+
+  bool hasAnyPref(Iterable<String> keys) => keys.any(presentKeys.contains);
+
   bool get ready => emptyState.ready;
 
   DownloadsSettingsUiState copyWith({
@@ -130,6 +137,7 @@ class DownloadsSettingsUiState {
     String? autorunOnTorrentAddedProgram,
     bool? autorunEnabled,
     String? autorunProgram,
+    Set<String>? presentKeys,
   }) {
     return DownloadsSettingsUiState(
       emptyState: emptyState ?? this.emptyState,
@@ -185,6 +193,7 @@ class DownloadsSettingsUiState {
           autorunOnTorrentAddedProgram ?? this.autorunOnTorrentAddedProgram,
       autorunEnabled: autorunEnabled ?? this.autorunEnabled,
       autorunProgram: autorunProgram ?? this.autorunProgram,
+      presentKeys: presentKeys ?? this.presentKeys,
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:qbpanel/settings/server/setting/behavior/behavior_settings_ui_st
 import 'package:qbpanel/settings/server/setting/behavior/behavior_settings_view_model.dart';
 import 'package:qbpanel/widget/dropdown_field.dart';
 import 'package:qbpanel/settings/widget/settings_group_card.dart';
+import 'package:qbpanel/settings/widget/settings_input_field.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/settings/widget/settings_switch_tile.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
@@ -159,15 +160,13 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                             value: ui.fileLogEnabled,
                             onChanged: canEdit ? vm.setFileLogEnabled : null,
                           ),
-                          TextField(
+                          SettingsInputField(
+                            label: context.l10n.savePath,
                             controller: _fileLogPathController,
                             enabled: canEdit && logEnabled,
                             minLines: 1,
                             maxLines: 3,
                             textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: context.l10n.savePath,
-                            ),
                           ),
                           const SizedBox(height: 8),
                           SettingsSwitchTile(
@@ -198,52 +197,42 @@ class _BehaviorSettingsPageState extends ConsumerState<BehaviorSettingsPage> {
                                 ? vm.setFileLogDeleteOld
                                 : null,
                           ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _fileLogAgeController,
-                                  enabled: canEdit &&
-                                      logEnabled &&
-                                      ui.fileLogDeleteOld,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                  ],
-                                  decoration: InputDecoration(
-                                    labelText: context.l10n.logAge,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              DropdownButtonHideUnderline(
-                                child: DropdownButton<BehaviorLogAgeType>(
-                                  value: ui.fileLogAgeType,
-                                  isDense: true,
-                                  menuMaxHeight: 360,
-                                  borderRadius: BorderRadius.circular(8),
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: scheme.onSurface,
-                                  ),
-                                  items: [
-                                    for (final item
-                                        in BehaviorLogAgeType.values)
-                                      DropdownMenuItem(
-                                        value: item,
-                                        child: Text(item.label(context.l10n)),
-                                      ),
-                                  ],
-                                  onChanged: canEdit &&
-                                          logEnabled &&
-                                          ui.fileLogDeleteOld
-                                      ? (value) {
-                                          if (value == null) return;
-                                          vm.setFileLogAgeType(value);
-                                        }
-                                      : null,
-                                ),
-                              ),
+                          SettingsInputField(
+                            label: context.l10n.logAge,
+                            controller: _fileLogAgeController,
+                            enabled:
+                                canEdit && logEnabled && ui.fileLogDeleteOld,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
                             ],
+                            trailing: DropdownButtonHideUnderline(
+                              child: DropdownButton<BehaviorLogAgeType>(
+                                value: ui.fileLogAgeType,
+                                isDense: true,
+                                menuMaxHeight: 360,
+                                borderRadius: BorderRadius.circular(8),
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: scheme.onSurface,
+                                ),
+                                items: [
+                                  for (final item
+                                      in BehaviorLogAgeType.values)
+                                    DropdownMenuItem(
+                                      value: item,
+                                      child: Text(item.label(context.l10n)),
+                                    ),
+                                ],
+                                onChanged: canEdit &&
+                                        logEnabled &&
+                                        ui.fileLogDeleteOld
+                                    ? (value) {
+                                        if (value == null) return;
+                                        vm.setFileLogAgeType(value);
+                                      }
+                                    : null,
+                              ),
+                            ),
                           ),
                         ],
                       ),

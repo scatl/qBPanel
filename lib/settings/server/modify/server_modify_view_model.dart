@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_build_info_response.dart';
+import 'package:qbpanel/api/web_api_version.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/modify/server_modify_ui_state.dart';
@@ -26,16 +27,24 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
     state = state.copyWith(useHttps: value);
   }
 
+  void setLoginMethod(ServerLoginMethod value) {
+    state = state.copyWith(
+      loginMethod: value,
+      credentialsError: false,
+      clearFormErrorMessage: !state.nameError && !state.hostError,
+    );
+  }
+
   void clearFieldError({
     bool name = false,
     bool host = false,
-    bool apiKey = false,
+    bool credentials = false,
   }) {
-    if (!name && !host && !apiKey) return;
+    if (!name && !host && !credentials) return;
     final next = state.copyWith(
       nameError: name ? false : state.nameError,
       hostError: host ? false : state.hostError,
-      apiKeyError: apiKey ? false : state.apiKeyError,
+      credentialsError: credentials ? false : state.credentialsError,
     );
     state = next.copyWith(clearFormErrorMessage: !next.hasFieldError);
   }
@@ -47,7 +56,7 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
       clearFormErrorMessage: true,
       nameError: false,
       hostError: false,
-      apiKeyError: false,
+      credentialsError: false,
     );
 
     final db = ref.read(appDatabaseProvider);
@@ -66,12 +75,15 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
     state = state.copyWith(
       initializing: false,
       useHttps: server.useHttps,
+      loginMethod: server.apiKey.trim().isNotEmpty
+          ? ServerLoginMethod.apiKey
+          : ServerLoginMethod.account,
       clearFormErrorMessage: true,
     );
     return server;
   }
 
-  /// 本地字段校验 → 拉取 version / webapiVersion / buildInfo → 成功后写入。
+  /// 本地字段校验 → 登录/鉴权 → 拉取 version / webapiVersion / buildInfo → 成功后写入。
   ///
   /// [serverId] 非空时更新该行，保留原 `isActive`；为空时新增。
   Future<bool> save({
@@ -81,29 +93,38 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
     required String portText,
     required String path,
     required String apiKey,
+    required String username,
+    required String password,
   }) async {
     final nameTrim = name.trim();
     final hostTrim = host.trim();
-    final apiKeyTrim = apiKey.trim();
+    final usesApiKey = state.loginMethod == ServerLoginMethod.apiKey;
+    final apiKeyTrim = usesApiKey ? apiKey.trim() : '';
+    final usernameTrim = usesApiKey ? '' : username.trim();
+    final passwordTrim = usesApiKey ? '' : password;
     final portTrim = portText.trim();
     final pathTrim = path.trim().replaceAll(RegExp(r'^/+|/+$'), '');
 
     final nameError = nameTrim.isEmpty;
     final hostError = hostTrim.isEmpty;
-    final apiKeyError = apiKeyTrim.isEmpty;
+    final credentialsError = usesApiKey
+        ? apiKeyTrim.isEmpty
+        : usernameTrim.isEmpty || passwordTrim.isEmpty;
 
-    if (nameError || hostError || apiKeyError) {
+    if (nameError || hostError || credentialsError) {
       final l10n = ref.read(appLocalizationsProvider);
-      final missing = <String>[
-        if (nameError) l10n.serverName,
-        if (hostError) l10n.host,
-        if (apiKeyError) l10n.apiKey,
-      ];
       state = state.copyWith(
         nameError: nameError,
         hostError: hostError,
-        apiKeyError: apiKeyError,
-        formErrorMessage: l10n.pleaseFillFields(missing.join(l10n.listSeparator)),
+        credentialsError: credentialsError,
+        formErrorMessage: credentialsError
+            ? l10n.credentialsRequired
+            : l10n.pleaseFillFields(
+                [
+                  if (nameError) l10n.serverName,
+                  if (hostError) l10n.host,
+                ].join(l10n.listSeparator),
+              ),
       );
       return false;
     }
@@ -111,22 +132,25 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
     state = state.copyWith(
       nameError: false,
       hostError: false,
-      apiKeyError: false,
+      credentialsError: false,
       clearFormErrorMessage: true,
     );
 
     final port = portTrim.isEmpty ? 80 : int.parse(portTrim);
-    final probed = await _probeAppInfo(
+    final config = ServerConnection(
       host: hostTrim,
       port: port,
+      useHttps: state.useHttps,
       path: pathTrim,
       apiKey: apiKeyTrim,
+      username: usernameTrim,
+      password: passwordTrim,
     );
+    final probed = await _probeAppInfo(config);
     if (probed == null) return false;
 
     final db = ref.read(appDatabaseProvider);
 
-    //编辑，更新数据库数据
     if (serverId != null) {
       final updated = await (db.update(db.qbServers)
             ..where((t) => t.id.equals(serverId)))
@@ -138,6 +162,8 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
           useHttps: Value(state.useHttps),
           path: Value(pathTrim),
           apiKey: Value(apiKeyTrim),
+          username: Value(usernameTrim),
+          password: Value(passwordTrim),
           appVersion: Value(probed.appVersion),
           apiVersion: Value(probed.apiVersion),
           buildInfo: Value(probed.buildInfo),
@@ -157,7 +183,6 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
           ..where((t) => t.isActive.equals(true)))
         .getSingleOrNull();
 
-    //新增数据
     await db.into(db.qbServers).insert(
           QbServersCompanion.insert(
             name: nameTrim,
@@ -165,7 +190,9 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
             port: Value(port),
             useHttps: Value(state.useHttps),
             path: Value(pathTrim),
-            apiKey: apiKeyTrim,
+            apiKey: Value(apiKeyTrim),
+            username: Value(usernameTrim),
+            password: Value(passwordTrim),
             appVersion: Value(probed.appVersion),
             apiVersion: Value(probed.apiVersion),
             buildInfo: Value(probed.buildInfo),
@@ -184,74 +211,66 @@ class ServerModifyViewModel extends Notifier<ServerModifyUiState> {
 
   /// 探活并拉取版本信息。API 版本必须成功，其余失败则存空。
   Future<({String appVersion, String apiVersion, String buildInfo})?>
-      _probeAppInfo({
-    required String host,
-    required int port,
-    required String path,
-    required String apiKey,
-  }) async {
+      _probeAppInfo(ServerConnection config) async {
     final api = ref.read(apiClientProvider);
+    final l10n = ref.read(appLocalizationsProvider);
     final plain = Options(responseType: ResponseType.plain);
     String? probeError;
 
-    final results = await Future.wait([
-      api
-          .getWithConfig<String?>(
-            host: host,
-            port: port,
-            useHttps: state.useHttps,
-            path: path,
-            apiKey: apiKey,
-            apiPath: ApiPath.application.appVersion,
-            options: plain,
-            parser: _plainVersion,
-          )
-          .onFail((e) {
-            probeError ??= e.message;
-          }),
-      api
-          .getWithConfig<String?>(
-            host: host,
-            port: port,
-            useHttps: state.useHttps,
-            path: path,
-            apiKey: apiKey,
-            apiPath: ApiPath.application.apiVersion,
-            options: plain,
-            parser: _plainVersion,
-          )
-          .onFail((e) {
-            probeError ??= e.message;
-          }),
-      api
-          .getWithConfig<AppBuildInfoResponse>(
-            host: host,
-            port: port,
-            useHttps: state.useHttps,
-            path: path,
-            apiKey: apiKey,
-            apiPath: ApiPath.application.buildInfo,
-            parser: jsonParser(AppBuildInfoResponse.fromJson),
-          )
-          .onFail((e) {
-            probeError ??= e.message;
-          }),
-    ]);
+    final apiVersion = await api
+        .getWithConfig<String?>(
+          config: config,
+          apiPath: ApiPath.application.apiVersion,
+          options: plain,
+          parser: _plainVersion,
+        )
+        .onFail((e) {
+          probeError ??= e.message;
+        });
 
-    final apiVersion = results[1] as String?;
     if (apiVersion == null) {
       state = state.copyWith(
-        formErrorMessage: ref.read(appLocalizationsProvider).probeFailed(
-          probeError ?? ref.read(appLocalizationsProvider).cannotGetApiVersion,
+        formErrorMessage: l10n.probeFailed(
+          probeError ?? l10n.cannotGetApiVersion,
         ),
       );
       return null;
     }
 
+    final parsed = WebApiVersion.tryParse(apiVersion);
+    if (parsed == null || !parsed.isSupported) {
+      state = state.copyWith(formErrorMessage: l10n.apiVersionTooOld);
+      return null;
+    }
+
+    String appVersion = '';
+    String buildInfo = '';
+    await Future.wait([
+      api
+          .getWithConfig<String?>(
+            config: config,
+            apiPath: ApiPath.application.appVersion,
+            options: plain,
+            parser: _plainVersion,
+          )
+          .onSuccess((data) {
+            appVersion = data ?? '';
+          }),
+      api
+          .getWithConfig<AppBuildInfoResponse>(
+            config: config,
+            apiPath: ApiPath.application.buildInfo,
+            parser: jsonParser(AppBuildInfoResponse.fromJson),
+          )
+          .onSuccess((data) {
+            buildInfo = data.toJsonString();
+          }),
+    ]);
+
     return (
-      appVersion: (results[0] as String?) ?? '',
+      appVersion: appVersion,
       apiVersion: apiVersion,
-      buildInfo: (results[2] as AppBuildInfoResponse?)?.toJsonString() ?? '',
+      buildInfo: buildInfo,
     );
   }
 }

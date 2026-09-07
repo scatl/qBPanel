@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/api_path.dart';
 import 'package:qbpanel/api/entity/response/app_preferences_response.dart';
 import 'package:qbpanel/api/entity/response/network_interface_item.dart';
+import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/http/api_client.dart';
 import 'package:qbpanel/l10n/app_locale.dart';
 import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_ui_state.dart';
+import 'package:qbpanel/settings/server/setting/pref_keys.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 
 final advancedSettingsProvider =
@@ -44,11 +46,16 @@ class AdvancedSettingsViewModel extends Notifier<AdvancedSettingsUiState> {
 
     final data = prefs!;
     final iface = data.currentNetworkInterface ?? '';
-    final interfaces = await _fetchNetworkInterfaces(
-      iface: iface,
-      ifaceName: data.currentInterfaceName,
-    );
-    final addresses = await _fetchInterfaceAddresses(iface);
+    final cap = ref.read(qbApiCapabilitiesProvider);
+    final interfaces = cap.hasNetworkInterfaces
+        ? await _fetchNetworkInterfaces(
+            iface: iface,
+            ifaceName: data.currentInterfaceName,
+          )
+        : const <NetworkInterfaceItem>[];
+    final addresses = cap.hasNetworkInterfaces
+        ? await _fetchInterfaceAddresses(iface)
+        : const <String>[];
 
     state = state.copyWith(
       emptyState: const EmptyState.content(),
@@ -140,6 +147,7 @@ class AdvancedSettingsViewModel extends Notifier<AdvancedSettingsUiState> {
       i2pOutboundQuantity: data.i2pOutboundQuantity ?? 3,
       i2pInboundLength: data.i2pInboundLength ?? 3,
       i2pOutboundLength: data.i2pOutboundLength ?? 3,
+      presentKeys: data.presentKeys,
     );
     return true;
   }
@@ -397,7 +405,7 @@ class AdvancedSettingsViewModel extends Notifier<AdvancedSettingsUiState> {
     }
 
     state = state.copyWith(saving: true);
-    final payload = <String, dynamic>{
+    final payload = pickPrefs(state.presentKeys, <String, dynamic>{
       'resume_data_storage_type': state.resumeDataStorageType.apiValue,
       'torrent_content_remove_option': state.torrentContentRemoveOption.apiValue,
       'memory_working_set_limit': state.memoryWorkingSetLimit,
@@ -476,7 +484,7 @@ class AdvancedSettingsViewModel extends Notifier<AdvancedSettingsUiState> {
       'i2p_outbound_quantity': state.i2pOutboundQuantity,
       'i2p_inbound_length': state.i2pInboundLength,
       'i2p_outbound_length': state.i2pOutboundLength,
-    };
+    });
 
     String? error;
     await ref

@@ -37,6 +37,7 @@ class WebUiSettingsUiState {
     this.dyndnsDomain = '',
     this.dyndnsUsername = '',
     this.dyndnsPassword = '',
+    this.presentKeys = const {},
   });
 
   final EmptyState emptyState;
@@ -81,6 +82,10 @@ class WebUiSettingsUiState {
   final String dyndnsDomain;
   final String dyndnsUsername;
   final String dyndnsPassword;
+
+  final Set<String> presentKeys;
+
+  bool hasPref(String key) => presentKeys.contains(key);
 
   bool get ready => emptyState.ready;
 
@@ -131,6 +136,7 @@ class WebUiSettingsUiState {
     String? dyndnsDomain,
     String? dyndnsUsername,
     String? dyndnsPassword,
+    Set<String>? presentKeys,
   }) {
     return WebUiSettingsUiState(
       emptyState: emptyState ?? this.emptyState,
@@ -180,6 +186,7 @@ class WebUiSettingsUiState {
       dyndnsDomain: dyndnsDomain ?? this.dyndnsDomain,
       dyndnsUsername: dyndnsUsername ?? this.dyndnsUsername,
       dyndnsPassword: dyndnsPassword ?? this.dyndnsPassword,
+      presentKeys: presentKeys ?? this.presentKeys,
     );
   }
 }
