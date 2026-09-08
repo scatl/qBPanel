@@ -12,7 +12,7 @@ alwaysApply: true
 | 区域 | 路径 | 说明 |
 |---|---|---|
 | 首页 | `lib/home/` | 种子列表、AppBar、底部栏 |
-| 外部打开 | `lib/inbound/` | `.torrent` / `magnet:`：Android Intent；Windows 只接收系统传入的路径/链接，不写注册表 |
+| 外部打开 | `lib/inbound/` | `.torrent` / `magnet:`：Android Intent；Windows 只接收系统传入的路径/链接，不写注册表；iOS 尚未接入 |
 | 种子详情 | `lib/detail/` | Tab 页 + PollLoop 子 Tab |
 | 设置 | `lib/settings/` | 服务器列表/编辑、preferences 表单 |
 | API | `lib/api/` | `api_path.dart`、`entity/request|response/` |

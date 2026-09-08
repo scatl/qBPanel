@@ -75,6 +75,7 @@ qBPanel 不是下载器本身，而是跑在手机或电脑上的**远程面板*
 |---|---|
 | **Android** | 主要目标。可从系统打开 / 分享 `.torrent` 与磁力链接 |
 | **Windows** | 可用。通过启动参数或拖放导入种子；不会写入注册表、不会抢默认打开方式 |
+| **iOS** | 工程已加入；CI 编 debug（无签名）。真机 / TestFlight 需要证书 |
 | **Web** | 仓库内有工程，能力受限（无本地文件 / 外部打开） |
 
 ## 构建
@@ -91,6 +92,7 @@ flutter run
 ```bash
 flutter build apk
 flutter build windows
+flutter build ios --no-codesign
 ```
 
 ## 兼容性

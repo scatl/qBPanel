@@ -5,14 +5,14 @@ alwaysApply: true
 
 # 平台差异与兼容
 
-改业务或原生代码时，先确认这条路径在 **Android、Windows、Web** 上怎么走。不要把某一端的 API 写进共用逻辑。
+改业务或原生代码时，先确认这条路径在 **Android、Windows、iOS、Web** 上怎么走。不要把某一端的 API 写进共用逻辑。
 
-| 能力 | Android | Windows | Web |
-|---|---|---|---|
-| 打开 `.torrent` / `magnet:` | Intent + `receive_intent` | 只处理启动参数 / 拖放；**不写注册表、不抢默认打开方式** | 无 |
-| 清启动数据 | `qbpanel/intent` | 不需要 | — |
-| 本地文件 | `content://` 先拷到临时目录 | 直接用文件系统路径 | 无 `dart:io` |
-| 插件 | 以 `pubspec` 声明的 platforms 为准 | 同上；没有 Windows 实现就不要调用 | 同上 |
+| 能力 | Android | Windows | iOS | Web |
+|---|---|---|---|---|
+| 打开 `.torrent` / `magnet:` | Intent + `receive_intent` | 只处理启动参数 / 拖放；**不写注册表、不抢默认打开方式** | 尚未接入（inbound skip） | 无 |
+| 清启动数据 | `qbpanel/intent` | 不需要 | — | — |
+| 本地文件 | `content://` 先拷到临时目录 | 直接用文件系统路径 | 文件系统 / 分享进来的文件 | 无 `dart:io` |
+| 插件 | 以 `pubspec` 声明的 platforms 为准 | 同上；没有该平台实现就不要调用 | 同上 | 同上 |
 
 ```dart
 // ❌ BAD — 非 Web 一律当 Android
@@ -31,5 +31,5 @@ switch (defaultTargetPlatform) {
 
 - Windows 专用包（`win32` 等）或 `dart:io` 不要无条件 import；用 **条件 import** 或只放进对应 runner。
 - 不要删用户原文件：仅删除本应用写入的临时路径（如 `inbound_torrents`）。
-- 改 inbound / 存储 / 分享 / 选文件时，至少想一遍 Android 与 Windows；Web 用 `kIsWeb` 跳过 `dart:io`。
+- 改 inbound / 存储 / 分享 / 选文件时，至少想一遍 Android、Windows 与 iOS；Web 用 `kIsWeb` 跳过 `dart:io`。
 - 参考：`lib/inbound/inbound_torrent_open.dart`，`windows/runner/inbound_win.cpp`。
