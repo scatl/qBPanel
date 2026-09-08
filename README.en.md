@@ -75,6 +75,7 @@ LAN, a mesh VPN such as Tailscale, or a public URL that already exposes WebUI al
 |---|---|
 | **Android** | Primary target. Can open / share `.torrent` files and magnet links |
 | **Windows** | Supported. Import via launch arguments or drag-and-drop; no registry default-handler registration |
+| **iOS** | Project is in the tree; CI builds unsigned debug. Device / TestFlight need signing |
 | **Web** | Present in the tree; limited (no local files / inbound open) |
 
 ## Build
@@ -91,6 +92,7 @@ Release builds:
 ```bash
 flutter build apk
 flutter build windows
+flutter build ios --no-codesign
 ```
 
 ## Compatibility

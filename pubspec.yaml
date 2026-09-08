@@ -74,7 +74,9 @@ flutter_native_splash:
 # dart run flutter_launcher_icons
 flutter_launcher_icons:
   android: true
-  ios: false
+  ios: true
+  remove_alpha_ios: true
+  background_color_ios: "#15897C"
   image_path: assets/icons/qbpanel_launcher.png
   adaptive_icon_background: "#15897C"
   adaptive_icon_foreground: assets/icons/qbpanel_adaptive_fg.png
