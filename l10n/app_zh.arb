@@ -49,6 +49,12 @@
   "settingsPickThemeColor": "选择主题色",
   "settingsPickColor": "取色",
   "settingsPickColorHint": "选中后点「应用」立即生效",
+  "settingsRefresh": "刷新",
+  "settingsPollInterval": "刷新间隔",
+  "settingsPollInterval1s": "1 秒",
+  "settingsPollInterval1_5s": "1.5 秒",
+  "settingsPollInterval3s": "3 秒",
+  "settingsPollInterval5s": "5 秒",
 
   "apiNoActiveServer": "没有激活的服务器，请先在设置中添加并选中",
   "apiTimeout": "连接超时，请检查地址与端口",
@@ -269,12 +275,6 @@
   "addLayoutOriginal": "原始",
   "addLayoutSubfolder": "创建子文件夹",
   "addLayoutNoSubfolder": "不创建子文件夹",
-
-  "speedPeriod30s": "30 秒",
-  "speedPeriod1m": "1 分钟",
-  "speedPeriod5m": "5 分钟",
-  "speedPeriod10m": "10 分钟",
-  "speedPeriod30m": "30 分钟",
 
   "homeFilter": "筛选",
   "homeFiltering": "筛选中",

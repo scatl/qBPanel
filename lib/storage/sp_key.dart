@@ -2,6 +2,7 @@ abstract final class SpKey {
   static const theme = _Theme();
   static const locale = _Locale();
   static const list = _List();
+  static const poll = _Poll();
 }
 
 class _Theme {
@@ -19,4 +20,9 @@ class _Locale {
 class _List {
   const _List();
   final keyDensity = 'list_density';
+}
+
+class _Poll {
+  const _Poll();
+  final keyInterval = 'poll_interval';
 }

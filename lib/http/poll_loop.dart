@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qbpanel/http/poll_settings.dart';
 
 /// 单次轮询凭证：取消、世代校验。
 class PollTicket {
@@ -27,20 +28,15 @@ class PollTicket {
   bool get shouldContinuePolling => _continuePolling;
 }
 
-/// 上一拍结束再 delay 的轮询：cancel-and-restart、生命周期、固定间隔。
+/// 上一拍结束再 delay 的轮询：cancel-and-restart、生命周期。
 ///
+/// 间隔来自 [pollIntervalProvider]；进入后台始终暂停。
 /// 在 [Notifier.build] 里构造并 [attach]；业务只实现 [onPoll]。
 class PollLoop {
-  PollLoop({
-    required this.ref,
-    required this.onPoll,
-    this.interval = const Duration(milliseconds: 1500),
-    this.canPoll,
-  });
+  PollLoop({required this.ref, required this.onPoll, this.canPoll});
 
   final Ref ref;
   final Future<void> Function(PollTicket ticket) onPoll;
-  final Duration interval;
 
   /// 返回 false 时不发起、不续约（如 peers 暂停、无活跃服务器）。
   final bool Function()? canPoll;
@@ -53,6 +49,8 @@ class PollLoop {
   bool _disposed = false;
   bool _attached = false;
 
+  Duration get _interval => ref.read(pollIntervalProvider).duration;
+
   /// 挂 lifecycle / dispose；[startImmediately] 为 true 时 microtask 拉首拍。
   void attach({bool startImmediately = true}) {
     if (_attached) return;
@@ -61,6 +59,11 @@ class PollLoop {
       onPause: _onAppPaused,
       onResume: _onAppResumed,
     );
+    ref.listen<PollInterval>(pollIntervalProvider, (previous, next) {
+      if (_disposed) return;
+      if (previous == next) return;
+      if (_timer != null) _scheduleNext();
+    });
     ref.onDispose(dispose);
     if (startImmediately) {
       Future.microtask(refreshNow);
@@ -130,7 +133,7 @@ class PollLoop {
     _stopTimer();
     if (_disposed || _appPaused) return;
     if (canPoll != null && !canPoll!()) return;
-    _timer = Timer(interval, () {
+    _timer = Timer(_interval, () {
       unawaited(_run());
     });
   }

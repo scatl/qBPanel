@@ -4,6 +4,7 @@ import 'package:qbpanel/detail/general/speed/speed_chart_period.dart';
 import 'package:qbpanel/detail/general/speed/speed_sample.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_history_ui_state.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_ring_buffer.dart';
+import 'package:qbpanel/http/poll_settings.dart';
 
 final torrentSpeedHistoryProvider =
     NotifierProvider<TorrentSpeedHistoryViewModel, TorrentSpeedHistoryUiState>(
@@ -19,8 +20,11 @@ class TorrentSpeedHistoryViewModel
   TorrentSpeedHistoryUiState build() => const TorrentSpeedHistoryUiState();
 
   void setPeriod(SpeedChartPeriod period) {
-    if (state.period == period) return;
-    state = state.copyWith(period: period);
+    final windows = ref.read(pollIntervalProvider).chartWindows;
+    final index = windows.indexWhere((window) => window == period.window);
+    final next = index < 0 ? 0 : index;
+    if (state.periodIndex == next) return;
+    state = state.copyWith(periodIndex: next);
   }
 
   void clear() {
@@ -36,6 +40,7 @@ class TorrentSpeedHistoryViewModel
   }) {
     if (torrents.isEmpty) return;
     final now = at ?? DateTime.now();
+    final retainFor = ref.read(pollIntervalProvider).maxChartWindow;
 
     if (_serverId != serverId) {
       _buffers.clear();
@@ -53,6 +58,7 @@ class TorrentSpeedHistoryViewModel
           download: torrent.dlspeed ?? 0,
           upload: torrent.upspeed ?? 0,
         ),
+        retainFor: retainFor,
       );
     }
 
@@ -70,10 +76,14 @@ class TorrentSpeedHistoryViewModel
     }
     final buffer = _buffers[_key(serverId, hash)];
     if (buffer == null) return const [];
-    return buffer.samplesWithin(
-      (period ?? state.period).window,
-      DateTime.now(),
-    );
+    final window = (period ?? _periodOfState()).window;
+    return buffer.samplesWithin(window, DateTime.now());
+  }
+
+  SpeedChartPeriod _periodOfState() {
+    final windows = ref.read(pollIntervalProvider).chartWindows;
+    final index = state.periodIndex.clamp(0, windows.length - 1);
+    return SpeedChartPeriod(windows[index]);
   }
 
   static String _key(int serverId, String hash) => '$serverId:$hash';

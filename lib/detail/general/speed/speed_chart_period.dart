@@ -1,21 +1,28 @@
 import 'package:qbpanel/l10n/app_localizations.dart';
 
-enum SpeedChartPeriod {
-  s30(Duration(seconds: 30)),
-  min1(Duration(minutes: 1)),
-  min5(Duration(minutes: 5)),
-  min10(Duration(minutes: 10)),
-  min30(Duration(minutes: 30));
-
+/// 详情速度曲线的时间窗口。具体 5 档随 [PollInterval] 变化。
+class SpeedChartPeriod {
   const SpeedChartPeriod(this.window);
 
   final Duration window;
 
-  String label(AppLocalizations l10n) => switch (this) {
-        SpeedChartPeriod.s30 => l10n.speedPeriod30s,
-        SpeedChartPeriod.min1 => l10n.speedPeriod1m,
-        SpeedChartPeriod.min5 => l10n.speedPeriod5m,
-        SpeedChartPeriod.min10 => l10n.speedPeriod10m,
-        SpeedChartPeriod.min30 => l10n.speedPeriod30m,
-      };
+  String label(AppLocalizations l10n) {
+    final seconds = window.inSeconds;
+    if (seconds <= 0) return l10n.emDash;
+    if (seconds < 60) return l10n.durationSeconds(seconds);
+    if (seconds % 3600 == 0) return l10n.durationHours(seconds ~/ 3600);
+    if (seconds % 60 == 0) return l10n.durationMinutes(seconds ~/ 60);
+    return l10n.durationMinutesSeconds(seconds ~/ 60, seconds % 60);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is SpeedChartPeriod && other.window == window;
+
+  @override
+  int get hashCode => window.hashCode;
+}
+
+List<SpeedChartPeriod> speedChartPeriodsFor(List<Duration> windows) {
+  return [for (final window in windows) SpeedChartPeriod(window)];
 }

@@ -49,6 +49,12 @@
   "settingsPickThemeColor": "Choose theme color",
   "settingsPickColor": "Color",
   "settingsPickColorHint": "Tap Apply to save",
+  "settingsRefresh": "Refresh",
+  "settingsPollInterval": "Refresh interval",
+  "settingsPollInterval1s": "1s",
+  "settingsPollInterval1_5s": "1.5s",
+  "settingsPollInterval3s": "3s",
+  "settingsPollInterval5s": "5s",
 
   "apiNoActiveServer": "No active server. Add one in Settings and select it first.",
   "apiTimeout": "Connection timed out. Check the address and port.",
@@ -184,12 +190,6 @@
   "addLayoutOriginal": "Original",
   "addLayoutSubfolder": "Create subfolder",
   "addLayoutNoSubfolder": "No subfolder",
-
-  "speedPeriod30s": "30s",
-  "speedPeriod1m": "1m",
-  "speedPeriod5m": "5m",
-  "speedPeriod10m": "10m",
-  "speedPeriod30m": "30m",
 
   "homeFilter": "Filter",
   "homeFiltering": "Filtering",

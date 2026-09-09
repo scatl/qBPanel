@@ -7,6 +7,7 @@ import 'package:qbpanel/detail/general/speed/speed_cumulative_average.dart';
 import 'package:qbpanel/detail/general/speed/speed_sample.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_history_view_model.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
+import 'package:qbpanel/http/poll_settings.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 
 const _downloadColor = Color(0xFF049C08);
@@ -20,16 +21,15 @@ class TorrentSpeedChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyUi = ref.watch(torrentSpeedHistoryProvider);
+    final pollInterval = ref.watch(pollIntervalProvider);
+    final periods = speedChartPeriodsFor(pollInterval.chartWindows);
+    final period = periods[historyUi.periodIndex.clamp(0, periods.length - 1)];
     final serverId = ref.watch(
       homePageProvider.select((s) => s.activeServer?.id),
     );
     final samples = ref
         .read(torrentSpeedHistoryProvider.notifier)
-        .chartSamples(
-          serverId: serverId,
-          hash: torrentHash,
-          period: historyUi.period,
-        );
+        .chartSamples(serverId: serverId, hash: torrentHash, period: period);
 
     final textTheme = Theme.of(context).textTheme;
 
@@ -40,9 +40,9 @@ class TorrentSpeedChart extends ConsumerWidget {
           context.l10n.speed,
           style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
-        _PeriodSelector(selected: historyUi.period),
+        _PeriodSelector(selected: period, periods: periods),
         const SizedBox(height: 8),
-        _SpeedChartCanvas(samples: samples, period: historyUi.period),
+        _SpeedChartCanvas(samples: samples, period: period),
         const SizedBox(height: 8),
         Wrap(
           spacing: 12,
@@ -359,9 +359,10 @@ class _ScrubValueRow extends StatelessWidget {
 }
 
 class _PeriodSelector extends ConsumerWidget {
-  const _PeriodSelector({required this.selected});
+  const _PeriodSelector({required this.selected, required this.periods});
 
   final SpeedChartPeriod selected;
+  final List<SpeedChartPeriod> periods;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -370,7 +371,7 @@ class _PeriodSelector extends ConsumerWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          for (final period in SpeedChartPeriod.values)
+          for (final period in periods)
             Padding(
               padding: const EdgeInsets.only(right: 4),
               child: ChoiceChip(

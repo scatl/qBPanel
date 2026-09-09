@@ -155,6 +155,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPickColorHint => 'Tap Apply to save';
 
   @override
+  String get settingsRefresh => 'Refresh';
+
+  @override
+  String get settingsPollInterval => 'Refresh interval';
+
+  @override
+  String get settingsPollInterval1s => '1s';
+
+  @override
+  String get settingsPollInterval1_5s => '1.5s';
+
+  @override
+  String get settingsPollInterval3s => '3s';
+
+  @override
+  String get settingsPollInterval5s => '5s';
+
+  @override
   String get apiNoActiveServer =>
       'No active server. Add one in Settings and select it first.';
 
@@ -560,21 +578,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addLayoutNoSubfolder => 'No subfolder';
-
-  @override
-  String get speedPeriod30s => '30s';
-
-  @override
-  String get speedPeriod1m => '1m';
-
-  @override
-  String get speedPeriod5m => '5m';
-
-  @override
-  String get speedPeriod10m => '10m';
-
-  @override
-  String get speedPeriod30m => '30m';
 
   @override
   String get homeFilter => 'Filter';

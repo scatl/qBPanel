@@ -150,6 +150,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPickColorHint => '选中后点「应用」立即生效';
 
   @override
+  String get settingsRefresh => '刷新';
+
+  @override
+  String get settingsPollInterval => '刷新间隔';
+
+  @override
+  String get settingsPollInterval1s => '1 秒';
+
+  @override
+  String get settingsPollInterval1_5s => '1.5 秒';
+
+  @override
+  String get settingsPollInterval3s => '3 秒';
+
+  @override
+  String get settingsPollInterval5s => '5 秒';
+
+  @override
   String get apiNoActiveServer => '没有激活的服务器，请先在设置中添加并选中';
 
   @override
@@ -553,21 +571,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addLayoutNoSubfolder => '不创建子文件夹';
-
-  @override
-  String get speedPeriod30s => '30 秒';
-
-  @override
-  String get speedPeriod1m => '1 分钟';
-
-  @override
-  String get speedPeriod5m => '5 分钟';
-
-  @override
-  String get speedPeriod10m => '10 分钟';
-
-  @override
-  String get speedPeriod30m => '30 分钟';
 
   @override
   String get homeFilter => '筛选';
@@ -3348,6 +3351,24 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get settingsPickColorHint => '選中後點「套用」立即生效';
 
   @override
+  String get settingsRefresh => '重新整理';
+
+  @override
+  String get settingsPollInterval => '重新整理間隔';
+
+  @override
+  String get settingsPollInterval1s => '1 秒';
+
+  @override
+  String get settingsPollInterval1_5s => '1.5 秒';
+
+  @override
+  String get settingsPollInterval3s => '3 秒';
+
+  @override
+  String get settingsPollInterval5s => '5 秒';
+
+  @override
   String get apiNoActiveServer => '沒有作用中的伺服器，請先在設定中新增並選取';
 
   @override
@@ -3751,21 +3772,6 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get addLayoutNoSubfolder => '不建立子資料夾';
-
-  @override
-  String get speedPeriod30s => '30 秒';
-
-  @override
-  String get speedPeriod1m => '1 分鐘';
-
-  @override
-  String get speedPeriod5m => '5 分鐘';
-
-  @override
-  String get speedPeriod10m => '10 分鐘';
-
-  @override
-  String get speedPeriod30m => '30 分鐘';
 
   @override
   String get homeFilter => '篩選';
