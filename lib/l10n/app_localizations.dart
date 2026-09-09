@@ -381,6 +381,42 @@ abstract class AppLocalizations {
   /// **'选中后点「应用」立即生效'**
   String get settingsPickColorHint;
 
+  /// No description provided for @settingsRefresh.
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新'**
+  String get settingsRefresh;
+
+  /// No description provided for @settingsPollInterval.
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新间隔'**
+  String get settingsPollInterval;
+
+  /// No description provided for @settingsPollInterval1s.
+  ///
+  /// In zh, this message translates to:
+  /// **'1 秒'**
+  String get settingsPollInterval1s;
+
+  /// No description provided for @settingsPollInterval1_5s.
+  ///
+  /// In zh, this message translates to:
+  /// **'1.5 秒'**
+  String get settingsPollInterval1_5s;
+
+  /// No description provided for @settingsPollInterval3s.
+  ///
+  /// In zh, this message translates to:
+  /// **'3 秒'**
+  String get settingsPollInterval3s;
+
+  /// No description provided for @settingsPollInterval5s.
+  ///
+  /// In zh, this message translates to:
+  /// **'5 秒'**
+  String get settingsPollInterval5s;
+
   /// No description provided for @apiNoActiveServer.
   ///
   /// In zh, this message translates to:
@@ -1130,36 +1166,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'不创建子文件夹'**
   String get addLayoutNoSubfolder;
-
-  /// No description provided for @speedPeriod30s.
-  ///
-  /// In zh, this message translates to:
-  /// **'30 秒'**
-  String get speedPeriod30s;
-
-  /// No description provided for @speedPeriod1m.
-  ///
-  /// In zh, this message translates to:
-  /// **'1 分钟'**
-  String get speedPeriod1m;
-
-  /// No description provided for @speedPeriod5m.
-  ///
-  /// In zh, this message translates to:
-  /// **'5 分钟'**
-  String get speedPeriod5m;
-
-  /// No description provided for @speedPeriod10m.
-  ///
-  /// In zh, this message translates to:
-  /// **'10 分钟'**
-  String get speedPeriod10m;
-
-  /// No description provided for @speedPeriod30m.
-  ///
-  /// In zh, this message translates to:
-  /// **'30 分钟'**
-  String get speedPeriod30m;
 
   /// No description provided for @homeFilter.
   ///

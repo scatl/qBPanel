@@ -14,7 +14,7 @@ import 'package:qbpanel/widget/page_insets.dart';
 /// 设置页「显示」区块
 ///
 /// 层级：
-/// - 大标题：显示
+/// - 大标题：显示（与设置项同字号、primary）
 /// - 选项标题：语言 / 显示模式 / 列表密度 / 主题色（更小、更淡）
 /// - 选项正文：下拉、按钮、开关、说明文字
 class SettingAppearance extends ConsumerWidget {
@@ -42,10 +42,7 @@ class SettingAppearance extends ConsumerWidget {
       children: [
         Padding(
           padding: PageInsets.content,
-          child: Text(
-            l10n.settingsAppearance,
-            style: const TextStyle(fontSize: 20),
-          ),
+          child: SettingSectionTitle(l10n.settingsAppearance),
         ),
         const SizedBox(height: 8),
         Padding(

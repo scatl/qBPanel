@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
+import 'package:qbpanel/settings/widget/setting_subtitle.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
 class SettingServer extends ConsumerWidget {
@@ -19,10 +20,7 @@ class SettingServer extends ConsumerWidget {
       children: [
         Padding(
           padding: PageInsets.content,
-          child: Text(
-            l10n.settingsServer,
-            style: const TextStyle(fontSize: 20),
-          ),
+          child: SettingSectionTitle(l10n.settingsServer),
         ),
         const SizedBox(height: 4),
         ListTile(
@@ -34,7 +32,6 @@ class SettingServer extends ConsumerWidget {
           ),
           onTap: () => context.push(RouterPath.serverList),
         ),
-
       ],
     );
   }
