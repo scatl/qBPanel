@@ -6,6 +6,7 @@ abstract final class ApiPath {
   static const sync = _Sync();
   static const log = _Log();
   static const search = _Search();
+  static const rss = _Rss();
 }
 
 class _Auth {
@@ -279,4 +280,48 @@ class _Search {
 
   /// Check and apply plugin updates
   final updatePlugins = '$_base/updatePlugins';
+}
+
+class _Rss {
+  const _Rss();
+  static const _base = '/api/v2/rss';
+
+  /// Add folder (`path`)
+  final addFolder = '$_base/addFolder';
+
+  /// Add feed (`url`, optional `path`)
+  final addFeed = '$_base/addFeed';
+
+  /// Remove folder or feed (`path`)
+  final removeItem = '$_base/removeItem';
+
+  /// Move / rename item (`itemPath`, `destPath`)
+  final moveItem = '$_base/moveItem';
+
+  /// All RSS items (`withData` optional)
+  final items = '$_base/items';
+
+  /// Mark feed or article as read (`itemPath`, optional `articleId`)
+  final markAsRead = '$_base/markAsRead';
+
+  /// Refresh folder or feed (`itemPath`)
+  final refreshItem = '$_base/refreshItem';
+
+  /// Edit feed URL (`path`, `url`) — newer WebAPI
+  final setFeedURL = '$_base/setFeedURL';
+
+  /// All auto-download rules
+  final rules = '$_base/rules';
+
+  /// Create / update auto-download rule (`ruleName`, `ruleDef` JSON)
+  final setRule = '$_base/setRule';
+
+  /// Rename auto-download rule (`ruleName`, `newRuleName`)
+  final renameRule = '$_base/renameRule';
+
+  /// Remove auto-download rule (`ruleName`)
+  final removeRule = '$_base/removeRule';
+
+  /// Articles matching a rule (`ruleName`)
+  final matchingArticles = '$_base/matchingArticles';
 }

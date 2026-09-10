@@ -610,6 +610,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeLogs => 'Logs';
 
   @override
+  String get homeRss => 'RSS';
+
+  @override
   String get homeSettings => 'Settings';
 
   @override
@@ -2167,11 +2170,251 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qbSetSpeed => 'Speed';
 
   @override
+  String get qbSetRss => 'RSS';
+
+  @override
   String get qbSetAdvanced => 'Advanced';
 
   @override
   String get qbSetDisclaimer =>
       'These options apply to the current qBittorrent server. Some settings only affect the server or WebUI, not this app.';
+
+  @override
+  String get rssReader => 'RSS Reader';
+
+  @override
+  String get rssEnableFetching => 'Enable fetching RSS feeds';
+
+  @override
+  String get rssFeedsRefreshInterval => 'Feeds refresh interval';
+
+  @override
+  String get rssSameHostRequestDelay => 'Same host request delay';
+
+  @override
+  String get rssMaxArticlesPerFeed => 'Maximum number of articles per feed';
+
+  @override
+  String get rssAutoDownloader => 'RSS Torrent Auto Downloader';
+
+  @override
+  String get rssEnableAutoDownloading =>
+      'Enable auto downloading of RSS torrents';
+
+  @override
+  String get rssSmartEpisodeFilter => 'RSS Smart Episode Filter';
+
+  @override
+  String get rssDownloadRepackProper => 'Download REPACK/PROPER episodes';
+
+  @override
+  String get rssFilters => 'Filters';
+
+  @override
+  String get rssPageTitle => 'RSS';
+
+  @override
+  String get rssUnread => 'Unread';
+
+  @override
+  String get rssNewSubscription => 'New subscription';
+
+  @override
+  String get rssNewFolder => 'New folder';
+
+  @override
+  String get rssUpdateAll => 'Update all';
+
+  @override
+  String get rssUpdate => 'Update';
+
+  @override
+  String get rssUpdateStarted => 'Update started';
+
+  @override
+  String get rssMarkAsRead => 'Mark as read';
+
+  @override
+  String get rssMarkAllAsRead => 'Mark all as read';
+
+  @override
+  String get rssMarkedAsRead => 'Marked as read';
+
+  @override
+  String get rssEditFeedUrl => 'Edit feed URL';
+
+  @override
+  String get rssCopyFeedUrl => 'Copy feed URL';
+
+  @override
+  String get rssFeedUrl => 'Feed URL';
+
+  @override
+  String get rssFeedUrlRequired => 'Enter a feed URL';
+
+  @override
+  String get rssFolderName => 'Folder name';
+
+  @override
+  String get rssFolderNameRequired => 'Enter a folder name';
+
+  @override
+  String get rssName => 'Name';
+
+  @override
+  String get rssNameRequired => 'Enter a name';
+
+  @override
+  String rssConfirmDelete(String name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String get rssProcessingDisabledBanner =>
+      'RSS fetching is disabled. Tap to open settings.';
+
+  @override
+  String get rssEmptyFeedsTitle => 'No subscriptions';
+
+  @override
+  String get rssEmptyFeedsSubtitle => 'Tap + to add an RSS feed';
+
+  @override
+  String get rssEmptyArticlesTitle => 'No articles';
+
+  @override
+  String get rssEmptyArticlesSubtitle =>
+      'Articles appear after feeds are fetched';
+
+  @override
+  String get rssFilterArticles => 'Filter articles';
+
+  @override
+  String get rssUntitledArticle => '(Untitled)';
+
+  @override
+  String get rssDownloadTorrent => 'Download torrent';
+
+  @override
+  String get rssOpenLink => 'Open link';
+
+  @override
+  String get rssNoDescription => 'No description';
+
+  @override
+  String get rssArticleDetail => 'Details';
+
+  @override
+  String get rssArticleNotFound => 'Article not found';
+
+  @override
+  String get rssFeedHasError => 'Fetch failed';
+
+  @override
+  String get rssAutoDownloadRules => 'Download Rules';
+
+  @override
+  String get rssNewRule => 'Add new rule';
+
+  @override
+  String get rssEditRule => 'Rule Definition';
+
+  @override
+  String get rssEmptyRulesTitle => 'No rules';
+
+  @override
+  String get rssEmptyRulesSubtitle => 'Tap + to add an auto-download rule';
+
+  @override
+  String get rssRuleNotFound => 'Rule not found';
+
+  @override
+  String get rssRuleDefinition => 'Rule Definition';
+
+  @override
+  String get rssRuleEnabled => 'Enable rule';
+
+  @override
+  String get rssRuleName => 'New rule name';
+
+  @override
+  String get rssRuleNameRequired =>
+      'Please type the name of the new download rule.';
+
+  @override
+  String get rssRuleUseRegex => 'Use Regular Expressions';
+
+  @override
+  String get rssRuleMustContain => 'Must Contain:';
+
+  @override
+  String get rssRuleMustNotContain => 'Must Not Contain:';
+
+  @override
+  String get rssRuleEpisodeFilter => 'Episode Filter:';
+
+  @override
+  String get rssRuleEpisodeFilterHint => '1x2;8-15;5;30-;';
+
+  @override
+  String get rssRuleSmartFilter => 'Use Smart Episode Filter';
+
+  @override
+  String get rssRuleIgnoreDays =>
+      'Ignore Subsequent Matches for (0 to Disable)';
+
+  @override
+  String get rssRuleDays => 'days';
+
+  @override
+  String get rssRuleAffectedFeeds => 'Apply Rule to Feeds:';
+
+  @override
+  String get rssRuleNoFeeds => 'No RSS feeds';
+
+  @override
+  String get rssRuleSelectAllFeeds => 'Select all';
+
+  @override
+  String get rssRuleSelectNoneFeeds => 'Select none';
+
+  @override
+  String get rssRuleAssignCategory => 'Assign Category:';
+
+  @override
+  String get rssRuleSaveTo => 'Save to:';
+
+  @override
+  String get rssRuleAddPaused => 'Add Stopped:';
+
+  @override
+  String get rssRuleUseDefault => 'Use global settings';
+
+  @override
+  String get rssRuleAddPausedAlways => 'Always';
+
+  @override
+  String get rssRuleAddPausedNever => 'Never';
+
+  @override
+  String get rssRuleContentLayout => 'Torrent content layout:';
+
+  @override
+  String get rssRuleLayoutNoSubfolder => 'Don\'t create subfolder';
+
+  @override
+  String get rssRuleMatchingArticles => 'Matching RSS Articles';
+
+  @override
+  String get rssRuleNoMatchingArticles => 'No matching articles';
+
+  @override
+  String get rssRuleSaveBeforeMatch =>
+      'Save the rule before viewing matching articles';
+
+  @override
+  String get rssAutoDownloadingDisabledBanner =>
+      'Auto downloading of RSS torrents is disabled now! You can enable it in application settings.';
 
   @override
   String get currentServerSettings => 'Current server settings';

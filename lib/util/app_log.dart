@@ -51,6 +51,11 @@ String appLogApiFailure(ApiFailure e) {
     if (data != null) {
       buf.write(' body=${appLogPreview('$data', max: 800)}');
     }
+  } else if (err is Response) {
+    buf.write(' path=${err.requestOptions.path}');
+    if (err.data != null) {
+      buf.write(' body=${appLogPreview('${err.data}', max: 800)}');
+    }
   }
   return buf.toString();
 }
