@@ -603,6 +603,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeLogs => '日志';
 
   @override
+  String get homeRss => 'RSS';
+
+  @override
   String get homeSettings => '设置';
 
   @override
@@ -2134,11 +2137,245 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qbSetSpeed => '速度';
 
   @override
+  String get qbSetRss => 'RSS';
+
+  @override
   String get qbSetAdvanced => '高级';
 
   @override
   String get qbSetDisclaimer =>
       '此处修改的是当前 qBittorrent 服务器的选项。部分设置仅作用于服务器或 WebUI，不会影响本 App 的界面与行为。';
+
+  @override
+  String get rssReader => 'RSS 阅读器';
+
+  @override
+  String get rssEnableFetching => '启用获取 RSS 源';
+
+  @override
+  String get rssFeedsRefreshInterval => '源刷新间隔';
+
+  @override
+  String get rssSameHostRequestDelay => '同一主机请求延迟';
+
+  @override
+  String get rssMaxArticlesPerFeed => '每个源的最大文章数';
+
+  @override
+  String get rssAutoDownloader => 'RSS Torrent 自动下载器';
+
+  @override
+  String get rssEnableAutoDownloading => '启用 RSS Torrent 自动下载';
+
+  @override
+  String get rssSmartEpisodeFilter => 'RSS 智能剧集过滤器';
+
+  @override
+  String get rssDownloadRepackProper => '下载 REPACK/PROPER 版剧集';
+
+  @override
+  String get rssFilters => '过滤器';
+
+  @override
+  String get rssPageTitle => 'RSS';
+
+  @override
+  String get rssUnread => '未读';
+
+  @override
+  String get rssNewSubscription => '新建订阅';
+
+  @override
+  String get rssNewFolder => '新建文件夹';
+
+  @override
+  String get rssUpdateAll => '全部更新';
+
+  @override
+  String get rssUpdate => '更新';
+
+  @override
+  String get rssUpdateStarted => '已开始更新';
+
+  @override
+  String get rssMarkAsRead => '标记为已读';
+
+  @override
+  String get rssMarkAllAsRead => '全部标记为已读';
+
+  @override
+  String get rssMarkedAsRead => '已标记为已读';
+
+  @override
+  String get rssEditFeedUrl => '编辑源 URL';
+
+  @override
+  String get rssCopyFeedUrl => '复制源 URL';
+
+  @override
+  String get rssFeedUrl => '源 URL';
+
+  @override
+  String get rssFeedUrlRequired => '请输入源 URL';
+
+  @override
+  String get rssFolderName => '文件夹名称';
+
+  @override
+  String get rssFolderNameRequired => '请输入文件夹名称';
+
+  @override
+  String get rssName => '名称';
+
+  @override
+  String get rssNameRequired => '请输入名称';
+
+  @override
+  String rssConfirmDelete(String name) {
+    return '确定删除「$name」吗？';
+  }
+
+  @override
+  String get rssProcessingDisabledBanner => 'RSS 获取未启用，点击前往设置开启';
+
+  @override
+  String get rssEmptyFeedsTitle => '暂无订阅';
+
+  @override
+  String get rssEmptyFeedsSubtitle => '点击右上角添加 RSS 源';
+
+  @override
+  String get rssEmptyArticlesTitle => '暂无文章';
+
+  @override
+  String get rssEmptyArticlesSubtitle => '拉取源后将在此显示文章';
+
+  @override
+  String get rssFilterArticles => '过滤文章';
+
+  @override
+  String get rssUntitledArticle => '（无标题）';
+
+  @override
+  String get rssDownloadTorrent => '下载种子';
+
+  @override
+  String get rssOpenLink => '打开链接';
+
+  @override
+  String get rssNoDescription => '无描述';
+
+  @override
+  String get rssArticleDetail => '详情';
+
+  @override
+  String get rssArticleNotFound => '找不到该文章';
+
+  @override
+  String get rssFeedHasError => '获取失败';
+
+  @override
+  String get rssAutoDownloadRules => '下载规则';
+
+  @override
+  String get rssNewRule => '添加新规则';
+
+  @override
+  String get rssEditRule => '规则定义';
+
+  @override
+  String get rssEmptyRulesTitle => '暂无规则';
+
+  @override
+  String get rssEmptyRulesSubtitle => '点击右上角添加自动下载规则';
+
+  @override
+  String get rssRuleNotFound => '找不到该规则';
+
+  @override
+  String get rssRuleDefinition => '规则定义';
+
+  @override
+  String get rssRuleEnabled => '启用规则';
+
+  @override
+  String get rssRuleName => '新规则名称';
+
+  @override
+  String get rssRuleNameRequired => '请输入新的下载规则的名称';
+
+  @override
+  String get rssRuleUseRegex => '使用正则表达式';
+
+  @override
+  String get rssRuleMustContain => '必须包含：';
+
+  @override
+  String get rssRuleMustNotContain => '必须不含：';
+
+  @override
+  String get rssRuleEpisodeFilter => '剧集过滤器：';
+
+  @override
+  String get rssRuleEpisodeFilterHint => '1x2;8-15;5;30-;';
+
+  @override
+  String get rssRuleSmartFilter => '使用智能剧集过滤器';
+
+  @override
+  String get rssRuleIgnoreDays => '忽略指定时间后的匹配项（0 = 禁用）';
+
+  @override
+  String get rssRuleDays => '天';
+
+  @override
+  String get rssRuleAffectedFeeds => '对以下订阅源应用规则：';
+
+  @override
+  String get rssRuleNoFeeds => '暂无 RSS 源';
+
+  @override
+  String get rssRuleSelectAllFeeds => '全选';
+
+  @override
+  String get rssRuleSelectNoneFeeds => '全不选';
+
+  @override
+  String get rssRuleAssignCategory => '指定分类：';
+
+  @override
+  String get rssRuleSaveTo => '保存到：';
+
+  @override
+  String get rssRuleAddPaused => '添加已停止的：';
+
+  @override
+  String get rssRuleUseDefault => '使用全局设定';
+
+  @override
+  String get rssRuleAddPausedAlways => '总是';
+
+  @override
+  String get rssRuleAddPausedNever => '从不';
+
+  @override
+  String get rssRuleContentLayout => 'Torrent 内容布局：';
+
+  @override
+  String get rssRuleLayoutNoSubfolder => '不创建子文件夹';
+
+  @override
+  String get rssRuleMatchingArticles => '匹配 RSS 文章';
+
+  @override
+  String get rssRuleNoMatchingArticles => '没有匹配的文章';
+
+  @override
+  String get rssRuleSaveBeforeMatch => '请先保存规则后再查看匹配文章';
+
+  @override
+  String get rssAutoDownloadingDisabledBanner =>
+      '自动下载 RSS torrent 功能已被禁用！您可以在应用程序的设置中开启它。';
 
   @override
   String get currentServerSettings => '当前服务器设置';
@@ -3804,6 +4041,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get homeLogs => '日誌';
 
   @override
+  String get homeRss => 'RSS';
+
+  @override
   String get homeSettings => '設定';
 
   @override
@@ -5335,11 +5575,245 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get qbSetSpeed => '速度';
 
   @override
+  String get qbSetRss => 'RSS';
+
+  @override
   String get qbSetAdvanced => '高級';
 
   @override
   String get qbSetDisclaimer =>
       '此處修改的是當前 qBittorrent 伺服器的選項。部分設定僅作用於伺服器或 WebUI，不會影響本 App 的界面與行為。';
+
+  @override
+  String get rssReader => 'RSS 閱讀器';
+
+  @override
+  String get rssEnableFetching => '啟用獲取 RSS 源';
+
+  @override
+  String get rssFeedsRefreshInterval => '源重新整理間隔';
+
+  @override
+  String get rssSameHostRequestDelay => '同一主機請求延遲';
+
+  @override
+  String get rssMaxArticlesPerFeed => '每個源的最大文章數';
+
+  @override
+  String get rssAutoDownloader => 'RSS Torrent 自動下載器';
+
+  @override
+  String get rssEnableAutoDownloading => '啟用自動 RSS torrent 下載';
+
+  @override
+  String get rssSmartEpisodeFilter => 'RSS 智慧型章節過濾器';
+
+  @override
+  String get rssDownloadRepackProper => '下載 REPACK╱PROPER 章節';
+
+  @override
+  String get rssFilters => '過濾器';
+
+  @override
+  String get rssPageTitle => 'RSS';
+
+  @override
+  String get rssUnread => '未讀';
+
+  @override
+  String get rssNewSubscription => '新建訂閱';
+
+  @override
+  String get rssNewFolder => '新建資料夾';
+
+  @override
+  String get rssUpdateAll => '全部更新';
+
+  @override
+  String get rssUpdate => '更新';
+
+  @override
+  String get rssUpdateStarted => '已開始更新';
+
+  @override
+  String get rssMarkAsRead => '標記為已讀';
+
+  @override
+  String get rssMarkAllAsRead => '全部標記為已讀';
+
+  @override
+  String get rssMarkedAsRead => '已標記為已讀';
+
+  @override
+  String get rssEditFeedUrl => '編輯源 URL';
+
+  @override
+  String get rssCopyFeedUrl => '複製源 URL';
+
+  @override
+  String get rssFeedUrl => '源 URL';
+
+  @override
+  String get rssFeedUrlRequired => '請輸入源 URL';
+
+  @override
+  String get rssFolderName => '資料夾名稱';
+
+  @override
+  String get rssFolderNameRequired => '請輸入資料夾名稱';
+
+  @override
+  String get rssName => '名稱';
+
+  @override
+  String get rssNameRequired => '請輸入名稱';
+
+  @override
+  String rssConfirmDelete(String name) {
+    return '確定刪除「$name」嗎？';
+  }
+
+  @override
+  String get rssProcessingDisabledBanner => 'RSS 獲取未啟用，點擊前往設定開啟';
+
+  @override
+  String get rssEmptyFeedsTitle => '暫無訂閱';
+
+  @override
+  String get rssEmptyFeedsSubtitle => '點擊右上角添加 RSS 源';
+
+  @override
+  String get rssEmptyArticlesTitle => '暫無文章';
+
+  @override
+  String get rssEmptyArticlesSubtitle => '拉取源後將在此顯示文章';
+
+  @override
+  String get rssFilterArticles => '過濾文章';
+
+  @override
+  String get rssUntitledArticle => '（無標題）';
+
+  @override
+  String get rssDownloadTorrent => '下載種子';
+
+  @override
+  String get rssOpenLink => '打開連結';
+
+  @override
+  String get rssNoDescription => '無描述';
+
+  @override
+  String get rssArticleDetail => '詳情';
+
+  @override
+  String get rssArticleNotFound => '找不到該文章';
+
+  @override
+  String get rssFeedHasError => '獲取失敗';
+
+  @override
+  String get rssAutoDownloadRules => '下載規則';
+
+  @override
+  String get rssNewRule => '加入新規則';
+
+  @override
+  String get rssEditRule => '規則定義';
+
+  @override
+  String get rssEmptyRulesTitle => '暫無規則';
+
+  @override
+  String get rssEmptyRulesSubtitle => '點擊右上角添加自動下載規則';
+
+  @override
+  String get rssRuleNotFound => '找不到該規則';
+
+  @override
+  String get rssRuleDefinition => '規則定義';
+
+  @override
+  String get rssRuleEnabled => '啟用規則';
+
+  @override
+  String get rssRuleName => '新規則名稱';
+
+  @override
+  String get rssRuleNameRequired => '請輸入新下載規則的名稱';
+
+  @override
+  String get rssRuleUseRegex => '使用正規表達式';
+
+  @override
+  String get rssRuleMustContain => '必須包含：';
+
+  @override
+  String get rssRuleMustNotContain => '必須不包含：';
+
+  @override
+  String get rssRuleEpisodeFilter => '章節過濾器：';
+
+  @override
+  String get rssRuleEpisodeFilterHint => '1x2;8-15;5;30-;';
+
+  @override
+  String get rssRuleSmartFilter => '使用智慧型章節過濾器';
+
+  @override
+  String get rssRuleIgnoreDays => '忽略後續符合（0 以停用）';
+
+  @override
+  String get rssRuleDays => '天';
+
+  @override
+  String get rssRuleAffectedFeeds => '套用原則到 feed：';
+
+  @override
+  String get rssRuleNoFeeds => '暫無 RSS 源';
+
+  @override
+  String get rssRuleSelectAllFeeds => '全選';
+
+  @override
+  String get rssRuleSelectNoneFeeds => '全不選';
+
+  @override
+  String get rssRuleAssignCategory => '指派分類：';
+
+  @override
+  String get rssRuleSaveTo => '儲存至：';
+
+  @override
+  String get rssRuleAddPaused => '新增已停止的：';
+
+  @override
+  String get rssRuleUseDefault => '使用全域設定';
+
+  @override
+  String get rssRuleAddPausedAlways => '總是';
+
+  @override
+  String get rssRuleAddPausedNever => '永不';
+
+  @override
+  String get rssRuleContentLayout => 'Torrent 內容佈局：';
+
+  @override
+  String get rssRuleLayoutNoSubfolder => '不要建立子資料夾';
+
+  @override
+  String get rssRuleMatchingArticles => '配對 RSS 文章';
+
+  @override
+  String get rssRuleNoMatchingArticles => '沒有匹配的文章';
+
+  @override
+  String get rssRuleSaveBeforeMatch => '請先儲存規則後再查看匹配文章';
+
+  @override
+  String get rssAutoDownloadingDisabledBanner =>
+      'RSS torrent 的自動下載現在已停用！您可以在應用程式設定中啟用它。';
 
   @override
   String get currentServerSettings => '當前伺服器設定';

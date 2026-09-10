@@ -1227,6 +1227,12 @@ abstract class AppLocalizations {
   /// **'日志'**
   String get homeLogs;
 
+  /// No description provided for @homeRss.
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS'**
+  String get homeRss;
+
   /// No description provided for @homeSettings.
   ///
   /// In zh, this message translates to:
@@ -4119,6 +4125,12 @@ abstract class AppLocalizations {
   /// **'速度'**
   String get qbSetSpeed;
 
+  /// No description provided for @qbSetRss.
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS'**
+  String get qbSetRss;
+
   /// No description provided for @qbSetAdvanced.
   ///
   /// In zh, this message translates to:
@@ -4130,6 +4142,462 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'此处修改的是当前 qBittorrent 服务器的选项。部分设置仅作用于服务器或 WebUI，不会影响本 App 的界面与行为。'**
   String get qbSetDisclaimer;
+
+  /// No description provided for @rssReader.
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS 阅读器'**
+  String get rssReader;
+
+  /// No description provided for @rssEnableFetching.
+  ///
+  /// In zh, this message translates to:
+  /// **'启用获取 RSS 源'**
+  String get rssEnableFetching;
+
+  /// No description provided for @rssFeedsRefreshInterval.
+  ///
+  /// In zh, this message translates to:
+  /// **'源刷新间隔'**
+  String get rssFeedsRefreshInterval;
+
+  /// No description provided for @rssSameHostRequestDelay.
+  ///
+  /// In zh, this message translates to:
+  /// **'同一主机请求延迟'**
+  String get rssSameHostRequestDelay;
+
+  /// No description provided for @rssMaxArticlesPerFeed.
+  ///
+  /// In zh, this message translates to:
+  /// **'每个源的最大文章数'**
+  String get rssMaxArticlesPerFeed;
+
+  /// No description provided for @rssAutoDownloader.
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS Torrent 自动下载器'**
+  String get rssAutoDownloader;
+
+  /// No description provided for @rssEnableAutoDownloading.
+  ///
+  /// In zh, this message translates to:
+  /// **'启用 RSS Torrent 自动下载'**
+  String get rssEnableAutoDownloading;
+
+  /// No description provided for @rssSmartEpisodeFilter.
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS 智能剧集过滤器'**
+  String get rssSmartEpisodeFilter;
+
+  /// No description provided for @rssDownloadRepackProper.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载 REPACK/PROPER 版剧集'**
+  String get rssDownloadRepackProper;
+
+  /// No description provided for @rssFilters.
+  ///
+  /// In zh, this message translates to:
+  /// **'过滤器'**
+  String get rssFilters;
+
+  /// No description provided for @rssPageTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS'**
+  String get rssPageTitle;
+
+  /// No description provided for @rssUnread.
+  ///
+  /// In zh, this message translates to:
+  /// **'未读'**
+  String get rssUnread;
+
+  /// No description provided for @rssNewSubscription.
+  ///
+  /// In zh, this message translates to:
+  /// **'新建订阅'**
+  String get rssNewSubscription;
+
+  /// No description provided for @rssNewFolder.
+  ///
+  /// In zh, this message translates to:
+  /// **'新建文件夹'**
+  String get rssNewFolder;
+
+  /// No description provided for @rssUpdateAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部更新'**
+  String get rssUpdateAll;
+
+  /// No description provided for @rssUpdate.
+  ///
+  /// In zh, this message translates to:
+  /// **'更新'**
+  String get rssUpdate;
+
+  /// No description provided for @rssUpdateStarted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已开始更新'**
+  String get rssUpdateStarted;
+
+  /// No description provided for @rssMarkAsRead.
+  ///
+  /// In zh, this message translates to:
+  /// **'标记为已读'**
+  String get rssMarkAsRead;
+
+  /// No description provided for @rssMarkAllAsRead.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部标记为已读'**
+  String get rssMarkAllAsRead;
+
+  /// No description provided for @rssMarkedAsRead.
+  ///
+  /// In zh, this message translates to:
+  /// **'已标记为已读'**
+  String get rssMarkedAsRead;
+
+  /// No description provided for @rssEditFeedUrl.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑源 URL'**
+  String get rssEditFeedUrl;
+
+  /// No description provided for @rssCopyFeedUrl.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制源 URL'**
+  String get rssCopyFeedUrl;
+
+  /// No description provided for @rssFeedUrl.
+  ///
+  /// In zh, this message translates to:
+  /// **'源 URL'**
+  String get rssFeedUrl;
+
+  /// No description provided for @rssFeedUrlRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入源 URL'**
+  String get rssFeedUrlRequired;
+
+  /// No description provided for @rssFolderName.
+  ///
+  /// In zh, this message translates to:
+  /// **'文件夹名称'**
+  String get rssFolderName;
+
+  /// No description provided for @rssFolderNameRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入文件夹名称'**
+  String get rssFolderNameRequired;
+
+  /// No description provided for @rssName.
+  ///
+  /// In zh, this message translates to:
+  /// **'名称'**
+  String get rssName;
+
+  /// No description provided for @rssNameRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入名称'**
+  String get rssNameRequired;
+
+  /// No description provided for @rssConfirmDelete.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定删除「{name}」吗？'**
+  String rssConfirmDelete(String name);
+
+  /// No description provided for @rssProcessingDisabledBanner.
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS 获取未启用，点击前往设置开启'**
+  String get rssProcessingDisabledBanner;
+
+  /// No description provided for @rssEmptyFeedsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无订阅'**
+  String get rssEmptyFeedsTitle;
+
+  /// No description provided for @rssEmptyFeedsSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击右上角添加 RSS 源'**
+  String get rssEmptyFeedsSubtitle;
+
+  /// No description provided for @rssEmptyArticlesTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无文章'**
+  String get rssEmptyArticlesTitle;
+
+  /// No description provided for @rssEmptyArticlesSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'拉取源后将在此显示文章'**
+  String get rssEmptyArticlesSubtitle;
+
+  /// No description provided for @rssFilterArticles.
+  ///
+  /// In zh, this message translates to:
+  /// **'过滤文章'**
+  String get rssFilterArticles;
+
+  /// No description provided for @rssUntitledArticle.
+  ///
+  /// In zh, this message translates to:
+  /// **'（无标题）'**
+  String get rssUntitledArticle;
+
+  /// No description provided for @rssDownloadTorrent.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载种子'**
+  String get rssDownloadTorrent;
+
+  /// No description provided for @rssOpenLink.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开链接'**
+  String get rssOpenLink;
+
+  /// No description provided for @rssNoDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'无描述'**
+  String get rssNoDescription;
+
+  /// No description provided for @rssArticleDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'详情'**
+  String get rssArticleDetail;
+
+  /// No description provided for @rssArticleNotFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'找不到该文章'**
+  String get rssArticleNotFound;
+
+  /// No description provided for @rssFeedHasError.
+  ///
+  /// In zh, this message translates to:
+  /// **'获取失败'**
+  String get rssFeedHasError;
+
+  /// No description provided for @rssAutoDownloadRules.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载规则'**
+  String get rssAutoDownloadRules;
+
+  /// No description provided for @rssNewRule.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加新规则'**
+  String get rssNewRule;
+
+  /// No description provided for @rssEditRule.
+  ///
+  /// In zh, this message translates to:
+  /// **'规则定义'**
+  String get rssEditRule;
+
+  /// No description provided for @rssEmptyRulesTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无规则'**
+  String get rssEmptyRulesTitle;
+
+  /// No description provided for @rssEmptyRulesSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击右上角添加自动下载规则'**
+  String get rssEmptyRulesSubtitle;
+
+  /// No description provided for @rssRuleNotFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'找不到该规则'**
+  String get rssRuleNotFound;
+
+  /// No description provided for @rssRuleDefinition.
+  ///
+  /// In zh, this message translates to:
+  /// **'规则定义'**
+  String get rssRuleDefinition;
+
+  /// No description provided for @rssRuleEnabled.
+  ///
+  /// In zh, this message translates to:
+  /// **'启用规则'**
+  String get rssRuleEnabled;
+
+  /// No description provided for @rssRuleName.
+  ///
+  /// In zh, this message translates to:
+  /// **'新规则名称'**
+  String get rssRuleName;
+
+  /// No description provided for @rssRuleNameRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入新的下载规则的名称'**
+  String get rssRuleNameRequired;
+
+  /// No description provided for @rssRuleUseRegex.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用正则表达式'**
+  String get rssRuleUseRegex;
+
+  /// No description provided for @rssRuleMustContain.
+  ///
+  /// In zh, this message translates to:
+  /// **'必须包含：'**
+  String get rssRuleMustContain;
+
+  /// No description provided for @rssRuleMustNotContain.
+  ///
+  /// In zh, this message translates to:
+  /// **'必须不含：'**
+  String get rssRuleMustNotContain;
+
+  /// No description provided for @rssRuleEpisodeFilter.
+  ///
+  /// In zh, this message translates to:
+  /// **'剧集过滤器：'**
+  String get rssRuleEpisodeFilter;
+
+  /// No description provided for @rssRuleEpisodeFilterHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'1x2;8-15;5;30-;'**
+  String get rssRuleEpisodeFilterHint;
+
+  /// No description provided for @rssRuleSmartFilter.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用智能剧集过滤器'**
+  String get rssRuleSmartFilter;
+
+  /// No description provided for @rssRuleIgnoreDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'忽略指定时间后的匹配项（0 = 禁用）'**
+  String get rssRuleIgnoreDays;
+
+  /// No description provided for @rssRuleDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'天'**
+  String get rssRuleDays;
+
+  /// No description provided for @rssRuleAffectedFeeds.
+  ///
+  /// In zh, this message translates to:
+  /// **'对以下订阅源应用规则：'**
+  String get rssRuleAffectedFeeds;
+
+  /// No description provided for @rssRuleNoFeeds.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无 RSS 源'**
+  String get rssRuleNoFeeds;
+
+  /// No description provided for @rssRuleSelectAllFeeds.
+  ///
+  /// In zh, this message translates to:
+  /// **'全选'**
+  String get rssRuleSelectAllFeeds;
+
+  /// No description provided for @rssRuleSelectNoneFeeds.
+  ///
+  /// In zh, this message translates to:
+  /// **'全不选'**
+  String get rssRuleSelectNoneFeeds;
+
+  /// No description provided for @rssRuleAssignCategory.
+  ///
+  /// In zh, this message translates to:
+  /// **'指定分类：'**
+  String get rssRuleAssignCategory;
+
+  /// No description provided for @rssRuleSaveTo.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存到：'**
+  String get rssRuleSaveTo;
+
+  /// No description provided for @rssRuleAddPaused.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加已停止的：'**
+  String get rssRuleAddPaused;
+
+  /// No description provided for @rssRuleUseDefault.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用全局设定'**
+  String get rssRuleUseDefault;
+
+  /// No description provided for @rssRuleAddPausedAlways.
+  ///
+  /// In zh, this message translates to:
+  /// **'总是'**
+  String get rssRuleAddPausedAlways;
+
+  /// No description provided for @rssRuleAddPausedNever.
+  ///
+  /// In zh, this message translates to:
+  /// **'从不'**
+  String get rssRuleAddPausedNever;
+
+  /// No description provided for @rssRuleContentLayout.
+  ///
+  /// In zh, this message translates to:
+  /// **'Torrent 内容布局：'**
+  String get rssRuleContentLayout;
+
+  /// No description provided for @rssRuleLayoutNoSubfolder.
+  ///
+  /// In zh, this message translates to:
+  /// **'不创建子文件夹'**
+  String get rssRuleLayoutNoSubfolder;
+
+  /// No description provided for @rssRuleMatchingArticles.
+  ///
+  /// In zh, this message translates to:
+  /// **'匹配 RSS 文章'**
+  String get rssRuleMatchingArticles;
+
+  /// No description provided for @rssRuleNoMatchingArticles.
+  ///
+  /// In zh, this message translates to:
+  /// **'没有匹配的文章'**
+  String get rssRuleNoMatchingArticles;
+
+  /// No description provided for @rssRuleSaveBeforeMatch.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先保存规则后再查看匹配文章'**
+  String get rssRuleSaveBeforeMatch;
+
+  /// No description provided for @rssAutoDownloadingDisabledBanner.
+  ///
+  /// In zh, this message translates to:
+  /// **'自动下载 RSS torrent 功能已被禁用！您可以在应用程序的设置中开启它。'**
+  String get rssAutoDownloadingDisabledBanner;
 
   /// No description provided for @currentServerSettings.
   ///

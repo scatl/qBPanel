@@ -5,6 +5,11 @@ import 'package:qbpanel/detail/torrent_detail_page.dart';
 import 'package:qbpanel/home/home_page.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/log/log_page.dart';
+import 'package:qbpanel/rss/rss_article_detail_page.dart';
+import 'package:qbpanel/rss/rss_articles_page.dart';
+import 'package:qbpanel/rss/rss_page.dart';
+import 'package:qbpanel/rss/rules/rss_rule_edit_page.dart';
+import 'package:qbpanel/rss/rules/rss_rules_page.dart';
 import 'package:qbpanel/search/plugin/search_plugin_list_page.dart';
 import 'package:qbpanel/search/search_page.dart';
 import 'package:qbpanel/router/router_para.dart';
@@ -17,6 +22,7 @@ import 'package:qbpanel/settings/server/setting/connection/connection_settings_p
 import 'package:qbpanel/settings/server/setting/downloads/downloads_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/speed/speed_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/advanced/advanced_settings_page.dart';
+import 'package:qbpanel/settings/server/setting/rss/rss_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/webui/webui_settings_page.dart';
 import 'package:qbpanel/settings/server/setting/server_settings_page.dart';
 import 'package:qbpanel/settings/settings_page.dart';
@@ -43,6 +49,43 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouterPath.searchPlugins,
       builder: (context, state) => const SearchPluginListPage(),
+    ),
+    GoRoute(
+      path: RouterPath.rss,
+      builder: (context, state) => const RssPage(),
+    ),
+    GoRoute(
+      path: RouterPath.rssArticles,
+      builder: (context, state) {
+        final path =
+            state.uri.queryParameters[RouterParameters.rssPath] ?? '';
+        return RssArticlesPage(path: path);
+      },
+    ),
+    GoRoute(
+      path: RouterPath.rssArticle,
+      builder: (context, state) {
+        final feedPath =
+            state.uri.queryParameters[RouterParameters.rssPath] ?? '';
+        final articleId =
+            state.uri.queryParameters[RouterParameters.rssArticleId] ?? '';
+        return RssArticleDetailPage(
+          feedPath: feedPath,
+          articleId: articleId,
+        );
+      },
+    ),
+    GoRoute(
+      path: RouterPath.rssRules,
+      builder: (context, state) => const RssRulesPage(),
+    ),
+    GoRoute(
+      path: RouterPath.rssRuleEdit,
+      builder: (context, state) {
+        final name =
+            state.uri.queryParameters[RouterParameters.rssRuleName] ?? '';
+        return RssRuleEditPage(ruleName: name);
+      },
     ),
     GoRoute(
       path: RouterPath.settings,
@@ -94,6 +137,14 @@ final GoRouter appRouter = GoRouter(
         final raw = state.uri.queryParameters[RouterParameters.serverId];
         final id = int.tryParse(raw.toString()) ?? -1;
         return BittorrentSettingsPage(serverId: id);
+      },
+    ),
+    GoRoute(
+      path: RouterPath.serverSettingsRss,
+      builder: (context, state) {
+        final raw = state.uri.queryParameters[RouterParameters.serverId];
+        final id = int.tryParse(raw.toString()) ?? -1;
+        return RssSettingsPage(serverId: id);
       },
     ),
     GoRoute(

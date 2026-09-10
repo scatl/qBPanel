@@ -10,6 +10,7 @@ abstract final class RouterPath {
   static const serverSettingsConnection = '$serverSettings/connection';
   static const serverSettingsSpeed = '$serverSettings/speed';
   static const serverSettingsBittorrent = '$serverSettings/bittorrent';
+  static const serverSettingsRss = '$serverSettings/rss';
   static const serverSettingsWebUi = '$serverSettings/webui';
   static const serverSettingsAdvanced = '$serverSettings/advanced';
 
@@ -21,6 +22,11 @@ abstract final class RouterPath {
   static const log = '/log';
   static const search = '/search';
   static const searchPlugins = '$search/plugins';
+  static const rss = '/rss';
+  static const rssArticles = '$rss/articles';
+  static const rssArticle = '$rss/article';
+  static const rssRules = '$rss/rules';
+  static const rssRuleEdit = '$rssRules/edit';
 
   /// 跳转用：添加不传 [serverId]；编辑传入数据库 id
   static String serverModifyWithParams({int? serverId}) {
@@ -56,12 +62,45 @@ abstract final class RouterPath {
     return '$serverSettingsBittorrent?${RouterParameters.serverId}=$serverId';
   }
 
+  static String serverSettingsRssWithParams(int serverId) {
+    return '$serverSettingsRss?${RouterParameters.serverId}=$serverId';
+  }
+
   static String serverSettingsWebUiWithParams(int serverId) {
     return '$serverSettingsWebUi?${RouterParameters.serverId}=$serverId';
   }
 
   static String serverSettingsAdvancedWithParams(int serverId) {
     return '$serverSettingsAdvanced?${RouterParameters.serverId}=$serverId';
+  }
+
+  static String rssArticlesWithParams(String path) {
+    return Uri(
+      path: rssArticles,
+      queryParameters: {RouterParameters.rssPath: path},
+    ).toString();
+  }
+
+  static String rssArticleWithParams({
+    required String feedPath,
+    required String articleId,
+  }) {
+    return Uri(
+      path: rssArticle,
+      queryParameters: {
+        RouterParameters.rssPath: feedPath,
+        RouterParameters.rssArticleId: articleId,
+      },
+    ).toString();
+  }
+
+  static String rssRuleEditWithParams({String? name}) {
+    final trimmed = name?.trim();
+    if (trimmed == null || trimmed.isEmpty) return rssRuleEdit;
+    return Uri(
+      path: rssRuleEdit,
+      queryParameters: {RouterParameters.rssRuleName: trimmed},
+    ).toString();
   }
 
   /// [url] 与 [torrentPath] 二选一；都会做 encode。

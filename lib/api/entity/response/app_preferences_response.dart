@@ -91,6 +91,14 @@ class AppPreferencesResponse {
     this.scheduleToHour,
     this.scheduleToMin,
     this.schedulerDays,
+    // RSS
+    this.rssProcessingEnabled,
+    this.rssRefreshInterval,
+    this.rssFetchDelay,
+    this.rssMaxArticlesPerFeed,
+    this.rssAutoDownloadingEnabled,
+    this.rssDownloadRepackProperEpisodes,
+    this.rssSmartEpisodeFilters,
     // BitTorrent
     this.dht,
     this.pex,
@@ -322,6 +330,15 @@ class AppPreferencesResponse {
   final int? scheduleToHour;
   final int? scheduleToMin;
   final int? schedulerDays;
+
+  // RSS
+  final bool? rssProcessingEnabled;
+  final int? rssRefreshInterval;
+  final int? rssFetchDelay;
+  final int? rssMaxArticlesPerFeed;
+  final bool? rssAutoDownloadingEnabled;
+  final bool? rssDownloadRepackProperEpisodes;
+  final String? rssSmartEpisodeFilters;
 
   // BitTorrent
   final bool? dht;
@@ -571,6 +588,15 @@ class AppPreferencesResponse {
       scheduleToHour: readInt(json['schedule_to_hour']),
       scheduleToMin: readInt(json['schedule_to_min']),
       schedulerDays: readInt(json['scheduler_days']),
+      rssProcessingEnabled: readBool(json['rss_processing_enabled']),
+      rssRefreshInterval: readInt(json['rss_refresh_interval']),
+      rssFetchDelay: readInt(json['rss_fetch_delay']),
+      rssMaxArticlesPerFeed: readInt(json['rss_max_articles_per_feed']),
+      rssAutoDownloadingEnabled:
+          readBool(json['rss_auto_downloading_enabled']),
+      rssDownloadRepackProperEpisodes:
+          readBool(json['rss_download_repack_proper_episodes']),
+      rssSmartEpisodeFilters: readString(json['rss_smart_episode_filters']),
       dht: readBool(json['dht']),
       pex: readBool(json['pex']),
       lsd: readBool(json['lsd']),

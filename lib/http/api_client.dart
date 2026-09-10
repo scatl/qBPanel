@@ -221,6 +221,8 @@ class ApiClient {
       ),
       parser: parser,
       l10n: _l10n,
+      method: 'GET',
+      path: apiPath,
     );
   }
 
@@ -248,6 +250,8 @@ class ApiClient {
       ),
       parser: parser,
       l10n: _l10n,
+      method: 'POST',
+      path: apiPath,
     );
   }
 
@@ -276,6 +280,8 @@ class ApiClient {
       },
       parser: parser,
       l10n: _l10n,
+      method: 'GET',
+      path: path,
     );
   }
 
@@ -308,6 +314,8 @@ class ApiClient {
       },
       parser: parser,
       l10n: _l10n,
+      method: 'POST',
+      path: path,
     );
   }
 

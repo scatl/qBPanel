@@ -324,6 +324,8 @@ class _HomePageState extends ConsumerState<HomePage>
                                   context.push(RouterPath.log);
                                 case _HomeMoreAction.search:
                                   context.push(RouterPath.search);
+                                case _HomeMoreAction.rss:
+                                  context.push(RouterPath.rss);
                                 case _HomeMoreAction.settings:
                                   context.push(RouterPath.settings);
                               }
@@ -365,6 +367,15 @@ class _HomePageState extends ConsumerState<HomePage>
                                         visualDensity: VisualDensity.compact,
                                       ),
                                     ),
+                                  PopupMenuItem(
+                                    value: _HomeMoreAction.rss,
+                                    child: ListTile(
+                                      leading: const Icon(Icons.rss_feed),
+                                      title: Text(menuL10n.homeRss),
+                                      contentPadding: EdgeInsets.zero,
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                  ),
                                   PopupMenuItem(
                                     value: _HomeMoreAction.logs,
                                     child: ListTile(
@@ -485,7 +496,7 @@ class _HomePageState extends ConsumerState<HomePage>
   }
 }
 
-enum _HomeMoreAction { startAll, stopAll, search, logs, settings }
+enum _HomeMoreAction { startAll, stopAll, search, rss, logs, settings }
 
 class _HomeAppBarTitle extends StatelessWidget {
   const _HomeAppBarTitle({

@@ -62,7 +62,13 @@ class _ServerSettingsPageState extends State<ServerSettingsPage> {
           RouterPath.serverSettingsBittorrentWithParams(widget.serverId),
         ),
       ),
-      const _ServerSettingGroup(icon: Icons.rss_feed, title: 'RSS'),
+      _ServerSettingGroup(
+        icon: Icons.rss_feed,
+        title: l10n.qbSetRss,
+        onTap: () => context.push(
+          RouterPath.serverSettingsRssWithParams(widget.serverId),
+        ),
+      ),
       _ServerSettingGroup(
         icon: Icons.web,
         title: 'WebUI',
