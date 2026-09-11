@@ -1136,6 +1136,7 @@
   "searchLogsHint": "Search logs…",
   "closeSearch": "Close search",
   "logTabBannedIp": "Banned IPs",
+  "logTabLocal": "Local",
   "noLogs": "No logs",
   "noLogsHint": "The server has not produced any log entries yet",
   "noMatchingLogs": "No matching logs",
@@ -1146,5 +1147,9 @@
   "adjustSearchHint": "Try adjusting the search keywords",
   "logPeerBlocked": "Blocked",
   "logPeerBanned": "Banned",
+  "noLocalLogs": "No local logs",
+  "noLocalLogsHint": "The app has not written any local diagnostic logs yet",
+  "localLogsUnsupported": "Local logs unavailable",
+  "localLogsUnsupportedHint": "The web build does not write a local diagnostic log file",
   "pageNotFound": "Page not found"
 }

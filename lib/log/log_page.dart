@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
+import 'package:qbpanel/log/local/local_log_tab.dart';
+import 'package:qbpanel/log/local/local_log_view_model.dart';
 import 'package:qbpanel/log/main/main_log_tab.dart';
 import 'package:qbpanel/log/main/main_log_view_model.dart';
 import 'package:qbpanel/log/peer/peer_log_tab.dart';
@@ -29,7 +31,12 @@ class _LogPageState extends ConsumerState<LogPage>
   bool _appBarScrolledUnder = false;
 
   void _ensureControllers() {
-    _tabController ??= TabController(length: 2, vsync: this)
+    if (_tabController != null && _tabController!.length != 3) {
+      _tabController!.removeListener(_onTabChanged);
+      _tabController!.dispose();
+      _tabController = null;
+    }
+    _tabController ??= TabController(length: 3, vsync: this)
       ..addListener(_onTabChanged);
 
     if (_searchAnim != null) return;
@@ -72,6 +79,7 @@ class _LogPageState extends ConsumerState<LogPage>
   void _syncPollingForTab(int index) {
     ref.read(mainLogProvider.notifier).setPollingEnabled(index == 0);
     ref.read(peerLogProvider.notifier).setPollingEnabled(index == 1);
+    ref.read(localLogProvider.notifier).setPollingEnabled(index == 2);
   }
 
   Future<void> _openSearch() async {
@@ -94,6 +102,7 @@ class _LogPageState extends ConsumerState<LogPage>
   void _onSearchChanged(String value) {
     ref.read(mainLogProvider.notifier).setSearchQuery(value);
     ref.read(peerLogProvider.notifier).setSearchQuery(value);
+    ref.read(localLogProvider.notifier).setSearchQuery(value);
   }
 
   bool _onScrollNotification(ScrollNotification notification) {
@@ -152,9 +161,12 @@ class _LogPageState extends ConsumerState<LogPage>
             ],
             bottom: TabBar(
               controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.center,
               tabs: [
                 Tab(text: context.l10n.logLevelNormal),
                 Tab(text: context.l10n.logTabBannedIp),
+                Tab(text: context.l10n.logTabLocal),
               ],
             ),
           ),
@@ -169,6 +181,7 @@ class _LogPageState extends ConsumerState<LogPage>
         children: const [
           MainLogTab(),
           PeerLogTab(),
+          LocalLogTab(),
         ],
       ),
     );

@@ -1560,6 +1560,7 @@
   "searchLogsHint": "搜尋日誌…",
   "closeSearch": "關閉搜尋",
   "logTabBannedIp": "封禁 IP",
+  "logTabLocal": "本機",
   "noLogs": "暫無日誌",
   "noLogsHint": "伺服器尚未產生日誌記錄",
   "noMatchingLogs": "無匹配日誌",
@@ -1570,5 +1571,9 @@
   "adjustSearchHint": "試試調整搜尋關鍵詞",
   "logPeerBlocked": "已屏蔽",
   "logPeerBanned": "已封禁",
+  "noLocalLogs": "暫無本機日誌",
+  "noLocalLogsHint": "應用尚未寫入本機診斷日誌",
+  "localLogsUnsupported": "不支援本機日誌",
+  "localLogsUnsupportedHint": "Web 端不會寫入本機診斷日誌檔案",
   "pageNotFound": "頁面不存在"
 }

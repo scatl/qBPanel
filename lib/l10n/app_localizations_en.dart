@@ -3509,6 +3509,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logTabBannedIp => 'Banned IPs';
 
   @override
+  String get logTabLocal => 'Local';
+
+  @override
   String get noLogs => 'No logs';
 
   @override
@@ -3538,6 +3541,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logPeerBanned => 'Banned';
+
+  @override
+  String get noLocalLogs => 'No local logs';
+
+  @override
+  String get noLocalLogsHint =>
+      'The app has not written any local diagnostic logs yet';
+
+  @override
+  String get localLogsUnsupported => 'Local logs unavailable';
+
+  @override
+  String get localLogsUnsupportedHint =>
+      'The web build does not write a local diagnostic log file';
 
   @override
   String get pageNotFound => 'Page not found';

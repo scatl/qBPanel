@@ -1447,6 +1447,7 @@
   "searchLogsHint": "搜索日志…",
   "closeSearch": "关闭搜索",
   "logTabBannedIp": "封禁 IP",
+  "logTabLocal": "本机",
   "noLogs": "暂无日志",
   "noLogsHint": "服务器尚未产生日志记录",
   "noMatchingLogs": "无匹配日志",
@@ -1457,5 +1458,9 @@
   "adjustSearchHint": "试试调整搜索关键词",
   "logPeerBlocked": "已屏蔽",
   "logPeerBanned": "已封禁",
+  "noLocalLogs": "暂无本机日志",
+  "noLocalLogsHint": "应用尚未写入本地诊断日志",
+  "localLogsUnsupported": "不支持本机日志",
+  "localLogsUnsupportedHint": "Web 端不会写入本地诊断日志文件",
   "pageNotFound": "页面不存在"
 }
