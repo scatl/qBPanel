@@ -3409,6 +3409,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get logTabBannedIp => '封禁 IP';
 
   @override
+  String get logTabLocal => '本机';
+
+  @override
   String get noLogs => '暂无日志';
 
   @override
@@ -3437,6 +3440,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get logPeerBanned => '已封禁';
+
+  @override
+  String get noLocalLogs => '暂无本机日志';
+
+  @override
+  String get noLocalLogsHint => '应用尚未写入本地诊断日志';
+
+  @override
+  String get localLogsUnsupported => '不支持本机日志';
+
+  @override
+  String get localLogsUnsupportedHint => 'Web 端不会写入本地诊断日志文件';
 
   @override
   String get pageNotFound => '页面不存在';
@@ -6848,6 +6863,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get logTabBannedIp => '封禁 IP';
 
   @override
+  String get logTabLocal => '本機';
+
+  @override
   String get noLogs => '暫無日誌';
 
   @override
@@ -6876,6 +6894,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get logPeerBanned => '已封禁';
+
+  @override
+  String get noLocalLogs => '暫無本機日誌';
+
+  @override
+  String get noLocalLogsHint => '應用尚未寫入本機診斷日誌';
+
+  @override
+  String get localLogsUnsupported => '不支援本機日誌';
+
+  @override
+  String get localLogsUnsupportedHint => 'Web 端不會寫入本機診斷日誌檔案';
 
   @override
   String get pageNotFound => '頁面不存在';

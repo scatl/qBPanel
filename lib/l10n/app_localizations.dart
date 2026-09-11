@@ -6639,6 +6639,12 @@ abstract class AppLocalizations {
   /// **'封禁 IP'**
   String get logTabBannedIp;
 
+  /// No description provided for @logTabLocal.
+  ///
+  /// In zh, this message translates to:
+  /// **'本机'**
+  String get logTabLocal;
+
   /// No description provided for @noLogs.
   ///
   /// In zh, this message translates to:
@@ -6698,6 +6704,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已封禁'**
   String get logPeerBanned;
+
+  /// No description provided for @noLocalLogs.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无本机日志'**
+  String get noLocalLogs;
+
+  /// No description provided for @noLocalLogsHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'应用尚未写入本地诊断日志'**
+  String get noLocalLogsHint;
+
+  /// No description provided for @localLogsUnsupported.
+  ///
+  /// In zh, this message translates to:
+  /// **'不支持本机日志'**
+  String get localLogsUnsupported;
+
+  /// No description provided for @localLogsUnsupportedHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'Web 端不会写入本地诊断日志文件'**
+  String get localLogsUnsupportedHint;
 
   /// No description provided for @pageNotFound.
   ///

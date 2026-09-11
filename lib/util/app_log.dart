@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:qbpanel/http/api_failure.dart';
+import 'package:qbpanel/util/app_log_file_result.dart';
 import 'package:qbpanel/util/app_log_file_stub.dart'
     if (dart.library.io) 'package:qbpanel/util/app_log_file_io.dart';
+
+export 'package:qbpanel/util/app_log_file_result.dart';
 
 /// 应用诊断日志：控制台 + 本地文件（Web 只打控制台）。
 ///
@@ -22,6 +25,12 @@ void appLog(String tag, String message) {
     debugPrint('[qBPanel] log write failed: $e\n$st');
   });
 }
+
+/// 是否支持读取本地 `app_debug.log`（Web 为 false）。
+bool get isAppLogFileSupported => appLogFileSupported;
+
+/// 读取本地诊断日志（旧 → 新）；Web 返回 [AppLogFileReadResult.supported] = false。
+Future<AppLogFileReadResult> loadAppLogFile() => readAppLogFile();
 
 String appLogPreview(String? text, {int max = 180}) {
   if (text == null || text.isEmpty) return '<empty>';
