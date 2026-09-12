@@ -417,6 +417,54 @@ abstract class AppLocalizations {
   /// **'5 秒'**
   String get settingsPollInterval5s;
 
+  /// No description provided for @settingsAbout.
+  ///
+  /// In zh, this message translates to:
+  /// **'关于'**
+  String get settingsAbout;
+
+  /// No description provided for @settingsAboutVersion.
+  ///
+  /// In zh, this message translates to:
+  /// **'版本'**
+  String get settingsAboutVersion;
+
+  /// No description provided for @settingsAboutLicenses.
+  ///
+  /// In zh, this message translates to:
+  /// **'开源许可'**
+  String get settingsAboutLicenses;
+
+  /// No description provided for @settingsAboutLicensesSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看本应用与依赖库的许可证'**
+  String get settingsAboutLicensesSubtitle;
+
+  /// No description provided for @settingsAboutSource.
+  ///
+  /// In zh, this message translates to:
+  /// **'源码'**
+  String get settingsAboutSource;
+
+  /// No description provided for @settingsAboutSourceSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'github.com/scatl/qBPanel'**
+  String get settingsAboutSourceSubtitle;
+
+  /// No description provided for @settingsAboutPrivacy.
+  ///
+  /// In zh, this message translates to:
+  /// **'隐私政策'**
+  String get settingsAboutPrivacy;
+
+  /// No description provided for @settingsAboutPrivacySubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看应用如何处理数据'**
+  String get settingsAboutPrivacySubtitle;
+
   /// No description provided for @apiNoActiveServer.
   ///
   /// In zh, this message translates to:

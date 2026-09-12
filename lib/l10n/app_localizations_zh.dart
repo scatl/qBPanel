@@ -168,6 +168,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPollInterval5s => '5 秒';
 
   @override
+  String get settingsAbout => '关于';
+
+  @override
+  String get settingsAboutVersion => '版本';
+
+  @override
+  String get settingsAboutLicenses => '开源许可';
+
+  @override
+  String get settingsAboutLicensesSubtitle => '查看本应用与依赖库的许可证';
+
+  @override
+  String get settingsAboutSource => '源码';
+
+  @override
+  String get settingsAboutSourceSubtitle => 'github.com/scatl/qBPanel';
+
+  @override
+  String get settingsAboutPrivacy => '隐私政策';
+
+  @override
+  String get settingsAboutPrivacySubtitle => '查看应用如何处理数据';
+
+  @override
   String get apiNoActiveServer => '没有激活的服务器，请先在设置中添加并选中';
 
   @override
@@ -3619,6 +3643,30 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get settingsPollInterval5s => '5 秒';
+
+  @override
+  String get settingsAbout => '關於';
+
+  @override
+  String get settingsAboutVersion => '版本';
+
+  @override
+  String get settingsAboutLicenses => '開源授權';
+
+  @override
+  String get settingsAboutLicensesSubtitle => '查看本應用與相依套件的授權';
+
+  @override
+  String get settingsAboutSource => '原始碼';
+
+  @override
+  String get settingsAboutSourceSubtitle => 'github.com/scatl/qBPanel';
+
+  @override
+  String get settingsAboutPrivacy => '隱私政策';
+
+  @override
+  String get settingsAboutPrivacySubtitle => '查看應用如何處理資料';
 
   @override
   String get apiNoActiveServer => '沒有作用中的伺服器，請先在設定中新增並選取';

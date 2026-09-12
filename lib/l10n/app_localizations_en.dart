@@ -173,6 +173,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPollInterval5s => '5s';
 
   @override
+  String get settingsAbout => 'About';
+
+  @override
+  String get settingsAboutVersion => 'Version';
+
+  @override
+  String get settingsAboutLicenses => 'Open source licenses';
+
+  @override
+  String get settingsAboutLicensesSubtitle =>
+      'View licenses for this app and its libraries';
+
+  @override
+  String get settingsAboutSource => 'Source code';
+
+  @override
+  String get settingsAboutSourceSubtitle => 'github.com/scatl/qBPanel';
+
+  @override
+  String get settingsAboutPrivacy => 'Privacy policy';
+
+  @override
+  String get settingsAboutPrivacySubtitle => 'How this app handles your data';
+
+  @override
   String get apiNoActiveServer =>
       'No active server. Add one in Settings and select it first.';
 
