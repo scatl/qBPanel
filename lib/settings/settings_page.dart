@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
+import 'package:qbpanel/settings/widget/setting_about.dart';
 import 'package:qbpanel/settings/widget/setting_appearance.dart';
 import 'package:qbpanel/settings/widget/setting_refresh.dart';
 import 'package:qbpanel/settings/widget/setting_server.dart';
@@ -26,6 +27,8 @@ class _SettingsPageState extends State<SettingsPage> {
           SettingRefresh(),
           const SizedBox(height: 16),
           SettingAppearance(),
+          const SizedBox(height: 16),
+          SettingAbout(),
         ],
       ),
     );

@@ -40,6 +40,7 @@ dependencies:
   receive_intent: ^0.2.7
   uri_content: ^4.0.1
   url_launcher: ^6.3.2
+  package_info_plus: ^10.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
