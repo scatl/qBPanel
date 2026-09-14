@@ -20,6 +20,8 @@ class _Locale {
 class _List {
   const _List();
   final keyDensity = 'list_density';
+
+  String prefsKey(int serverId) => 'home_list_prefs_$serverId';
 }
 
 class _Poll {

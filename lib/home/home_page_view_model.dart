@@ -13,6 +13,7 @@ import 'package:qbpanel/api/entity/response/maindata_response.dart';
 import 'package:qbpanel/api/entity/response/server_state_response.dart';
 import 'package:qbpanel/api/entity/response/torrent_category_response.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
+import 'package:qbpanel/home/home_list_prefs.dart';
 import 'package:qbpanel/home/home_page_ui_state.dart';
 import 'package:qbpanel/home/entity/torrent_category_filter.dart';
 import 'package:qbpanel/home/entity/torrent_category_node.dart';
@@ -93,18 +94,21 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     if (state.statusFilter == filter) return;
     state = state.copyWith(statusFilter: filter);
     _reapplyListFilter();
+    _persistListPrefs();
   }
 
   void setCategoryFilter(TorrentCategoryFilter filter) {
     if (state.categoryFilter == filter) return;
     state = state.copyWith(categoryFilter: filter);
     _reapplyListFilter();
+    _persistListPrefs();
   }
 
   void setTagFilter(TorrentTagFilter filter) {
     if (state.tagFilter == filter) return;
     state = state.copyWith(tagFilter: filter);
     _reapplyListFilter();
+    _persistListPrefs();
   }
 
   /// 点同一项切换升降序；换项则按该属性升序。
@@ -115,6 +119,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       state = state.copyWith(sortKey: key, sortAscending: true);
     }
     _reapplyListFilter();
+    _persistListPrefs();
   }
 
   void setSearchQuery(String query) {
@@ -146,6 +151,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       tagFilter: TorrentTagFilter.all,
     );
     _reapplyListFilter();
+    _persistListPrefs();
   }
 
   void _reapplyListFilter() {
@@ -176,6 +182,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
       categoryFilter: categoryFilter,
       tagFilter: tagFilter,
     );
+    _persistListPrefs();
   }
 
   TorrentCategoryResponse? categoryOf(String name) => _categoriesByName[name];
@@ -883,7 +890,34 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     pageListState.setEmpty();
     pageListState.beginInit();
     state = HomePageUiState(activeServer: server, pageListState: pageListState);
-    unawaited(sync());
+    unawaited(_restoreListPrefsAndSync(server));
+  }
+
+  Future<void> _restoreListPrefsAndSync(QbServer server) async {
+    final prefs = await HomeListPrefs.load(server.id);
+    if (!ref.mounted || _activeServerId != server.id) return;
+    state = state.copyWith(
+      statusFilter: prefs.statusFilter,
+      categoryFilter: prefs.categoryFilter,
+      tagFilter: prefs.tagFilter,
+      sortKey: prefs.sortKey,
+      sortAscending: prefs.sortAscending,
+    );
+    await sync();
+  }
+
+  void _persistListPrefs() {
+    final id = _activeServerId;
+    if (id == null) return;
+    unawaited(
+      HomeListPrefs(
+        statusFilter: state.statusFilter,
+        categoryFilter: state.categoryFilter,
+        tagFilter: state.tagFilter,
+        sortKey: state.sortKey,
+        sortAscending: state.sortAscending,
+      ).save(id),
+    );
   }
 
   void _recordSpeedSamples() {
