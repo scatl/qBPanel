@@ -53,6 +53,9 @@ class PagedRefreshList<T> extends StatefulWidget {
     this.showNoMoreMessage = true,
     this.itemExtent,
     this.separatorBuilder,
+    this.gridDelegate,
+    this.gridCrossAxisCount,
+    this.gridSpacing = 8,
   });
 
   final PagedRefreshState<T> state;
@@ -96,6 +99,15 @@ class PagedRefreshList<T> extends StatefulWidget {
   final Widget Function(BuildContext context, int index, T item) itemBuilder;
   final double? itemExtent;
   final Widget Function(BuildContext context, int index)? separatorBuilder;
+
+  /// 非 null 时用固定高度 [GridView]；若同时设置 [gridCrossAxisCount] 则后者优先。
+  final SliverGridDelegate? gridDelegate;
+
+  /// 非 null 时按列分行，行高随内容自适应（[IntrinsicHeight]），忽略 [gridDelegate]。
+  final int? gridCrossAxisCount;
+
+  /// [gridCrossAxisCount] 模式下行列间距。
+  final double gridSpacing;
 
   @override
   State<PagedRefreshList<T>> createState() => PagedRefreshListState<T>();
@@ -276,6 +288,62 @@ class PagedRefreshListState<T> extends State<PagedRefreshList<T>> {
     }
 
     final count = _state.items.length;
+    final columns = widget.gridCrossAxisCount;
+    if (columns != null && columns > 0) {
+      final spacing = widget.gridSpacing;
+      final rowCount = (count + columns - 1) ~/ columns;
+      return ListView.builder(
+        controller: widget.scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: widget.padding,
+        itemCount: rowCount,
+        itemBuilder: (context, rowIndex) {
+          final start = rowIndex * columns;
+          final last = (start + columns - 1).clamp(0, count - 1);
+          _maybePreload(last);
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: rowIndex == rowCount - 1 ? 0 : spacing,
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < columns; i++) ...[
+                    if (i > 0) SizedBox(width: spacing),
+                    Expanded(
+                      child: start + i < count
+                          ? widget.itemBuilder(
+                              context,
+                              start + i,
+                              _state.items[start + i],
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    final grid = widget.gridDelegate;
+    if (grid != null) {
+      return GridView.builder(
+        controller: widget.scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: widget.padding,
+        gridDelegate: grid,
+        itemCount: count,
+        itemBuilder: (context, index) {
+          _maybePreload(index);
+          return widget.itemBuilder(context, index, _state.items[index]);
+        },
+      );
+    }
+
     final sep = widget.separatorBuilder;
 
     if (sep != null) {
