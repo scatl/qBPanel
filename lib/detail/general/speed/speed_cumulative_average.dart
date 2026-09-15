@@ -1,6 +1,6 @@
 import 'package:qbpanel/detail/general/speed/speed_sample.dart';
 
-/// 从时间窗内第一个采样到当前点，对瞬时速度做累计算术平均。
+/// 从缓冲历史第一个采样到当前点，对瞬时速度做累计算术平均。
 List<SpeedSample> cumulativeAverageSamples(List<SpeedSample> samples) {
   if (samples.isEmpty) return const [];
   final out = <SpeedSample>[];
