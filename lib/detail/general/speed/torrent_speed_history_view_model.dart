@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/detail/general/speed/speed_chart_period.dart';
+import 'package:qbpanel/detail/general/speed/speed_cumulative_average.dart';
 import 'package:qbpanel/detail/general/speed/speed_sample.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_history_ui_state.dart';
 import 'package:qbpanel/detail/general/speed/torrent_speed_ring_buffer.dart';
@@ -70,14 +71,55 @@ class TorrentSpeedHistoryViewModel
     required int? serverId,
     required String hash,
     SpeedChartPeriod? period,
+    DateTime? end,
   }) {
-    if (serverId == null || hash.isEmpty || _serverId != serverId) {
-      return const [];
-    }
-    final buffer = _buffers[_key(serverId, hash)];
+    final buffer = _bufferFor(serverId: serverId, hash: hash);
     if (buffer == null) return const [];
     final window = (period ?? _periodOfState()).window;
-    return buffer.samplesWithin(window, DateTime.now());
+    return buffer.samplesWithin(window, end ?? DateTime.now());
+  }
+
+  /// 可见窗内的平均曲线：从缓冲最早采样起累计平均，再裁到当前时间窗。
+  List<SpeedSample> chartAverageSamples({
+    required int? serverId,
+    required String hash,
+    SpeedChartPeriod? period,
+    DateTime? end,
+  }) {
+    final buffer = _bufferFor(serverId: serverId, hash: hash);
+    if (buffer == null) return const [];
+    final at = end ?? DateTime.now();
+    final history = buffer.samplesUpTo(at);
+    if (history.isEmpty) return const [];
+    final allAvg = cumulativeAverageSamples(history);
+    final window = (period ?? _periodOfState()).window;
+    final from = at.subtract(window);
+    return [
+      for (final sample in allAvg)
+        if (!sample.at.isBefore(from) && !sample.at.isAfter(at)) sample,
+    ];
+  }
+
+  /// 该种子缓冲区内最早 / 最新采样时间；无数据时返回 null。
+  ({DateTime oldest, DateTime newest})? sampleBounds({
+    required int? serverId,
+    required String hash,
+  }) {
+    final buffer = _bufferFor(serverId: serverId, hash: hash);
+    final oldest = buffer?.oldestAt;
+    final newest = buffer?.newestAt;
+    if (oldest == null || newest == null) return null;
+    return (oldest: oldest, newest: newest);
+  }
+
+  TorrentSpeedRingBuffer? _bufferFor({
+    required int? serverId,
+    required String hash,
+  }) {
+    if (serverId == null || hash.isEmpty || _serverId != serverId) {
+      return null;
+    }
+    return _buffers[_key(serverId, hash)];
   }
 
   SpeedChartPeriod _periodOfState() {

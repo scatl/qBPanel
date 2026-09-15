@@ -31,6 +31,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Obsolete package `tools` was removed from the SDK repo; default
+          # "tools platform-tools" makes sdkmanager exit 1.
+          packages: platform-tools
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
