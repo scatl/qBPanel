@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/api/entity/response/torrent_state.dart';
 import 'package:qbpanel/home/entity/torrent_tag.dart';
+import 'package:qbpanel/home/list_layout_mode.dart';
 import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -13,6 +14,7 @@ class TorrentItem extends StatelessWidget {
     required this.torrent,
     this.queueing = false,
     this.compact = false,
+    this.layout = ListLayoutMode.list,
     this.onTap,
     this.onLongPress,
   });
@@ -20,8 +22,11 @@ class TorrentItem extends StatelessWidget {
   final TorrentInfoResponse torrent;
   final bool queueing;
   final bool compact;
+  final ListLayoutMode layout;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+
+  bool get _grid => layout == ListLayoutMode.grid;
 
   @override
   Widget build(BuildContext context) {
@@ -33,174 +38,182 @@ class TorrentItem extends StatelessWidget {
     final queuePosition = queueing ? torrent.priority : null;
     final showQueuePosition = queuePosition != null && queuePosition > 0;
     final tags = splitTorrentTags(torrent.tags);
-    final gap = compact ? 8.0 : 12.0;
+    final gap = compact ? (_grid ? 6.0 : 8.0) : (_grid ? 8.0 : 12.0);
     final compactDetail = compact ? _compactDetail(torrent, l10n) : null;
+
+    final body = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text.rich(
+          TextSpan(
+            children: [
+              if (showQueuePosition)
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: _TitleChip(
+                    text: '#$queuePosition',
+                    background: scheme.secondaryContainer,
+                    foreground: scheme.onSecondaryContainer,
+                    tabular: true,
+                  ),
+                ),
+              if (showQueuePosition) const TextSpan(text: ' '),
+              TextSpan(text: _softWrapName(torrent.name)),
+            ],
+          ),
+          maxLines: compact ? 1 : 2,
+          overflow: TextOverflow.ellipsis,
+          style: textTheme.titleSmall,
+        ),
+        SizedBox(height: gap),
+        Row(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: compact ? 2 : 3,
+                  color: indicatorColor,
+                  backgroundColor: scheme.surfaceContainerHighest,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              formatProgress(torrent.progress),
+              style: textTheme.labelLarge?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: gap),
+        if (_grid) ...[
+          _StateLabel(state: torrent.state, detail: compactDetail),
+          SizedBox(height: gap * 0.75),
+          Wrap(
+            spacing: compact ? 10 : 12,
+            runSpacing: 4,
+            children: [
+              SpeedChip(
+                icon: Icons.south_rounded,
+                text: formatSpeed(torrent.dlspeed),
+                color: scheme.primary,
+                compact: compact,
+              ),
+              SpeedChip(
+                icon: Icons.north_rounded,
+                text: formatSpeed(torrent.upspeed),
+                color: scheme.tertiary,
+                compact: compact,
+              ),
+            ],
+          ),
+        ] else
+          Row(
+            children: [
+              Expanded(
+                child: _StateLabel(
+                  state: torrent.state,
+                  detail: compactDetail,
+                ),
+              ),
+              SpeedChip(
+                icon: Icons.south_rounded,
+                text: formatSpeed(torrent.dlspeed),
+                color: scheme.primary,
+                compact: compact,
+              ),
+              SizedBox(width: compact ? 12 : 16),
+              SpeedChip(
+                icon: Icons.north_rounded,
+                text: formatSpeed(torrent.upspeed),
+                color: scheme.tertiary,
+                compact: compact,
+              ),
+            ],
+          ),
+        if (!compact) ...[
+          SizedBox(height: gap),
+          Wrap(
+            spacing: _grid ? 10 : 16,
+            runSpacing: 4,
+            children: [
+              _StatText(
+                label: l10n.sortDownloaded,
+                value: formatBytes(torrent.downloaded, fractionDigits: 2),
+              ),
+              _StatText(
+                label: l10n.sortSize,
+                value: formatBytes(
+                  torrent.size ?? torrent.totalSize,
+                  fractionDigits: 2,
+                ),
+              ),
+              _StatText(
+                label: l10n.sortUploaded,
+                value: formatBytes(torrent.uploaded, fractionDigits: 2),
+              ),
+              if (_isCompleted(torrent.state))
+                _StatText(
+                  label: l10n.sortRatio,
+                  value: formatRatio(torrent.ratio),
+                )
+              else
+                _StatText(
+                  label: l10n.remaining,
+                  value: formatEta(torrent.eta, l10n),
+                ),
+            ],
+          ),
+          if (tags.isNotEmpty) ...[
+            SizedBox(height: gap),
+            _TagsRow(tags: tags),
+          ],
+        ],
+      ],
+    );
+
+    final card = Material(
+      color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(compact ? 12 : 16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: _grid
+            ? Align(
+                alignment: Alignment.topCenter,
+                child: Padding(padding: _contentPadding, child: body),
+              )
+            : Padding(padding: _contentPadding, child: body),
+      ),
+    );
+
+    if (_grid) return card;
 
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: PageInsets.horizontal,
         vertical: compact ? 3 : 6,
       ),
-      child: Material(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(compact ? 12 : 16),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          child: Padding(
-            padding: compact
-                ? const EdgeInsets.fromLTRB(12, 8, 12, 8)
-                : const EdgeInsets.fromLTRB(16, 14, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      if (showQueuePosition)
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: _TitleChip(
-                            text: '#$queuePosition',
-                            background: scheme.secondaryContainer,
-                            foreground: scheme.onSecondaryContainer,
-                            tabular: true,
-                          ),
-                        ),
-                      if (showQueuePosition) const TextSpan(text: ' '),
-                      TextSpan(text: _softWrapName(torrent.name)),
-                    ],
-                  ),
-                  maxLines: compact ? 1 : 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleSmall,
-                ),
-                SizedBox(height: gap),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          minHeight: compact ? 2 : 3,
-                          color: indicatorColor,
-                          backgroundColor: scheme.surfaceContainerHighest,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      formatProgress(torrent.progress),
-                      style: textTheme.labelLarge?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: gap),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StateLabel(
-                        state: torrent.state,
-                        detail: compactDetail,
-                      ),
-                    ),
-                    SpeedChip(
-                      icon: Icons.south_rounded,
-                      text: formatSpeed(torrent.dlspeed),
-                      color: scheme.primary,
-                      compact: compact,
-                    ),
-                    SizedBox(width: compact ? 12 : 16),
-                    SpeedChip(
-                      icon: Icons.north_rounded,
-                      text: formatSpeed(torrent.upspeed),
-                      color: scheme.tertiary,
-                      compact: compact,
-                    ),
-                  ],
-                ),
-                if (!compact) ...[
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 6,
-                    children: [
-                      _StatText(
-                        label: l10n.sortDownloaded,
-                        value: formatBytes(
-                          torrent.downloaded,
-                          fractionDigits: 2,
-                        ),
-                      ),
-                      _StatText(
-                        label: l10n.sortSize,
-                        value: formatBytes(
-                          torrent.size ?? torrent.totalSize,
-                          fractionDigits: 2,
-                        ),
-                      ),
-                      _StatText(
-                        label: l10n.sortUploaded,
-                        value: formatBytes(torrent.uploaded, fractionDigits: 2),
-                      ),
-                      if (_isCompleted(torrent.state))
-                        _StatText(
-                          label: l10n.sortRatio,
-                          value: formatRatio(torrent.ratio),
-                        )
-                      else
-                        _StatText(
-                          label: l10n.remaining,
-                          value: formatEta(torrent.eta, l10n),
-                        ),
-                    ],
-                  ),
-                  if (tags.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.label_outlined,
-                          size: 16,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                        Text(
-                          ' : ',
-                          style: textTheme.labelMedium?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                        Expanded(
-                          child: Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              for (final tag in tags)
-                                _TitleChip(
-                                  text: tag,
-                                  background: scheme.surfaceContainerHighest,
-                                  foreground: scheme.onSurfaceVariant,
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: card,
     );
+  }
+
+  EdgeInsets get _contentPadding {
+    if (_grid) {
+      return compact
+          ? const EdgeInsets.fromLTRB(10, 8, 10, 8)
+          : const EdgeInsets.fromLTRB(12, 10, 12, 12);
+    }
+    return compact
+        ? const EdgeInsets.fromLTRB(12, 8, 12, 8)
+        : const EdgeInsets.fromLTRB(16, 14, 16, 16);
   }
 
   Color _progressColor(ColorScheme scheme, TorrentState? state) {
@@ -255,6 +268,48 @@ String _softWrapName(String? name) {
     buffer.write('\u200B');
   }
   return buffer.toString();
+}
+
+class _TagsRow extends StatelessWidget {
+  const _TagsRow({required this.tags});
+
+  final List<String> tags;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          Icons.label_outlined,
+          size: 16,
+          color: scheme.onSurfaceVariant,
+        ),
+        Text(
+          ' : ',
+          style: textTheme.labelMedium?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+        Expanded(
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final tag in tags)
+                _TitleChip(
+                  text: tag,
+                  background: scheme.surfaceContainerHighest,
+                  foreground: scheme.onSurfaceVariant,
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _StateLabel extends StatelessWidget {

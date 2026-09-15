@@ -7,6 +7,7 @@ import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
 import 'package:qbpanel/home/entity/torrent_status_filter.dart';
 import 'package:qbpanel/home/list_density.dart';
+import 'package:qbpanel/home/list_layout_mode.dart';
 import 'package:qbpanel/home/ui/dialog/global_speed_limit_dialog.dart';
 import 'package:qbpanel/home/ui/home_bottom_bar.dart';
 import 'package:qbpanel/home/ui/sheet/server_state_sheet.dart';
@@ -240,6 +241,10 @@ class _HomePageState extends ConsumerState<HomePage>
     final cap = ref.watch(qbApiCapabilitiesProvider);
     final vm = ref.read(homePageProvider.notifier);
     final compact = ref.watch(listDensityProvider) == ListDensity.compact;
+    final width = MediaQuery.sizeOf(context).width;
+    // 窄屏列表；宽屏（平板 / 桌面）自动切网格。
+    final isGrid = width >= 600;
+    final layout = isGrid ? ListLayoutMode.grid : ListLayoutMode.list;
 
     final searching = ui.searchQuery.trim().isNotEmpty;
     final filtering =
@@ -438,7 +443,16 @@ class _HomePageState extends ConsumerState<HomePage>
         state: ui.pageListState,
         enableLoadMore: false,
         enableRefresh: ui.activeServer != null,
-        padding: EdgeInsets.fromLTRB(0, 8, 0, ui.activeServer == null ? 8 : 88),
+        padding: isGrid
+            ? EdgeInsets.fromLTRB(
+                PageInsets.horizontal,
+                8,
+                PageInsets.horizontal,
+                ui.activeServer == null ? 8 : 88,
+              )
+            : EdgeInsets.fromLTRB(0, 8, 0, ui.activeServer == null ? 8 : 88),
+        gridCrossAxisCount: isGrid ? _homeGridColumnCount(width) : null,
+        gridSpacing: 8,
         onRefresh: vm.refresh,
         emptyTitle: ui.activeServer == null
             ? l10n.homeNoActiveServer
@@ -481,6 +495,7 @@ class _HomePageState extends ConsumerState<HomePage>
             torrent: torrent,
             queueing: ui.serverState?.queueing == true,
             compact: compact,
+            layout: layout,
             onTap: () {
               final hash = torrent.hash;
               if (hash == null || hash.isEmpty) return;
@@ -494,6 +509,17 @@ class _HomePageState extends ConsumerState<HomePage>
       ),
     );
   }
+}
+
+/// 宽屏网格：按约 220dp 估算列数后再减一列（更宽的卡片）。
+int _homeGridColumnCount(double width) {
+  const spacing = 8.0;
+  const targetExtent = 220.0;
+  final contentWidth = width - PageInsets.horizontal * 2;
+  final estimated = ((contentWidth + spacing) / (targetExtent + spacing))
+      .ceil()
+      .clamp(2, 12);
+  return (estimated - 1).clamp(2, 12);
 }
 
 enum _HomeMoreAction { startAll, stopAll, search, rss, logs, settings }
