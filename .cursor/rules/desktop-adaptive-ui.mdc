@@ -1,0 +1,62 @@
+---
+description: 宽屏列表多列与卡片弹出（Dialog / Sheet、右键 / 长按）适配规则
+alwaysApply: true
+---
+
+# 宽屏列表与弹出适配
+
+三条轴分开判断，不要混用：
+
+| 轴 | 判断 | 说明 |
+|---|---|---|
+| 列表列数 | **窗口宽度** ≥ 600 | 手机 / Pad / 桌面都一样，不要用平台决定列数 |
+| 手势 | `isDesktopPlatform` | 桌面右键；手机和 Pad 长按 |
+| Dialog / Sheet、底栏额外信息 | `isDesktopOrTablet` **且** 宽度 ≥ 600 | 桌面宽窗、Pad 用 Dialog；手机（含横屏）和窄窗用 Sheet |
+
+桌面端 = `isDesktopPlatform`（Windows / macOS / Linux，**不含 Web**）。Pad = `isTablet`（`shortestSide ≥ 600`，排除手机横屏）。见 `lib/util/platform_info.dart`。
+
+## 列表：按宽度，不按平台
+
+宽度 ≥ 600（`kAdaptiveGridBreakpoint`）→ `AdaptiveCardGrid`；否则 1 列。列数用 `adaptiveGridColumnCount`（约 220dp 再减一列）。**不要**做成设置项，也**不要**用 `isDesktopPlatform` / `isTablet` 决定列数。
+
+```dart
+// ❌ BAD — 桌面一律网格 / 手机一律列表
+if (isDesktopPlatform) return AdaptiveCardGrid(...);
+
+// ✅ GOOD
+final width = MediaQuery.sizeOf(context).width;
+final isGrid = useAdaptiveGrid(width);
+```
+
+参考：`lib/widget/adaptive_card_grid.dart`。同行等高用 `stretch: true`（首页）；内容高度各异用 `false`。
+
+## 卡片操作弹出
+
+仅 **桌面或 Pad，且多列** 用 Dialog；手机（含横屏）、窄窗口（1 列）一律 Sheet。
+
+| 条件 | 弹出 |
+|---|---|
+| `isDesktopOrTablet && width ≥ 600` | Dialog（有右键坐标则 `anchor` 贴鼠标；Pad 长按无坐标则居中） |
+| 其它 | Sheet |
+
+用 `showAdaptiveCardPopup` / `useWideCardPopup`，不要自己 `if (isDesktopPlatform)` 选 Dialog。列表布局仍永远单列的（HTTP 种子、RSS 订阅树、种子文件树）**不必**网格；其中 RSS 订阅操作仍按上表弹出。HTTP 种子操作传 `useDialog: false`。首页筛选、服务器状态、切换服务器同样走这套。
+
+```dart
+// ❌ BAD — 只看宽度（手机横屏也会 Dialog）；或只认桌面（漏掉 Pad）
+if (useAdaptiveGrid(width)) showGeneralDialog(...);
+if (isDesktopPlatform) showGeneralDialog(...);
+
+// ✅ GOOD
+showAdaptiveCardPopup(context: context, anchor: position, builder: ...);
+showAdaptiveCardPopup(context: context, useDialog: false, builder: ...); // 永远单列
+```
+
+**不要**套这套：表单 / 重命名 / `ConfirmDialog` / `LoadingDialog` / `DropdownField`。输入类 Dialog 用 `formDialogConstraints`（宽屏封顶 420），不要改成屏宽百分比。
+
+参考：`lib/widget/adaptive_card_popup.dart`。
+
+首页底栏额外统计（磁盘 / DHT / 累计传输 / 分享率）：`isDesktopOrTablet` 时按剩余宽度用 `SequentialFitRow` 依次展示；手机仍只显示连接、交替限速、上下行速度。
+
+## 触发手势：按平台
+
+桌面右键（带全局坐标）；手机和 Pad 长按。用 `contextMenuActivators`，不要手写 `onSecondaryTapUp`。

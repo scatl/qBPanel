@@ -6,7 +6,9 @@ import 'package:qbpanel/detail/trackers/add_trackers_dialog.dart';
 import 'package:qbpanel/detail/trackers/torrent_trackers_view_model.dart';
 import 'package:qbpanel/detail/trackers/tracker_action_dialog.dart';
 import 'package:qbpanel/detail/trackers/widget/torrent_tracker_item.dart';
+import 'package:qbpanel/home/list_layout_mode.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
+import 'package:qbpanel/widget/adaptive_card_grid.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -31,6 +33,10 @@ class TorrentTrackersTab extends ConsumerWidget {
     );
 
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
+    final width = MediaQuery.sizeOf(context).width;
+    final layout = adaptiveListLayout(width);
+    final isGrid = layout == ListLayoutMode.grid;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -42,25 +48,50 @@ class TorrentTrackersTab extends ConsumerWidget {
             emptyTitle: context.l10n.noTrackers,
             emptySubtitle: context.l10n.noTrackersHint,
             emptyIcon: Icons.dns_outlined,
-            child: ListView.builder(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + bottomSafe),
-              itemCount: ui.trackers.length,
-              itemBuilder: (context, index) {
-                final tracker = ui.trackers[index];
-                return TorrentTrackerItem(
-                  key: ValueKey(tracker.url),
-                  tracker: tracker,
-                  expanded: ui.expandedUrls.contains(tracker.url),
-                  onToggleExpand: () => vm.toggleExpand(tracker.url),
-                  onLongPress: () => TrackerActionDialog.show(
-                    context: context,
-                    tracker: tracker,
-                    viewModel: vm,
-                    canReannounce: canReannounce,
+            child: isGrid
+                ? AdaptiveCardGrid(
+                    padding: EdgeInsets.fromLTRB(
+                      PageInsets.horizontal,
+                      0,
+                      PageInsets.horizontal,
+                      24 + bottomSafe,
+                    ),
+                    itemCount: ui.trackers.length,
+                    crossAxisCount: adaptiveGridColumnCount(width),
+                    itemBuilder: (context, index) {
+                      final tracker = ui.trackers[index];
+                      return TorrentTrackerItem(
+                        key: ValueKey(tracker.url),
+                        tracker: tracker,
+                        layout: layout,
+                        onLongPress: (position) => TrackerActionDialog.show(
+                          context: context,
+                          tracker: tracker,
+                          viewModel: vm,
+                          canReannounce: canReannounce,
+                          position: position,
+                        ),
+                      );
+                    },
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + bottomSafe),
+                    itemCount: ui.trackers.length,
+                    itemBuilder: (context, index) {
+                      final tracker = ui.trackers[index];
+                      return TorrentTrackerItem(
+                        key: ValueKey(tracker.url),
+                        tracker: tracker,
+                        onLongPress: (position) => TrackerActionDialog.show(
+                          context: context,
+                          tracker: tracker,
+                          viewModel: vm,
+                          canReannounce: canReannounce,
+                          position: position,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ),
       ],

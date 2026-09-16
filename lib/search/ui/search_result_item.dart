@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/search_result_response.dart';
 import 'package:qbpanel/detail/general/torrent_general_format.dart';
+import 'package:qbpanel/home/list_layout_mode.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
 import 'package:qbpanel/widget/page_insets.dart';
@@ -9,11 +10,15 @@ class SearchResultItem extends StatelessWidget {
   const SearchResultItem({
     super.key,
     required this.result,
+    this.layout = ListLayoutMode.list,
     this.onTap,
   });
 
   final SearchResultResponse result;
+  final ListLayoutMode layout;
   final VoidCallback? onTap;
+
+  bool get _grid => layout == ListLayoutMode.grid;
 
   @override
   Widget build(BuildContext context) {
@@ -21,66 +26,75 @@ class SearchResultItem extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    final body = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(result.fileName, style: textTheme.titleSmall),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 12,
+          runSpacing: 6,
+          children: [
+            _MetaChip(
+              icon: Icons.storage_outlined,
+              label: _formatSize(result.fileSize, l10n.unknownSize),
+            ),
+            _MetaChip(
+              icon: Icons.arrow_upward_rounded,
+              label: l10n.seedingCount(_formatCount(result.nbSeeders)),
+            ),
+            _MetaChip(
+              icon: Icons.arrow_downward_rounded,
+              label: l10n.leechingCount(_formatCount(result.nbLeechers)),
+            ),
+            if ((result.engineName ?? '').isNotEmpty)
+              _MetaChip(
+                icon: Icons.travel_explore_outlined,
+                label: result.engineName!,
+              ),
+          ],
+        ),
+        if (_hasPublishedDate(result.pubDate)) ...[
+          const SizedBox(height: 8),
+          Text(
+            formatUnixDate(result.pubDate!, unknown: ''),
+            style: textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ],
+    );
+
+    final card = Material(
+      color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: _grid
+            ? Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                  child: body,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                child: body,
+              ),
+      ),
+    );
+
+    if (_grid) return card;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: PageInsets.horizontal,
         vertical: 6,
       ),
-      child: Material(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                result.fileName,
-                style: textTheme.titleSmall
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 12,
-                runSpacing: 6,
-                children: [
-                  _MetaChip(
-                    icon: Icons.storage_outlined,
-                    label: _formatSize(result.fileSize, l10n.unknownSize),
-                  ),
-                  _MetaChip(
-                    icon: Icons.arrow_upward_rounded,
-                    label: l10n.seedingCount(_formatCount(result.nbSeeders)),
-                  ),
-                  _MetaChip(
-                    icon: Icons.arrow_downward_rounded,
-                    label: l10n.leechingCount(_formatCount(result.nbLeechers)),
-                  ),
-                  if ((result.engineName ?? '').isNotEmpty)
-                    _MetaChip(
-                      icon: Icons.travel_explore_outlined,
-                      label: result.engineName!,
-                    ),
-                ],
-              ),
-              if (_hasPublishedDate(result.pubDate)) ...[
-                const SizedBox(height: 8),
-                Text(
-                  formatUnixDate(result.pubDate!, unknown: ''),
-                  style: textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    ),
+      child: card,
     );
   }
 
@@ -100,10 +114,7 @@ class SearchResultItem extends StatelessWidget {
 }
 
 class _MetaChip extends StatelessWidget {
-  const _MetaChip({
-    required this.icon,
-    required this.label,
-  });
+  const _MetaChip({required this.icon, required this.label});
 
   final IconData icon;
   final String label;

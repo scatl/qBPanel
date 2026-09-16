@@ -347,6 +347,36 @@
   "homeAltSpeedOn": "已开启备用速度限制",
   "homeAltSpeedOff": "已关闭备用速度限制",
   "homeServerStatus": "服务器状态",
+  "homeBarFreeSpace": "剩余磁盘空间：{space}",
+  "@homeBarFreeSpace": {
+    "placeholders": {
+      "space": { "type": "String" }
+    }
+  },
+  "homeBarDhtNodes": "DHT：{count} 节点",
+  "@homeBarDhtNodes": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "homeBarAllTimeDownload": "累计下载 {size}",
+  "@homeBarAllTimeDownload": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "homeBarAllTimeUpload": "累计上传 {size}",
+  "@homeBarAllTimeUpload": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "homeBarRatio": "分享率 {ratio}",
+  "@homeBarRatio": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
 
   "renameTitle": "重命名",
   "copiedWithLabel": "已复制 {label}",
@@ -655,6 +685,7 @@
       "count": { "type": "int" }
     }
   },
+  "noDownloadingFiles": "没有正在下载的文件",
   "noHttpSeeds": "暂无 HTTP 源",
   "noHttpSeedsHint": "当前种子还没有 HTTP 源",
   "addHttpSeed": "添加 HTTP 源",

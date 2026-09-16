@@ -17,10 +17,7 @@ abstract final class RssRuleMatchingDialog {
       barrierColor: Colors.transparent,
       transitionDuration: BlurDialogMotion.duration,
       pageBuilder: (ctx, animation, secondaryAnimation) {
-        return _RssRuleMatchingBody(
-          animation: animation,
-          matching: matching,
-        );
+        return _RssRuleMatchingBody(animation: animation, matching: matching);
       },
       transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
     );
@@ -28,10 +25,7 @@ abstract final class RssRuleMatchingDialog {
 }
 
 class _RssRuleMatchingBody extends StatelessWidget {
-  const _RssRuleMatchingBody({
-    required this.animation,
-    required this.matching,
-  });
+  const _RssRuleMatchingBody({required this.animation, required this.matching});
 
   final Animation<double> animation;
   final Map<String, List<String>> matching;
@@ -42,15 +36,13 @@ class _RssRuleMatchingBody extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final size = MediaQuery.sizeOf(context);
-    final entries = matching.entries
-        .where((e) => e.value.isNotEmpty)
-        .toList();
+    final entries = matching.entries.where((e) => e.value.isNotEmpty).toList();
 
     return BlurDialogScaffold(
       animation: animation,
       onBarrierTap: () => Navigator.of(context).pop(),
       panelConstraints: BoxConstraints(
-        maxWidth: size.width * 0.9,
+        maxWidth: formDialogConstraints(context, maxWidth: 520).maxWidth,
         maxHeight: size.height * 0.7,
       ),
       panelPadding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
@@ -84,10 +76,7 @@ class _RssRuleMatchingBody extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              entry.key,
-                              style: textTheme.titleSmall,
-                            ),
+                            Text(entry.key, style: textTheme.titleSmall),
                             const SizedBox(height: 4),
                             for (final title in entry.value)
                               Padding(

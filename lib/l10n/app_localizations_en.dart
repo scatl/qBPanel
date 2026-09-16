@@ -724,6 +724,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeServerStatus => 'Server status';
 
   @override
+  String homeBarFreeSpace(String space) {
+    return 'Free disk space: $space';
+  }
+
+  @override
+  String homeBarDhtNodes(String count) {
+    return 'DHT: $count nodes';
+  }
+
+  @override
+  String homeBarAllTimeDownload(String size) {
+    return 'Downloaded $size';
+  }
+
+  @override
+  String homeBarAllTimeUpload(String size) {
+    return 'Uploaded $size';
+  }
+
+  @override
+  String homeBarRatio(String ratio) {
+    return 'Ratio $ratio';
+  }
+
+  @override
   String get renameTitle => 'Rename';
 
   @override
@@ -1404,6 +1429,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String downloadingFiles(int count) {
     return 'Downloading $count files';
   }
+
+  @override
+  String get noDownloadingFiles => 'No files downloading';
 
   @override
   String get noHttpSeeds => 'No HTTP seeds';

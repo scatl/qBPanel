@@ -74,12 +74,11 @@ class _AddTrackersDialogState extends State<AddTrackersDialog> {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final dialogWidth = MediaQuery.sizeOf(context).width * 0.86;
 
     return BlurDialogScaffold(
       animation: widget.animation,
       onBarrierTap: _submitting ? null : () => Navigator.of(context).pop(),
-      panelConstraints: BoxConstraints.tightFor(width: dialogWidth),
+      panelConstraints: formDialogConstraints(context),
       panelPadding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,

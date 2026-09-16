@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qbpanel/api/entity/response/search_result_response.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
-import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 abstract final class SearchResultActionDialog {
@@ -14,62 +14,48 @@ abstract final class SearchResultActionDialog {
     required BuildContext context,
     required SearchResultResponse result,
   }) {
-    return showGeneralDialog<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
-      useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: BlurDialogMotion.duration,
-      pageBuilder: (ctx, animation, secondaryAnimation) {
-        return BlurDialogScaffold(
-          animation: animation,
-          onBarrierTap: () => Navigator.of(ctx).pop(),
-          panelConstraints: const BoxConstraints(minWidth: 220, maxWidth: 280),
-          panelPadding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
-          child: _SearchResultActionContent(
-            result: result,
-            onDownload: () {
-              Navigator.of(ctx).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!context.mounted) return;
-                context.push(
-                  RouterPath.addTorrentWithParams(url: result.fileUrl),
-                );
-              });
-            },
-            onOpenDescription: () async {
-              Navigator.of(ctx).pop();
-              final ok = await _openExternalUrl(result.descrLink!);
-              if (!context.mounted) return;
-              if (!ok) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.l10n.cannotOpenDescription)),
-                );
-              }
-            },
-            onCopyName: () => _copyAndClose(
-              dialogContext: ctx,
-              pageContext: context,
-              text: result.fileName,
-              message: context.l10n.copiedName,
-            ),
-            onCopyDownloadLink: () => _copyAndClose(
-              dialogContext: ctx,
-              pageContext: context,
-              text: result.fileUrl,
-              message: context.l10n.copiedDownloadLink,
-            ),
-            onCopyDescriptionUrl: () => _copyAndClose(
-              dialogContext: ctx,
-              pageContext: context,
-              text: result.descrLink!,
-              message: context.l10n.copiedDescriptionUrl,
-            ),
-          ),
-        );
-      },
-      transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
+      dialogConstraints: const BoxConstraints(minWidth: 220, maxWidth: 280),
+      sheetPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      builder: (ctx) => _SearchResultActionContent(
+        result: result,
+        onDownload: () {
+          Navigator.of(ctx).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            context.push(RouterPath.addTorrentWithParams(url: result.fileUrl));
+          });
+        },
+        onOpenDescription: () async {
+          Navigator.of(ctx).pop();
+          final ok = await _openExternalUrl(result.descrLink!);
+          if (!context.mounted) return;
+          if (!ok) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(context.l10n.cannotOpenDescription)),
+            );
+          }
+        },
+        onCopyName: () => _copyAndClose(
+          dialogContext: ctx,
+          pageContext: context,
+          text: result.fileName,
+          message: context.l10n.copiedName,
+        ),
+        onCopyDownloadLink: () => _copyAndClose(
+          dialogContext: ctx,
+          pageContext: context,
+          text: result.fileUrl,
+          message: context.l10n.copiedDownloadLink,
+        ),
+        onCopyDescriptionUrl: () => _copyAndClose(
+          dialogContext: ctx,
+          pageContext: context,
+          text: result.descrLink!,
+          message: context.l10n.copiedDescriptionUrl,
+        ),
+      ),
     );
   }
 
@@ -82,9 +68,9 @@ abstract final class SearchResultActionDialog {
     Navigator.of(dialogContext).pop();
     await Clipboard.setData(ClipboardData(text: text));
     if (!pageContext.mounted) return;
-    ScaffoldMessenger.of(pageContext).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      pageContext,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   static Future<bool> _openExternalUrl(String raw) async {
@@ -204,9 +190,9 @@ class _ActionTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: color,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: color),
                 ),
               ),
             ],

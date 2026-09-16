@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/torrent_webseed_response.dart';
+import 'package:qbpanel/util/platform_info.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
 class TorrentWebSeedItem extends StatelessWidget {
@@ -10,12 +11,13 @@ class TorrentWebSeedItem extends StatelessWidget {
   });
 
   final TorrentWebSeedResponse webSeed;
-  final VoidCallback? onLongPress;
+  final void Function(Offset? position)? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final menu = contextMenuActivators(onLongPress);
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -27,7 +29,8 @@ class TorrentWebSeedItem extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onLongPress: onLongPress,
+          onLongPress: menu.onLongPress,
+          onSecondaryTapUp: menu.onSecondaryTapUp,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Row(

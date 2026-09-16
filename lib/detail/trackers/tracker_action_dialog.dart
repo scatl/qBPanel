@@ -4,7 +4,7 @@ import 'package:qbpanel/api/entity/response/torrent_tracker_response.dart';
 import 'package:qbpanel/detail/trackers/edit_tracker_dialog.dart';
 import 'package:qbpanel/detail/trackers/torrent_trackers_view_model.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
-import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 
 abstract final class TrackerActionDialog {
@@ -15,66 +15,55 @@ abstract final class TrackerActionDialog {
     required TorrentTrackerResponse tracker,
     required TorrentTrackersViewModel viewModel,
     required bool canReannounce,
+    Offset? position,
   }) {
     final editable = !tracker.isSpecial;
     if (!editable && !canReannounce) return Future.value();
 
-    return showGeneralDialog<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
-      useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: BlurDialogMotion.duration,
-      pageBuilder: (ctx, animation, secondaryAnimation) {
-        return BlurDialogScaffold(
-          animation: animation,
-          onBarrierTap: () => Navigator.of(ctx).pop(),
-          panelConstraints: const BoxConstraints(minWidth: 240, maxWidth: 320),
-          panelPadding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
-          child: _TrackerActionContent(
-            tracker: tracker,
-            editable: editable,
-            canReannounce: canReannounce,
-            onEdit: () {
-              Navigator.of(ctx).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!context.mounted) return;
-                EditTrackerDialog.show(
-                  context: context,
-                  viewModel: viewModel,
-                  tracker: tracker,
-                );
-              });
-            },
-            onRemove: () {
-              Navigator.of(ctx).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) {
-                  _removeTracker(context, tracker, viewModel);
-                }
-              });
-            },
-            onCopy: () async {
-              Navigator.of(ctx).pop();
-              await Clipboard.setData(ClipboardData(text: tracker.url));
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(context.l10n.copiedTracker)));
-            },
-            onReannounce: () {
-              Navigator.of(ctx).pop();
-              _reannounce(context, viewModel, url: tracker.url);
-            },
-            onReannounceAll: () {
-              Navigator.of(ctx).pop();
-              _reannounce(context, viewModel);
-            },
-          ),
-        );
-      },
-      transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
+      anchor: position,
+      sheetPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      builder: (ctx) => _TrackerActionContent(
+        tracker: tracker,
+        editable: editable,
+        canReannounce: canReannounce,
+        onEdit: () {
+          Navigator.of(ctx).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            EditTrackerDialog.show(
+              context: context,
+              viewModel: viewModel,
+              tracker: tracker,
+            );
+          });
+        },
+        onRemove: () {
+          Navigator.of(ctx).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              _removeTracker(context, tracker, viewModel);
+            }
+          });
+        },
+        onCopy: () async {
+          Navigator.of(ctx).pop();
+          await Clipboard.setData(ClipboardData(text: tracker.url));
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.l10n.copiedTracker)));
+        },
+        onReannounce: () {
+          Navigator.of(ctx).pop();
+          _reannounce(context, viewModel, url: tracker.url);
+        },
+        onReannounceAll: () {
+          Navigator.of(ctx).pop();
+          _reannounce(context, viewModel);
+        },
+      ),
     );
   }
 }
@@ -111,14 +100,18 @@ Future<void> _reannounce(
   if (error == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(url == null ? context.l10n.reannouncedAll : context.l10n.reannouncedOne),
+        content: Text(
+          url == null
+              ? context.l10n.reannouncedAll
+              : context.l10n.reannouncedOne,
+        ),
       ),
     );
     return;
   }
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(context.l10n.reannounceFailedOne(error))));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(context.l10n.reannounceFailedOne(error))),
+  );
 }
 
 class _TrackerActionContent extends StatelessWidget {

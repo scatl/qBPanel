@@ -21,6 +21,10 @@ alwaysApply: false
 | `ConfirmDialog` | 确认框；可改标题/按钮文案；`destructive: true` 用于删除 |
 | `BlurDialogScaffold` / `BlurDialogMotion` | 模糊背景 + 进入动画（320ms），两 Dialog 已共用 |
 | `showBlurModalBottomSheet` / `BlurScrim` | Sheet 模糊遮罩；滑入/拖动手势仍用系统 sheet 动画 |
+| `showAdaptiveCardPopup` / `useWideCardPopup` | 卡片操作弹出：桌面或 Pad 且多列 Dialog，否则 Sheet（见 `desktop-adaptive-ui`） |
+| `AdaptiveCardGrid` / `useAdaptiveGrid` | 宽度 ≥ 600 多列；列数 `adaptiveGridColumnCount` |
+| `SequentialFitRow` | 按宽度从左到右依次放下子项，放不下的整项隐藏 |
+| `formDialogConstraints` | 输入 / 表单 Dialog：窄屏随屏宽，宽屏封顶 420。不要用于 `showAdaptiveCardPopup` |
 
 ```dart
 LoadingDialog.show(context, message: '校验中…');

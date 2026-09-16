@@ -5,10 +5,7 @@ import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
 
 class TagEditDialog extends ConsumerStatefulWidget {
-  const TagEditDialog({
-    super.key,
-    required this.animation,
-  });
+  const TagEditDialog({super.key, required this.animation});
 
   final Animation<double> animation;
 
@@ -61,8 +58,7 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
     if (nameError != null) return;
 
     setState(() => _saving = true);
-    final error =
-        await ref.read(homePageProvider.notifier).createTags([name]);
+    final error = await ref.read(homePageProvider.notifier).createTags([name]);
     if (!mounted) return;
     if (error != null) {
       setState(() {
@@ -79,12 +75,11 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final dialogWidth = MediaQuery.sizeOf(context).width * 0.8;
 
     return BlurDialogScaffold(
       animation: widget.animation,
       onBarrierTap: _saving ? null : () => Navigator.of(context).pop(false),
-      panelConstraints: BoxConstraints.tightFor(width: dialogWidth),
+      panelConstraints: formDialogConstraints(context),
       panelPadding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -123,8 +118,9 @@ class _TagEditDialogState extends ConsumerState<TagEditDialog> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                onPressed:
-                    _saving ? null : () => Navigator.of(context).pop(false),
+                onPressed: _saving
+                    ? null
+                    : () => Navigator.of(context).pop(false),
                 child: Text(l10n.actionCancel),
               ),
               const SizedBox(width: 8),

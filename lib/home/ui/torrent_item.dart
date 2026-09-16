@@ -7,6 +7,7 @@ import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 import 'package:qbpanel/util/byte_format.dart';
+import 'package:qbpanel/util/platform_info.dart';
 
 class TorrentItem extends StatelessWidget {
   const TorrentItem({
@@ -16,7 +17,7 @@ class TorrentItem extends StatelessWidget {
     this.compact = false,
     this.layout = ListLayoutMode.list,
     this.onTap,
-    this.onLongPress,
+    this.onContextMenu,
   });
 
   final TorrentInfoResponse torrent;
@@ -24,7 +25,7 @@ class TorrentItem extends StatelessWidget {
   final bool compact;
   final ListLayoutMode layout;
   final VoidCallback? onTap;
-  final VoidCallback? onLongPress;
+  final void Function(Offset? position)? onContextMenu;
 
   bool get _grid => layout == ListLayoutMode.grid;
 
@@ -176,6 +177,8 @@ class TorrentItem extends StatelessWidget {
       ],
     );
 
+    final menu = contextMenuActivators(onContextMenu);
+
     final card = Material(
       color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
       shape: RoundedRectangleBorder(
@@ -184,7 +187,8 @@ class TorrentItem extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        onLongPress: onLongPress,
+        onLongPress: menu.onLongPress,
+        onSecondaryTapUp: menu.onSecondaryTapUp,
         child: _grid
             ? Align(
                 alignment: Alignment.topCenter,

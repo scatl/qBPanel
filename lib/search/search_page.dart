@@ -11,6 +11,7 @@ import 'package:qbpanel/search/search_view_model.dart';
 import 'package:qbpanel/search/ui/search_filter_sheet.dart';
 import 'package:qbpanel/search/ui/search_result_action_dialog.dart';
 import 'package:qbpanel/search/ui/search_result_item.dart';
+import 'package:qbpanel/widget/adaptive_card_grid.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -63,6 +64,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     final showExpandedForm = !ui.hasSearchJob || _searchFormExpanded;
 
     final l10n = context.l10n;
+    final width = MediaQuery.sizeOf(context).width;
+    final layout = adaptiveListLayout(width);
+    final isGrid = useAdaptiveGrid(width);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.searchTorrents),
@@ -136,20 +140,42 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                             vm.clearResultFilter();
                           }
                         : null,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      itemCount: ui.displayedResults.length,
-                      itemBuilder: (context, index) {
-                        final result = ui.displayedResults[index];
-                        return SearchResultItem(
-                          result: result,
-                          onTap: () => SearchResultActionDialog.show(
-                            context: context,
-                            result: result,
+                    child: isGrid
+                        ? AdaptiveCardGrid(
+                            padding: EdgeInsets.fromLTRB(
+                              PageInsets.horizontal,
+                              0,
+                              PageInsets.horizontal,
+                              24,
+                            ),
+                            itemCount: ui.displayedResults.length,
+                            crossAxisCount: adaptiveGridColumnCount(width),
+                            itemBuilder: (context, index) {
+                              final result = ui.displayedResults[index];
+                              return SearchResultItem(
+                                result: result,
+                                layout: layout,
+                                onTap: () => SearchResultActionDialog.show(
+                                  context: context,
+                                  result: result,
+                                ),
+                              );
+                            },
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            itemCount: ui.displayedResults.length,
+                            itemBuilder: (context, index) {
+                              final result = ui.displayedResults[index];
+                              return SearchResultItem(
+                                result: result,
+                                onTap: () => SearchResultActionDialog.show(
+                                  context: context,
+                                  result: result,
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
                   ),
                 ),
               ],

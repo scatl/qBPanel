@@ -4,14 +4,16 @@ import 'package:qbpanel/settings/server/list/server_list_item.dart';
 import 'package:qbpanel/settings/server/list/server_list_view_model.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/storage/db/app_database.dart';
-import 'package:qbpanel/widget/sheet/blur_modal_bottom_sheet.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 
 class ServerSwitchSheet extends ConsumerStatefulWidget {
   const ServerSwitchSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    return showBlurModalBottomSheet<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
+      dialogConstraints: const BoxConstraints(minWidth: 320, maxWidth: 420),
+      dialogPadding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
       builder: (_) => const ServerSwitchSheet(),
     );
   }

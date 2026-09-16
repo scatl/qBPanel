@@ -5,16 +5,18 @@ import 'package:qbpanel/api/entity/response/connection_status.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:qbpanel/widget/page_insets.dart';
-import 'package:qbpanel/widget/sheet/blur_modal_bottom_sheet.dart';
 import 'package:qbpanel/util/byte_format.dart';
 
 class ServerStateSheet extends ConsumerWidget {
   const ServerStateSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    return showBlurModalBottomSheet<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
+      dialogConstraints: const BoxConstraints(minWidth: 320, maxWidth: 420),
+      dialogPadding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
       builder: (_) => const ServerStateSheet(),
     );
   }
@@ -22,7 +24,9 @@ class ServerStateSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final serverState = ref.watch(homePageProvider.select((s) => s.serverState));
+    final serverState = ref.watch(
+      homePageProvider.select((s) => s.serverState),
+    );
     final activeServer = ref.watch(
       homePageProvider.select((s) => s.activeServer),
     );
@@ -55,8 +59,7 @@ class ServerStateSheet extends ConsumerWidget {
                         rows: [
                           _Kv(
                             l10n.ssConnectionStatus,
-                            serverState.connectionStatus?.label(l10n) ??
-                                '—',
+                            serverState.connectionStatus?.label(l10n) ?? '—',
                             valueColor: _connectionColor(
                               Theme.of(context).colorScheme,
                               serverState.connectionStatus,
@@ -176,14 +179,23 @@ class ServerStateSheet extends ConsumerWidget {
                       _Section(
                         title: l10n.application,
                         rows: [
-                          _Kv(l10n.ssAppVersion, _text(activeServer?.appVersion)),
-                          _Kv(l10n.ssApiVersion, _text(activeServer?.apiVersion)),
+                          _Kv(
+                            l10n.ssAppVersion,
+                            _text(activeServer?.appVersion),
+                          ),
+                          _Kv(
+                            l10n.ssApiVersion,
+                            _text(activeServer?.apiVersion),
+                          ),
                           _Kv('Qt', _text(buildInfo?.qt)),
                           _Kv('libtorrent', _text(buildInfo?.libtorrent)),
                           _Kv('Boost', _text(buildInfo?.boost)),
                           _Kv('OpenSSL', _text(buildInfo?.openssl)),
                           _Kv('zlib', _text(buildInfo?.zlib)),
-                          _Kv(l10n.ssBitness, _bitness(buildInfo?.bitness, l10n)),
+                          _Kv(
+                            l10n.ssBitness,
+                            _bitness(buildInfo?.bitness, l10n),
+                          ),
                           _Kv(l10n.ssPlatform, _text(buildInfo?.platform)),
                         ],
                       ),

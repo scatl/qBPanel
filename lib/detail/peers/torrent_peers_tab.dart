@@ -5,7 +5,9 @@ import 'package:qbpanel/detail/peers/dialog/peer_action_dialog.dart';
 import 'package:qbpanel/detail/peers/dialog/peer_flags_help_dialog.dart';
 import 'package:qbpanel/detail/peers/torrent_peers_view_model.dart';
 import 'package:qbpanel/detail/peers/widget/torrent_peer_item.dart';
+import 'package:qbpanel/home/list_layout_mode.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
+import 'package:qbpanel/widget/adaptive_card_grid.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
@@ -26,6 +28,10 @@ class TorrentPeersTab extends ConsumerWidget {
     );
 
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
+    final width = MediaQuery.sizeOf(context).width;
+    final layout = adaptiveListLayout(width);
+    final isGrid = layout == ListLayoutMode.grid;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -37,24 +43,52 @@ class TorrentPeersTab extends ConsumerWidget {
             emptyTitle: context.l10n.noPeers,
             emptySubtitle: context.l10n.noPeersHint,
             emptyIcon: Icons.people_outline,
-            child: ListView.builder(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + bottomSafe),
-              itemCount: ui.peers.length,
-              itemBuilder: (context, index) {
-                final peer = ui.peers[index];
-                return TorrentPeerItem(
-                  key: ValueKey(peer.id),
-                  peer: peer,
-                  onLongPress: () => PeerActionDialog.show(
-                    context: context,
-                    peer: peer,
-                    viewModel: vm,
-                    showAdd: cap.hasAddPeers,
-                    showBan: cap.hasBanPeers,
+            child: isGrid
+                ? AdaptiveCardGrid(
+                    padding: EdgeInsets.fromLTRB(
+                      PageInsets.horizontal,
+                      0,
+                      PageInsets.horizontal,
+                      24 + bottomSafe,
+                    ),
+                    itemCount: ui.peers.length,
+                    crossAxisCount: adaptiveGridColumnCount(width),
+                    itemBuilder: (context, index) {
+                      final peer = ui.peers[index];
+                      return TorrentPeerItem(
+                        key: ValueKey(peer.id),
+                        peer: peer,
+                        layout: layout,
+                        onLongPress: (position) => PeerActionDialog.show(
+                          context: context,
+                          peer: peer,
+                          viewModel: vm,
+                          showAdd: cap.hasAddPeers,
+                          showBan: cap.hasBanPeers,
+                          position: position,
+                        ),
+                      );
+                    },
+                  )
+                : ListView.builder(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + bottomSafe),
+                    itemCount: ui.peers.length,
+                    itemBuilder: (context, index) {
+                      final peer = ui.peers[index];
+                      return TorrentPeerItem(
+                        key: ValueKey(peer.id),
+                        peer: peer,
+                        onLongPress: (position) => PeerActionDialog.show(
+                          context: context,
+                          peer: peer,
+                          viewModel: vm,
+                          showAdd: cap.hasAddPeers,
+                          showBan: cap.hasBanPeers,
+                          position: position,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ),
       ],
@@ -83,7 +117,9 @@ class _PeersHeader extends StatelessWidget {
             onPressed: onTogglePoll,
             icon: Icon(pollPaused ? Icons.play_arrow : Icons.pause, size: 20),
             label: Text(
-              pollPaused ? context.l10n.startRefresh : context.l10n.pauseRefresh,
+              pollPaused
+                  ? context.l10n.startRefresh
+                  : context.l10n.pauseRefresh,
             ),
           ),
           const Spacer(),

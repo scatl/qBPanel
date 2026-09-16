@@ -6,9 +6,12 @@ import 'package:qbpanel/api/qb_api_capabilities.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/rss/rules/rss_rules_view_model.dart';
+import 'package:qbpanel/home/list_layout_mode.dart';
+import 'package:qbpanel/widget/adaptive_card_grid.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 import 'package:qbpanel/widget/page_insets.dart';
+import 'package:qbpanel/util/platform_info.dart';
 import 'package:qbpanel/widget/refresh/paged_refresh_list.dart';
 
 /// RSS 自动下载规则列表。
@@ -39,8 +42,9 @@ class RssRulesPage extends ConsumerWidget {
     RssAutoDownloadRule rule,
     bool enabled,
   ) async {
-    final error =
-        await ref.read(rssRulesProvider.notifier).setEnabled(rule, enabled);
+    final error = await ref
+        .read(rssRulesProvider.notifier)
+        .setEnabled(rule, enabled);
     if (!context.mounted || error == null) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
   }
@@ -60,8 +64,9 @@ class RssRulesPage extends ConsumerWidget {
     );
     if (ok != true || !context.mounted) return;
     LoadingDialog.show(context, message: l10n.saving);
-    final error =
-        await ref.read(rssRulesProvider.notifier).removeRule(rule.name);
+    final error = await ref
+        .read(rssRulesProvider.notifier)
+        .removeRule(rule.name);
     if (!context.mounted) return;
     LoadingDialog.dismiss(context);
     if (error == null) return;
@@ -74,6 +79,9 @@ class RssRulesPage extends ConsumerWidget {
     final vm = ref.read(rssRulesProvider.notifier);
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final width = MediaQuery.sizeOf(context).width;
+    final layout = adaptiveListLayout(width);
+    final isGrid = useAdaptiveGrid(width);
 
     return Scaffold(
       appBar: AppBar(
@@ -102,15 +110,11 @@ class RssRulesPage extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           l10n.rssAutoDownloadingDisabledBanner,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: scheme.onErrorContainer,
-                              ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onErrorContainer),
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: scheme.onErrorContainer,
-                      ),
+                      Icon(Icons.chevron_right, color: scheme.onErrorContainer),
                     ],
                   ),
                 ),
@@ -123,13 +127,25 @@ class RssRulesPage extends ConsumerWidget {
               emptyTitle: l10n.rssEmptyRulesTitle,
               emptySubtitle: l10n.rssEmptyRulesSubtitle,
               emptyIcon: Icons.rule_outlined,
-              padding: const EdgeInsets.only(bottom: 24),
+              padding: isGrid
+                  ? EdgeInsets.fromLTRB(
+                      PageInsets.horizontal,
+                      8,
+                      PageInsets.horizontal,
+                      24,
+                    )
+                  : const EdgeInsets.only(bottom: 24),
+              gridCrossAxisCount: isGrid
+                  ? adaptiveGridColumnCount(width)
+                  : null,
+              gridSpacing: kAdaptiveGridSpacing,
               onRefresh: vm.refresh,
               itemBuilder: (context, index, rule) {
                 final busy = ui.busyRuleNames.contains(rule.name);
                 return _RssRuleItem(
                   rule: rule,
                   busy: busy,
+                  layout: layout,
                   onTap: () => _openEdit(context, ref, name: rule.name),
                   onEnabledChanged: (enabled) =>
                       _setEnabled(context, ref, rule, enabled),
@@ -151,6 +167,7 @@ class _RssRuleItem extends StatelessWidget {
     required this.onTap,
     required this.onEnabledChanged,
     required this.onDelete,
+    this.layout = ListLayoutMode.list,
   });
 
   final RssAutoDownloadRule rule;
@@ -158,6 +175,9 @@ class _RssRuleItem extends StatelessWidget {
   final VoidCallback onTap;
   final ValueChanged<bool> onEnabledChanged;
   final VoidCallback onDelete;
+  final ListLayoutMode layout;
+
+  bool get _grid => layout == ListLayoutMode.grid;
 
   @override
   Widget build(BuildContext context) {
@@ -167,63 +187,75 @@ class _RssRuleItem extends StatelessWidget {
     final subtitle = rule.mustContain.trim().isEmpty
         ? null
         : rule.mustContain.trim();
+    final menu = contextMenuActivators((_) => onDelete());
 
+    final body = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                rule.name,
+                style: textTheme.titleSmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ],
+          ),
+        ),
+        Switch(value: rule.enabled, onChanged: busy ? null : onEnabledChanged),
+        IconButton(
+          tooltip: l10n.actionDelete,
+          icon: const Icon(Icons.delete_outline),
+          onPressed: busy ? null : onDelete,
+        ),
+      ],
+    );
+
+    final card = Material(
+      color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: menu.onLongPress,
+        onSecondaryTapUp: menu.onSecondaryTapUp,
+        child: _grid
+            ? Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                  child: body,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
+                child: body,
+              ),
+      ),
+    );
+
+    if (_grid) return card;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: PageInsets.horizontal,
         vertical: 6,
       ),
-      child: Material(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onDelete,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        rule.name,
-                        style: textTheme.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                Switch(
-                  value: rule.enabled,
-                  onChanged: busy ? null : onEnabledChanged,
-                ),
-                IconButton(
-                  tooltip: l10n.actionDelete,
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: busy ? null : onDelete,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: card,
     );
   }
 }

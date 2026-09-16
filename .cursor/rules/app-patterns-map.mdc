@@ -5,7 +5,7 @@ alwaysApply: true
 
 # 项目架构地图
 
-新任务先读本规则 + 已有专项规则（`architecture-feature-layer`、`platform-compat`、`api-client-conventions`、`routing-conventions` 等），再 **targeted read/grep** 具体文件。不要为「项目怎么组织」做 broad explore。
+新任务先读本规则 + 已有专项规则（`architecture-feature-layer`、`platform-compat`、`desktop-adaptive-ui`、`api-client-conventions`、`routing-conventions` 等），再 **targeted read/grep** 具体文件。不要为「项目怎么组织」做 broad explore。
 
 ## 目录速查
 
@@ -115,6 +115,7 @@ alwaysApply: true
 - 列表刷新：`PagedRefreshList` + `PagedRefreshState`
 - 加载/确认：`LoadingDialog`（**不要 await show**）、`ConfirmDialog`
 - Sheet：`showBlurModalBottomSheet`
+- 宽屏多列 / 卡片弹出：见 **`desktop-adaptive-ui`**（`AdaptiveCardGrid`、`showAdaptiveCardPopup`）
 - 时间格式化：`formatUnixDate`（`lib/detail/general/torrent_general_format.dart`，秒级 epoch）
 - 诊断日志：`appLog('tag', 'msg')`（`lib/util/app_log.dart`）；另有 `appLogPreview` / `appLogHeadHex` / `appLogApiFailure` / `appLogFormData`
 
@@ -126,6 +127,7 @@ alwaysApply: true
 4. 新 API：`ApiPath` + entity + 本地 `docs/qbittorrent/` 文档核对
 5. 新路由：`RouterPath` + `app_router.dart`
 6. Drift 表变更：跑 `build_runner`；本地数据无需 migration（见 `local-storage-no-migration.mdc`）
+7. 卡片列表 / 点击弹出：宽度网格 + 桌面或 Pad 且多列用 Dialog（见 `desktop-adaptive-ui`）
 
 ## 仍须读代码的情况
 

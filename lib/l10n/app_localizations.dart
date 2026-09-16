@@ -1431,6 +1431,36 @@ abstract class AppLocalizations {
   /// **'服务器状态'**
   String get homeServerStatus;
 
+  /// No description provided for @homeBarFreeSpace.
+  ///
+  /// In zh, this message translates to:
+  /// **'剩余磁盘空间：{space}'**
+  String homeBarFreeSpace(String space);
+
+  /// No description provided for @homeBarDhtNodes.
+  ///
+  /// In zh, this message translates to:
+  /// **'DHT：{count} 节点'**
+  String homeBarDhtNodes(String count);
+
+  /// No description provided for @homeBarAllTimeDownload.
+  ///
+  /// In zh, this message translates to:
+  /// **'累计下载 {size}'**
+  String homeBarAllTimeDownload(String size);
+
+  /// No description provided for @homeBarAllTimeUpload.
+  ///
+  /// In zh, this message translates to:
+  /// **'累计上传 {size}'**
+  String homeBarAllTimeUpload(String size);
+
+  /// No description provided for @homeBarRatio.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享率 {ratio}'**
+  String homeBarRatio(String ratio);
+
   /// No description provided for @renameTitle.
   ///
   /// In zh, this message translates to:
@@ -2714,6 +2744,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'正在下载 {count} 个文件'**
   String downloadingFiles(int count);
+
+  /// No description provided for @noDownloadingFiles.
+  ///
+  /// In zh, this message translates to:
+  /// **'没有正在下载的文件'**
+  String get noDownloadingFiles;
 
   /// No description provided for @noHttpSeeds.
   ///

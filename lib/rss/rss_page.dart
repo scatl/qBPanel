@@ -13,6 +13,7 @@ import 'package:qbpanel/settings/widget/settings_group_card.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
 import 'package:qbpanel/widget/page_insets.dart';
+import 'package:qbpanel/util/platform_info.dart';
 
 /// RSS 源列表（阅读器首页）。
 class RssPage extends ConsumerWidget {
@@ -26,9 +27,7 @@ class RssPage extends ConsumerWidget {
     if (!context.mounted) return;
     final text = error ?? success;
     if (text == null || text.isEmpty) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   Future<void> _withLoading(
@@ -130,11 +129,7 @@ class RssPage extends ConsumerWidget {
                   }
                   if (!context.mounted) return;
                   LoadingDialog.dismiss(context);
-                  await _snack(
-                    context,
-                    error,
-                    success: l10n.rssMarkedAsRead,
-                  );
+                  await _snack(context, error, success: l10n.rssMarkedAsRead);
               }
             },
             itemBuilder: (context) => [
@@ -170,15 +165,11 @@ class RssPage extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           l10n.rssProcessingDisabledBanner,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: scheme.onErrorContainer,
-                              ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onErrorContainer),
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: scheme.onErrorContainer,
-                      ),
+                      Icon(Icons.chevron_right, color: scheme.onErrorContainer),
                     ],
                   ),
                 ),
@@ -229,16 +220,15 @@ class RssPage extends ConsumerWidget {
                                   vm.toggleExpanded(node.path);
                                 } else {
                                   context.push(
-                                    RouterPath.rssArticlesWithParams(
-                                      node.path,
-                                    ),
+                                    RouterPath.rssArticlesWithParams(node.path),
                                   );
                                 }
                               },
-                              onMore: () => RssFeedActionDialog.show(
+                              onMore: (position) => RssFeedActionDialog.show(
                                 context: context,
                                 node: rows[i].node,
                                 vm: vm,
+                                position: position,
                               ),
                             ),
                           ],
@@ -267,24 +257,26 @@ class _FeedTile extends StatelessWidget {
 
   final RssFeedListRow row;
   final VoidCallback onOpen;
-  final VoidCallback onMore;
+  final void Function(Offset? position) onMore;
 
   @override
   Widget build(BuildContext context) {
     final node = row.node;
     final scheme = Theme.of(context).colorScheme;
     final unread = node.unreadCount;
+    final menu = contextMenuActivators(onMore);
 
-    return ListTile(
-      contentPadding: EdgeInsets.only(
-        left: 16.0 + row.depth * 20.0,
-        right: 4,
-      ),
+    final tile = ListTile(
+      contentPadding: EdgeInsets.only(left: 16.0 + row.depth * 20.0, right: 4),
       leading: Icon(
         rssNodeIcon(node),
         color: node.hasError ? scheme.error : scheme.onSurfaceVariant,
       ),
-      title: Text(node.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text(
+        node.displayName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
       subtitle: node.isFeed && node.hasError
           ? Text(
               context.l10n.rssFeedHasError,
@@ -297,25 +289,34 @@ class _FeedTile extends StatelessWidget {
           if (unread > 0)
             Padding(
               padding: const EdgeInsets.only(right: 4),
-              child: Text(
-                '$unread',
-                style: TextStyle(color: scheme.primary),
-              ),
+              child: Text('$unread', style: TextStyle(color: scheme.primary)),
             ),
           if (node.isFolder)
-            Icon(
-              Icons.expand_more,
-              color: scheme.onSurfaceVariant,
-            ),
+            Icon(Icons.expand_more, color: scheme.onSurfaceVariant),
           IconButton(
             tooltip: context.l10n.actionMore,
             icon: const Icon(Icons.more_vert),
-            onPressed: onMore,
+            onPressed: () {
+              final box = context.findRenderObject() as RenderBox?;
+              Offset? position;
+              if (box != null && box.hasSize) {
+                position = box.localToGlobal(
+                  Offset(box.size.width, box.size.height / 2),
+                );
+              }
+              onMore(position);
+            },
           ),
         ],
       ),
       onTap: onOpen,
-      onLongPress: onMore,
+      onLongPress: menu.onLongPress,
+    );
+
+    if (menu.onSecondaryTapUp == null) return tile;
+    return GestureDetector(
+      onSecondaryTapUp: menu.onSecondaryTapUp,
+      child: tile,
     );
   }
 }

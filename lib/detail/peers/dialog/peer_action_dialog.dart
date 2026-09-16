@@ -4,7 +4,7 @@ import 'package:qbpanel/api/entity/response/torrent_peer_response.dart';
 import 'package:qbpanel/detail/peers/dialog/add_peers_dialog.dart';
 import 'package:qbpanel/detail/peers/torrent_peers_view_model.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
-import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 
 abstract final class PeerActionDialog {
@@ -16,49 +16,38 @@ abstract final class PeerActionDialog {
     required TorrentPeersViewModel viewModel,
     bool showAdd = true,
     bool showBan = true,
+    Offset? position,
   }) {
-    return showGeneralDialog<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
-      useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: BlurDialogMotion.duration,
-      pageBuilder: (ctx, animation, secondaryAnimation) {
-        return BlurDialogScaffold(
-          animation: animation,
-          onBarrierTap: () => Navigator.of(ctx).pop(),
-          panelConstraints: const BoxConstraints(minWidth: 240, maxWidth: 320),
-          panelPadding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
-          child: _PeerActionContent(
-            peer: peer,
-            showAdd: showAdd,
-            showBan: showBan,
-            onAddPeers: () {
-              Navigator.of(ctx).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!context.mounted) return;
-                AddPeersDialog.show(context: context, viewModel: viewModel);
-              });
-            },
-            onCopy: () async {
-              Navigator.of(ctx).pop();
-              await Clipboard.setData(ClipboardData(text: peer.endpoint));
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(context.l10n.copiedEndpoint)));
-            },
-            onBan: () {
-              Navigator.of(ctx).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) _banPeer(context, peer, viewModel);
-              });
-            },
-          ),
-        );
-      },
-      transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
+      anchor: position,
+      sheetPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      builder: (ctx) => _PeerActionContent(
+        peer: peer,
+        showAdd: showAdd,
+        showBan: showBan,
+        onAddPeers: () {
+          Navigator.of(ctx).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            AddPeersDialog.show(context: context, viewModel: viewModel);
+          });
+        },
+        onCopy: () async {
+          Navigator.of(ctx).pop();
+          await Clipboard.setData(ClipboardData(text: peer.endpoint));
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.l10n.copiedEndpoint)));
+        },
+        onBan: () {
+          Navigator.of(ctx).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) _banPeer(context, peer, viewModel);
+          });
+        },
+      ),
     );
   }
 }
@@ -124,19 +113,23 @@ class _PeerActionContent extends StatelessWidget {
           ),
         ),
         if (showAdd)
+          _ActionTile(
+            icon: Icons.person_add_outlined,
+            label: context.l10n.addPeers,
+            onTap: onAddPeers,
+          ),
         _ActionTile(
-          icon: Icons.person_add_outlined,
-          label: context.l10n.addPeers,
-          onTap: onAddPeers,
+          icon: Icons.copy_outlined,
+          label: context.l10n.copyEndpoint,
+          onTap: onCopy,
         ),
-        _ActionTile(icon: Icons.copy_outlined, label: context.l10n.copyEndpoint, onTap: onCopy),
         if (showBan)
-        _ActionTile(
-          icon: Icons.block,
-          label: context.l10n.banPeer,
-          foreground: scheme.error,
-          onTap: onBan,
-        ),
+          _ActionTile(
+            icon: Icons.block,
+            label: context.l10n.banPeer,
+            foreground: scheme.error,
+            onTap: onBan,
+          ),
       ],
     );
   }

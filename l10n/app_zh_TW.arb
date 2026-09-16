@@ -398,6 +398,36 @@
   "homeAltSpeedOn": "已開啟備用速度限制",
   "homeAltSpeedOff": "已關閉備用速度限制",
   "homeServerStatus": "伺服器狀態",
+  "homeBarFreeSpace": "剩餘磁盤空間：{space}",
+  "@homeBarFreeSpace": {
+    "placeholders": {
+      "space": { "type": "String" }
+    }
+  },
+  "homeBarDhtNodes": "DHT：{count} 節點",
+  "@homeBarDhtNodes": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "homeBarAllTimeDownload": "累計下載 {size}",
+  "@homeBarAllTimeDownload": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "homeBarAllTimeUpload": "累計上傳 {size}",
+  "@homeBarAllTimeUpload": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "homeBarRatio": "分享率 {ratio}",
+  "@homeBarRatio": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
   "renameTitle": "重新命名",
   "copiedWithLabel": "已複製 {label}",
   "@copiedWithLabel": {
@@ -740,6 +770,7 @@
       }
     }
   },
+  "noDownloadingFiles": "沒有正在下載的檔案",
   "noHttpSeeds": "暫無 HTTP 源",
   "noHttpSeedsHint": "當前種子還沒有 HTTP 源",
   "addHttpSeed": "添加 HTTP 源",

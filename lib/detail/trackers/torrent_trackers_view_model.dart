@@ -41,12 +41,6 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
     );
   }
 
-  void toggleExpand(String url) {
-    final next = Set<String>.from(state.expandedUrls);
-    if (!next.add(url)) next.remove(url);
-    state = state.copyWith(expandedUrls: next);
-  }
-
   /// 成功为 `null`。`urls` 每行一个。
   Future<String?> addTrackers(String rawLines) async {
     final urls = rawLines
@@ -90,13 +84,6 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
         409 => _l10n.trackerUrlTaken,
         _ => message,
       },
-      onSuccess: () {
-        if (url == nextUrl || !state.expandedUrls.contains(url)) return;
-        final next = Set<String>.from(state.expandedUrls)
-          ..remove(url)
-          ..add(nextUrl);
-        state = state.copyWith(expandedUrls: next);
-      },
     );
   }
 
@@ -111,11 +98,6 @@ class TorrentTrackersViewModel extends Notifier<TorrentTrackersUiState> {
         404 => _l10n.torrentNotFound,
         409 => _l10n.trackerNotFound,
         _ => message,
-      },
-      onSuccess: () {
-        if (!state.expandedUrls.contains(trimmed)) return;
-        final next = Set<String>.from(state.expandedUrls)..remove(trimmed);
-        state = state.copyWith(expandedUrls: next);
       },
     );
   }

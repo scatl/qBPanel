@@ -189,11 +189,10 @@ class SettingAppearance extends ConsumerWidget {
         final l10n = ctx.l10n;
         final scheme = Theme.of(ctx).colorScheme;
         final textTheme = Theme.of(ctx).textTheme;
-        final dialogWidth = MediaQuery.sizeOf(ctx).width * 0.8;
         return BlurDialogScaffold(
           animation: animation,
           onBarrierTap: () => Navigator.of(ctx).pop(false),
-          panelConstraints: BoxConstraints.tightFor(width: dialogWidth),
+          panelConstraints: formDialogConstraints(ctx, maxWidth: 480),
           panelPadding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
           child: SingleChildScrollView(
             child: Column(

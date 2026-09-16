@@ -3,6 +3,7 @@ import 'package:qbpanel/detail/content/torrent_content_node.dart';
 import 'package:qbpanel/detail/general/torrent_general_format.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
+import 'package:qbpanel/util/platform_info.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 
 /// 每一层竖线占用的宽度。
@@ -52,6 +53,9 @@ class TorrentContentItem extends StatelessWidget {
     final gutterWidth = showTree
         ? row.depth * _treeLevelWidth + _treeBranchWidth
         : 0.0;
+    final menu = contextMenuActivators(
+      onLongPress == null ? null : (_) => onLongPress!(),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: PageInsets.horizontal),
@@ -82,7 +86,8 @@ class TorrentContentItem extends StatelessWidget {
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     onTap: node.isFolder ? onToggleExpand : null,
-                    onLongPress: onLongPress,
+                    onLongPress: menu.onLongPress,
+                    onSecondaryTapUp: menu.onSecondaryTapUp,
                     customBorder: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
