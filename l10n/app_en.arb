@@ -235,6 +235,36 @@
   "homeAltSpeedOn": "Alternative speed limits on",
   "homeAltSpeedOff": "Alternative speed limits off",
   "homeServerStatus": "Server status",
+  "homeBarFreeSpace": "Free disk space: {space}",
+  "@homeBarFreeSpace": {
+    "placeholders": {
+      "space": { "type": "String" }
+    }
+  },
+  "homeBarDhtNodes": "DHT: {count} nodes",
+  "@homeBarDhtNodes": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "homeBarAllTimeDownload": "Downloaded {size}",
+  "@homeBarAllTimeDownload": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "homeBarAllTimeUpload": "Uploaded {size}",
+  "@homeBarAllTimeUpload": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "homeBarRatio": "Ratio {ratio}",
+  "@homeBarRatio": {
+    "placeholders": {
+      "ratio": { "type": "String" }
+    }
+  },
 
   "renameTitle": "Rename",
   "copiedWithLabel": "Copied {label}",
@@ -455,6 +485,7 @@
   "flags": "Flags",
   "downloadingFile": "Downloading",
   "downloadingFiles": "Downloading {count} files",
+  "noDownloadingFiles": "No files downloading",
   "noHttpSeeds": "No HTTP seeds",
   "noHttpSeedsHint": "This torrent has no HTTP seeds yet",
   "addHttpSeed": "Add HTTP seeds",

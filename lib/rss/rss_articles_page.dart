@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:qbpanel/api/entity/response/rss_items_response.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
+import 'package:qbpanel/home/list_layout_mode.dart';
 import 'package:qbpanel/rss/rss_view_model.dart';
+import 'package:qbpanel/widget/adaptive_card_grid.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 import 'package:qbpanel/widget/empty/empty_state.dart';
 import 'package:qbpanel/widget/empty/empty_state_view.dart';
@@ -12,10 +14,7 @@ import 'package:qbpanel/widget/page_insets.dart';
 
 /// 某源 / Unread 下的文章列表。
 class RssArticlesPage extends ConsumerStatefulWidget {
-  const RssArticlesPage({
-    super.key,
-    required this.path,
-  });
+  const RssArticlesPage({super.key, required this.path});
 
   final String path;
 
@@ -44,24 +43,25 @@ class _RssArticlesPageState extends ConsumerState<RssArticlesPage> {
     final vm = ref.read(rssProvider.notifier);
     final l10n = context.l10n;
     final bottomSafe = MediaQuery.viewPaddingOf(context).bottom;
+    final width = MediaQuery.sizeOf(context).width;
+    final layout = adaptiveListLayout(width);
+    final isGrid = useAdaptiveGrid(width);
     final node = ui.findNode(widget.path);
     final articles = ui.filteredArticlesForPath(widget.path);
     final isUnread = widget.path == RssItemsParser.unreadPath;
 
     // 确保从深层进入时仍有轮询（父页若被 dispose 则本页 watch 保活 provider）
-    final title = _title(
-      RssUiTitleArgs(nodeTitle: node?.displayName),
-    );
+    final title = _title(RssUiTitleArgs(nodeTitle: node?.displayName));
 
     final empty = !ui.ready
         ? ui.emptyState
         : articles.isEmpty
-            ? EmptyState.empty(
-                title: l10n.rssEmptyArticlesTitle,
-                subtitle: l10n.rssEmptyArticlesSubtitle,
-                icon: Icons.article_outlined,
-              )
-            : const EmptyState.content();
+        ? EmptyState.empty(
+            title: l10n.rssEmptyArticlesTitle,
+            subtitle: l10n.rssEmptyArticlesSubtitle,
+            icon: Icons.article_outlined,
+          )
+        : const EmptyState.content();
 
     return Scaffold(
       appBar: AppBar(
@@ -78,9 +78,7 @@ class _RssArticlesPageState extends ConsumerState<RssArticlesPage> {
                 if (!context.mounted) return;
                 LoadingDialog.dismiss(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(error ?? l10n.rssMarkedAsRead),
-                  ),
+                  SnackBar(content: Text(error ?? l10n.rssMarkedAsRead)),
                 );
               },
             ),
@@ -95,9 +93,7 @@ class _RssArticlesPageState extends ConsumerState<RssArticlesPage> {
                 if (!context.mounted) return;
                 LoadingDialog.dismiss(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(error ?? l10n.rssUpdateStarted),
-                  ),
+                  SnackBar(content: Text(error ?? l10n.rssUpdateStarted)),
                 );
               },
             ),
@@ -132,23 +128,48 @@ class _RssArticlesPageState extends ConsumerState<RssArticlesPage> {
               state: empty,
               onRetry: () => vm.refreshNow(),
               padding: const EdgeInsets.all(24),
-              builder: (context) => ListView.builder(
-                padding: EdgeInsets.fromLTRB(0, 2, 0, 24 + bottomSafe),
-                itemCount: articles.length,
-                itemBuilder: (context, index) {
-                  final article = articles[index];
-                  return _RssArticleItem(
-                    article: article,
-                    showFeedName: isUnread,
-                    onTap: () => context.push(
-                      RouterPath.rssArticleWithParams(
-                        feedPath: article.feedPath,
-                        articleId: article.id,
+              child: isGrid
+                  ? AdaptiveCardGrid(
+                      padding: EdgeInsets.fromLTRB(
+                        PageInsets.horizontal,
+                        2,
+                        PageInsets.horizontal,
+                        24 + bottomSafe,
                       ),
+                      itemCount: articles.length,
+                      crossAxisCount: adaptiveGridColumnCount(width),
+                      itemBuilder: (context, index) {
+                        final article = articles[index];
+                        return _RssArticleItem(
+                          article: article,
+                          showFeedName: isUnread,
+                          layout: layout,
+                          onTap: () => context.push(
+                            RouterPath.rssArticleWithParams(
+                              feedPath: article.feedPath,
+                              articleId: article.id,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.fromLTRB(0, 2, 0, 24 + bottomSafe),
+                      itemCount: articles.length,
+                      itemBuilder: (context, index) {
+                        final article = articles[index];
+                        return _RssArticleItem(
+                          article: article,
+                          showFeedName: isUnread,
+                          onTap: () => context.push(
+                            RouterPath.rssArticleWithParams(
+                              feedPath: article.feedPath,
+                              articleId: article.id,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ),
         ],
@@ -167,11 +188,15 @@ class _RssArticleItem extends StatelessWidget {
     required this.article,
     required this.showFeedName,
     required this.onTap,
+    this.layout = ListLayoutMode.list,
   });
 
   final RssArticle article;
   final bool showFeedName;
   final VoidCallback onTap;
+  final ListLayoutMode layout;
+
+  bool get _grid => layout == ListLayoutMode.grid;
 
   @override
   Widget build(BuildContext context) {
@@ -183,52 +208,61 @@ class _RssArticleItem extends StatelessWidget {
       if (article.date.isNotEmpty) article.date,
     ].where((e) => e.isNotEmpty).join(' · ');
 
+    final body = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          article.title.isEmpty ? l10n.rssUntitledArticle : article.title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: textTheme.titleSmall?.copyWith(
+            fontWeight: article.isRead ? FontWeight.normal : FontWeight.w600,
+            color: article.isRead ? scheme.onSurfaceVariant : null,
+          ),
+        ),
+        if (subtitle.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ],
+    );
+
+    final card = Material(
+      color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: _grid
+            ? Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                  child: body,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                child: body,
+              ),
+      ),
+    );
+
+    if (_grid) return card;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: PageInsets.horizontal,
         vertical: 6,
       ),
-      child: Material(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  article.title.isEmpty
-                      ? l10n.rssUntitledArticle
-                      : article.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleSmall?.copyWith(
-                    fontWeight:
-                        article.isRead ? FontWeight.normal : FontWeight.w600,
-                    color: article.isRead ? scheme.onSurfaceVariant : null,
-                  ),
-                ),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: card,
     );
   }
 }

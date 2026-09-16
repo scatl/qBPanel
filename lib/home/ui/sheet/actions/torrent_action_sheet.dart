@@ -16,10 +16,10 @@ import 'package:qbpanel/home/ui/sheet/actions/torrent_share_limit_page.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_speed_limit_page.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_tags_page.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 import 'package:qbpanel/widget/check_row.dart';
-import 'package:qbpanel/widget/sheet/blur_modal_bottom_sheet.dart';
 
 class TorrentActionSheet extends ConsumerStatefulWidget {
   const TorrentActionSheet({
@@ -34,16 +34,20 @@ class TorrentActionSheet extends ConsumerStatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required TorrentInfoResponse torrent,
+    Offset? position,
   }) {
     final hash = torrent.hash?.trim() ?? '';
     if (hash.isEmpty) return Future.value();
-    HapticFeedback.mediumImpact();
-    return showBlurModalBottomSheet<void>(
+    if (!useWideCardPopup(context)) {
+      HapticFeedback.mediumImpact();
+    }
+    return showAdaptiveCardPopup<void>(
       context: context,
-      builder: (sheetContext) => TorrentActionSheet(
-        hash: hash,
-        pageContext: context,
-      ),
+      anchor: position,
+      dialogConstraints: const BoxConstraints(minWidth: 280, maxWidth: 360),
+      dialogPadding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
+      sheetPadding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
+      builder: (ctx) => TorrentActionSheet(hash: hash, pageContext: context),
     );
   }
 
@@ -108,8 +112,9 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
   @override
   Widget build(BuildContext context) {
     ref.watch(homePageProvider);
-    final torrent =
-        ref.read(homePageProvider.notifier).torrentByHash(widget.hash);
+    final torrent = ref
+        .read(homePageProvider.notifier)
+        .torrentByHash(widget.hash);
     if (torrent == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) Navigator.pop(context);
@@ -246,214 +251,210 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               controller: _scrollController,
               shrinkWrap: true,
               children: [
-              if (availability.showStart)
-                TorrentActionTile(
-                  icon: Icons.play_arrow_rounded,
-                  label: l10n.homeStart,
-                  onTap: () => _run(
-                    action: () => vm.startTorrent(widget.hash),
-                    failLabel: l10n.actionStartFailed,
+                if (availability.showStart)
+                  TorrentActionTile(
+                    icon: Icons.play_arrow_rounded,
+                    label: l10n.homeStart,
+                    onTap: () => _run(
+                      action: () => vm.startTorrent(widget.hash),
+                      failLabel: l10n.actionStartFailed,
+                    ),
                   ),
-                ),
-              if (availability.showStop)
-                TorrentActionTile(
-                  icon: Icons.stop_rounded,
-                  label: l10n.homeStop,
-                  onTap: () => _run(
-                    action: () => vm.stopTorrent(widget.hash),
-                    failLabel: l10n.actionStopFailed,
+                if (availability.showStop)
+                  TorrentActionTile(
+                    icon: Icons.stop_rounded,
+                    label: l10n.homeStop,
+                    onTap: () => _run(
+                      action: () => vm.stopTorrent(widget.hash),
+                      failLabel: l10n.actionStopFailed,
+                    ),
                   ),
-                ),
-              if (availability.showForceStart)
-                TorrentActionTile(
-                  icon: Icons.fast_forward_rounded,
-                  label: l10n.actionForceStart,
-                  onTap: () => _run(
-                    action: () => vm.forceStartTorrent(widget.hash),
-                    failLabel: l10n.actionForceStartFailed,
+                if (availability.showForceStart)
+                  TorrentActionTile(
+                    icon: Icons.fast_forward_rounded,
+                    label: l10n.actionForceStart,
+                    onTap: () => _run(
+                      action: () => vm.forceStartTorrent(widget.hash),
+                      failLabel: l10n.actionForceStartFailed,
+                    ),
                   ),
-                ),
-              const Divider(height: 8),
-              TorrentActionTile(
-                icon: Icons.delete_outline,
-                label: l10n.actionDelete,
-                foreground: scheme.error,
-                onTap: () => _confirmDelete(
-                  name: torrent.name ?? '',
-                  vm: vm,
-                ),
-              ),
-              const Divider(height: 8),
-              TorrentActionTile(
-                icon: Icons.folder_outlined,
-                label: l10n.setSaveLocation,
-                onTap: () => _setLocation(torrent, vm),
-              ),
-              TorrentActionTile(
-                icon: Icons.drive_file_rename_outline,
-                label: l10n.renameTitle,
-                onTap: () => _rename(torrent, vm),
-              ),
-              TorrentActionTile(
-                icon: Icons.category_outlined,
-                label: l10n.category,
-                trailing: Icon(
-                  Icons.chevron_right,
-                  size: 22,
-                  color: scheme.onSurfaceVariant,
-                ),
-                onTap: () => _openSub(_SubPage.category),
-              ),
-              if (cap.hasTags)
-              TorrentActionTile(
-                icon: Icons.label_outlined,
-                label: l10n.tags,
-                trailing: Icon(
-                  Icons.chevron_right,
-                  size: 22,
-                  color: scheme.onSurfaceVariant,
-                ),
-                onTap: () => _openSub(_SubPage.tags),
-              ),
-              TorrentActionTile(
-                icon: Icons.auto_mode_outlined,
-                label: l10n.autoTmm,
-                trailing: torrent.autoTmm == true
-                    ? Icon(Icons.check, size: 22, color: scheme.primary)
-                    : null,
-                onTap: () => _toggleAutoTmm(
-                  enabled: torrent.autoTmm == true,
-                  vm: vm,
-                ),
-              ),
-              const Divider(height: 8),
-              TorrentActionTile(
-                icon: Icons.speed,
-                label: availability.isCompleted
-                    ? l10n.uploadLimit
-                    : l10n.uploadDownloadLimit,
-                trailing: Icon(
-                  Icons.chevron_right,
-                  size: 22,
-                  color: scheme.onSurfaceVariant,
-                ),
-                onTap: () => _openSub(_SubPage.speedLimit),
-              ),
-              TorrentActionTile(
-                icon: Icons.percent,
-                label: l10n.shareLimit,
-                trailing: Icon(
-                  Icons.chevron_right,
-                  size: 22,
-                  color: scheme.onSurfaceVariant,
-                ),
-                onTap: () => _openSub(_SubPage.shareLimit),
-              ),
-              if (availability.showSuperSeeding)
+                const Divider(height: 8),
                 TorrentActionTile(
-                  icon: Icons.hub_outlined,
-                  label: l10n.superSeeding,
-                  trailing: torrent.superSeeding == true
-                      ? Icon(Icons.check, size: 22, color: scheme.primary)
-                      : null,
-                  onTap: () => _toggleSuperSeeding(
-                    enabled: torrent.superSeeding == true,
-                    vm: vm,
-                  ),
+                  icon: Icons.delete_outline,
+                  label: l10n.actionDelete,
+                  foreground: scheme.error,
+                  onTap: () => _confirmDelete(name: torrent.name ?? '', vm: vm),
                 ),
-              if (!availability.isCompleted) ...[
+                const Divider(height: 8),
                 TorrentActionTile(
-                  icon: Icons.format_list_numbered,
-                  label: l10n.sequentialDownload,
-                  trailing: torrent.seqDl == true
-                      ? Icon(Icons.check, size: 22, color: scheme.primary)
-                      : null,
-                  onTap: () => _run(
-                    action: () => vm.toggleTorrentSequentialDownload(widget.hash),
-                    failLabel: l10n.sequentialFailed,
-                  ),
+                  icon: Icons.folder_outlined,
+                  label: l10n.setSaveLocation,
+                  onTap: () => _setLocation(torrent, vm),
                 ),
                 TorrentActionTile(
-                  icon: Icons.vertical_align_center,
-                  label: l10n.firstLastPiece,
-                  trailing: torrent.fLPiecePrio == true
-                      ? Icon(Icons.check, size: 22, color: scheme.primary)
-                      : null,
-                  onTap: () => _run(
-                    action: () =>
-                        vm.toggleTorrentFirstLastPiecePrio(widget.hash),
-                    failLabel: l10n.firstLastFailed,
-                  ),
+                  icon: Icons.drive_file_rename_outline,
+                  label: l10n.renameTitle,
+                  onTap: () => _rename(torrent, vm),
                 ),
-              ],
-              const Divider(height: 8),
-              TorrentActionTile(
-                icon: Icons.verified_outlined,
-                label: l10n.forceRecheck,
-                onTap: () => _run(
-                  action: () => vm.recheckTorrent(widget.hash),
-                  failLabel: l10n.recheckFailed,
-                ),
-              ),
-              TorrentActionTile(
-                icon: Icons.campaign_outlined,
-                label: l10n.forceReannounce,
-                enabled: availability.canReannounce,
-                onTap: availability.canReannounce
-                    ? () => _run(
-                        action: () => vm.reannounceTorrent(widget.hash),
-                        failLabel: l10n.reannounceFailed,
-                      )
-                    : null,
-              ),
-              const Divider(height: 8),
-              if (queueing)
                 TorrentActionTile(
-                  icon: Icons.low_priority,
-                  label: l10n.queue,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (torrent.priority != null && torrent.priority! > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: Text(
-                            '#${torrent.priority}',
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      Icon(
-                        Icons.chevron_right,
-                        size: 22,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
-                  onTap: () => _openSub(_SubPage.queue),
-                ),
-              if (showCopy)
-                TorrentActionTile(
-                  icon: Icons.copy_outlined,
-                  label: l10n.copy,
+                  icon: Icons.category_outlined,
+                  label: l10n.category,
                   trailing: Icon(
                     Icons.chevron_right,
                     size: 22,
                     color: scheme.onSurfaceVariant,
                   ),
-                  onTap: () => _openSub(_SubPage.copy),
+                  onTap: () => _openSub(_SubPage.category),
                 ),
-              if (cap.hasExportTorrent)
-              TorrentActionTile(
-                icon: Icons.share_outlined,
-                label: l10n.shareTorrent,
-                enabled: torrent.hasMetadata != false,
-                onTap: torrent.hasMetadata != false
-                    ? () => _exportTorrent(torrent, vm)
-                    : null,
-              ),
-            ],
+                if (cap.hasTags)
+                  TorrentActionTile(
+                    icon: Icons.label_outlined,
+                    label: l10n.tags,
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      size: 22,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    onTap: () => _openSub(_SubPage.tags),
+                  ),
+                TorrentActionTile(
+                  icon: Icons.auto_mode_outlined,
+                  label: l10n.autoTmm,
+                  trailing: torrent.autoTmm == true
+                      ? Icon(Icons.check, size: 22, color: scheme.primary)
+                      : null,
+                  onTap: () =>
+                      _toggleAutoTmm(enabled: torrent.autoTmm == true, vm: vm),
+                ),
+                const Divider(height: 8),
+                TorrentActionTile(
+                  icon: Icons.speed,
+                  label: availability.isCompleted
+                      ? l10n.uploadLimit
+                      : l10n.uploadDownloadLimit,
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    size: 22,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  onTap: () => _openSub(_SubPage.speedLimit),
+                ),
+                TorrentActionTile(
+                  icon: Icons.percent,
+                  label: l10n.shareLimit,
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    size: 22,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  onTap: () => _openSub(_SubPage.shareLimit),
+                ),
+                if (availability.showSuperSeeding)
+                  TorrentActionTile(
+                    icon: Icons.hub_outlined,
+                    label: l10n.superSeeding,
+                    trailing: torrent.superSeeding == true
+                        ? Icon(Icons.check, size: 22, color: scheme.primary)
+                        : null,
+                    onTap: () => _toggleSuperSeeding(
+                      enabled: torrent.superSeeding == true,
+                      vm: vm,
+                    ),
+                  ),
+                if (!availability.isCompleted) ...[
+                  TorrentActionTile(
+                    icon: Icons.format_list_numbered,
+                    label: l10n.sequentialDownload,
+                    trailing: torrent.seqDl == true
+                        ? Icon(Icons.check, size: 22, color: scheme.primary)
+                        : null,
+                    onTap: () => _run(
+                      action: () =>
+                          vm.toggleTorrentSequentialDownload(widget.hash),
+                      failLabel: l10n.sequentialFailed,
+                    ),
+                  ),
+                  TorrentActionTile(
+                    icon: Icons.vertical_align_center,
+                    label: l10n.firstLastPiece,
+                    trailing: torrent.fLPiecePrio == true
+                        ? Icon(Icons.check, size: 22, color: scheme.primary)
+                        : null,
+                    onTap: () => _run(
+                      action: () =>
+                          vm.toggleTorrentFirstLastPiecePrio(widget.hash),
+                      failLabel: l10n.firstLastFailed,
+                    ),
+                  ),
+                ],
+                const Divider(height: 8),
+                TorrentActionTile(
+                  icon: Icons.verified_outlined,
+                  label: l10n.forceRecheck,
+                  onTap: () => _run(
+                    action: () => vm.recheckTorrent(widget.hash),
+                    failLabel: l10n.recheckFailed,
+                  ),
+                ),
+                TorrentActionTile(
+                  icon: Icons.campaign_outlined,
+                  label: l10n.forceReannounce,
+                  enabled: availability.canReannounce,
+                  onTap: availability.canReannounce
+                      ? () => _run(
+                          action: () => vm.reannounceTorrent(widget.hash),
+                          failLabel: l10n.reannounceFailed,
+                        )
+                      : null,
+                ),
+                const Divider(height: 8),
+                if (queueing)
+                  TorrentActionTile(
+                    icon: Icons.low_priority,
+                    label: l10n.queue,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (torrent.priority != null && torrent.priority! > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              '#${torrent.priority}',
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        Icon(
+                          Icons.chevron_right,
+                          size: 22,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                    onTap: () => _openSub(_SubPage.queue),
+                  ),
+                if (showCopy)
+                  TorrentActionTile(
+                    icon: Icons.copy_outlined,
+                    label: l10n.copy,
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      size: 22,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    onTap: () => _openSub(_SubPage.copy),
+                  ),
+                if (cap.hasExportTorrent)
+                  TorrentActionTile(
+                    icon: Icons.share_outlined,
+                    label: l10n.shareTorrent,
+                    enabled: torrent.hasMetadata != false,
+                    onTap: torrent.hasMetadata != false
+                        ? () => _exportTorrent(torrent, vm)
+                        : null,
+                  ),
+              ],
             ),
           ),
         ),
@@ -524,9 +525,9 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
         );
       } catch (e) {
         if (!widget.pageContext.mounted) return;
-        ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-          SnackBar(content: Text(l10n.shareFailed('$e'))),
-        );
+        ScaffoldMessenger.of(
+          widget.pageContext,
+        ).showSnackBar(SnackBar(content: Text(l10n.shareFailed('$e'))));
       }
     });
   }
@@ -566,16 +567,13 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       if (!widget.pageContext.mounted) return;
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
-      ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text(l10n.setLocationFailed(error))),
-      );
+      ScaffoldMessenger.of(
+        widget.pageContext,
+      ).showSnackBar(SnackBar(content: Text(l10n.setLocationFailed(error))));
     });
   }
 
-  void _toggleAutoTmm({
-    required bool enabled,
-    required HomePageViewModel vm,
-  }) {
+  void _toggleAutoTmm({required bool enabled, required HomePageViewModel vm}) {
     final l10n = widget.pageContext.l10n;
     Navigator.pop(context);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -644,10 +642,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     });
   }
 
-  void _confirmDelete({
-    required String name,
-    required HomePageViewModel vm,
-  }) {
+  void _confirmDelete({required String name, required HomePageViewModel vm}) {
     final l10n = widget.pageContext.l10n;
     final sheetContext = context;
     Navigator.pop(sheetContext);
@@ -697,9 +692,9 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       if (!widget.pageContext.mounted) return;
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
-      ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text(l10n.deleteFailed(error))),
-      );
+      ScaffoldMessenger.of(
+        widget.pageContext,
+      ).showSnackBar(SnackBar(content: Text(l10n.deleteFailed(error))));
     });
   }
 }

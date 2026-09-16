@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 
 class DetailSortOption<T> {
   const DetailSortOption({required this.value, required this.label});
@@ -18,30 +18,21 @@ abstract final class DetailSortDialog {
     required T selected,
     required bool ascending,
     required void Function(T value) onSelect,
+    bool? useDialog,
   }) {
-    return showGeneralDialog<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
-      useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: BlurDialogMotion.duration,
-      pageBuilder: (ctx, animation, secondaryAnimation) {
-        return BlurDialogScaffold(
-          animation: animation,
-          onBarrierTap: () => Navigator.of(ctx).pop(),
-          panelConstraints: const BoxConstraints(minWidth: 220, maxWidth: 280),
-          panelPadding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-          child: _DetailSortContent<T>(
-            title: title,
-            options: options,
-            selected: selected,
-            ascending: ascending,
-            onSelect: onSelect,
-          ),
-        );
-      },
-      transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
+      useDialog: useDialog,
+      dialogConstraints: const BoxConstraints(minWidth: 220, maxWidth: 280),
+      dialogPadding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+      sheetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      builder: (ctx) => _DetailSortContent<T>(
+        title: title,
+        options: options,
+        selected: selected,
+        ascending: ascending,
+        onSelect: onSelect,
+      ),
     );
   }
 }

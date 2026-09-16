@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/log/model/log_day_section.dart';
 import 'package:qbpanel/log/widget/log_date_header.dart';
+import 'package:qbpanel/widget/adaptive_card_grid.dart';
+import 'package:qbpanel/widget/page_insets.dart';
 
 /// 按日分组；滚动时仅保留一个吸顶标题，下一组标题顶掉上一组。
 class LogStickyGroupedList<T> extends StatefulWidget {
@@ -9,11 +11,15 @@ class LogStickyGroupedList<T> extends StatefulWidget {
     required this.sections,
     required this.itemBuilder,
     this.controller,
+    this.crossAxisCount = 1,
   });
 
   final List<LogDaySection<T>> sections;
   final Widget Function(BuildContext context, T entry) itemBuilder;
   final ScrollController? controller;
+
+  /// >1 时每一天的条目按网格排布；日期标题仍通栏。
+  final int crossAxisCount;
 
   @override
   State<LogStickyGroupedList<T>> createState() =>
@@ -117,15 +123,7 @@ class _LogStickyGroupedListState<T> extends State<LogStickyGroupedList<T>> {
                     ),
                   ),
                 ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => widget.itemBuilder(
-                      context,
-                      widget.sections[i].entries[index],
-                    ),
-                    childCount: widget.sections[i].entries.length,
-                  ),
-                ),
+                _sectionItemsSliver(i),
               ],
               const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
             ],
@@ -145,6 +143,40 @@ class _LogStickyGroupedListState<T> extends State<LogStickyGroupedList<T>> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _sectionItemsSliver(int sectionIndex) {
+    final entries = widget.sections[sectionIndex].entries;
+    final columns = widget.crossAxisCount.clamp(1, 12);
+    if (columns <= 1) {
+      return SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => widget.itemBuilder(context, entries[index]),
+          childCount: entries.length,
+        ),
+      );
+    }
+
+    final rowCount = (entries.length + columns - 1) ~/ columns;
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: PageInsets.horizontal),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, rowIndex) {
+            return AdaptiveCardRow(
+              startIndex: rowIndex * columns,
+              itemCount: entries.length,
+              crossAxisCount: columns,
+              spacing: kAdaptiveGridSpacing,
+              isLastRow: false,
+              itemBuilder: (index) =>
+                  widget.itemBuilder(context, entries[index]),
+            );
+          },
+          childCount: rowCount,
+        ),
+      ),
     );
   }
 }

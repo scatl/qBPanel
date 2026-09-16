@@ -4,7 +4,7 @@ import 'package:qbpanel/api/entity/response/rss_items_response.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/rss/rss_view_model.dart';
 import 'package:qbpanel/rss/ui/rss_text_input_dialog.dart';
-import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 
@@ -15,29 +15,19 @@ abstract final class RssFeedActionDialog {
     required BuildContext context,
     required RssTreeNode node,
     required RssViewModel vm,
+    Offset? position,
   }) {
-    return showGeneralDialog<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
-      useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: BlurDialogMotion.duration,
-      pageBuilder: (ctx, animation, secondaryAnimation) {
-        return BlurDialogScaffold(
-          animation: animation,
-          onBarrierTap: () => Navigator.of(ctx).pop(),
-          panelConstraints: const BoxConstraints(minWidth: 240, maxWidth: 300),
-          panelPadding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
-          child: _RssFeedActionContent(
-            node: node,
-            parentContext: context,
-            dialogContext: ctx,
-            vm: vm,
-          ),
-        );
-      },
-      transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
+      anchor: position,
+      dialogConstraints: const BoxConstraints(minWidth: 240, maxWidth: 300),
+      sheetPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      builder: (ctx) => _RssFeedActionContent(
+        node: node,
+        parentContext: context,
+        dialogContext: ctx,
+        vm: vm,
+      ),
     );
   }
 }
@@ -74,11 +64,7 @@ class _RssFeedActionContent extends StatelessWidget {
     if (!context.mounted) return;
     LoadingDialog.dismiss(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          error ?? successMessage ?? context.l10n.saved,
-        ),
-      ),
+      SnackBar(content: Text(error ?? successMessage ?? context.l10n.saved)),
     );
   }
 
@@ -189,10 +175,7 @@ class _RssFeedActionContent extends StatelessWidget {
               destructive: true,
             );
             if (ok != true || !parentContext.mounted) return;
-            await _runBusy(
-              parentContext,
-              () => vm.removeItem(node.path),
-            );
+            await _runBusy(parentContext, () => vm.removeItem(node.path));
           }),
         ),
       ],

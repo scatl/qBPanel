@@ -10,29 +10,33 @@ import 'package:qbpanel/home/ui/dialog/category_edit_dialog.dart';
 import 'package:qbpanel/home/ui/dialog/tag_edit_dialog.dart';
 import 'package:qbpanel/home/ui/torrent_category_tree.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 import 'package:qbpanel/widget/page_insets.dart';
-import 'package:qbpanel/widget/sheet/blur_modal_bottom_sheet.dart';
 
 class TorrentFilterSheet extends ConsumerStatefulWidget {
   const TorrentFilterSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    return showBlurModalBottomSheet<void>(
+    final height = MediaQuery.sizeOf(context).height * 0.7;
+    return showAdaptiveCardPopup<void>(
       context: context,
-      builder: (context) {
-        final height = MediaQuery.sizeOf(context).height * 0.7;
-        return SizedBox(
-          height: height,
-          child: const ScaffoldMessenger(
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: TorrentFilterSheet(),
-            ),
+      dialogConstraints: BoxConstraints(
+        minWidth: 380,
+        maxWidth: 480,
+        maxHeight: height + 32,
+      ),
+      dialogPadding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+      builder: (_) => SizedBox(
+        height: height,
+        child: const ScaffoldMessenger(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: TorrentFilterSheet(),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -48,9 +52,15 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final statusFilter = ref.watch(homePageProvider.select((s) => s.statusFilter));
-    final statusCounts = ref.watch(homePageProvider.select((s) => s.statusCounts));
-    final categoryFilter = ref.watch(homePageProvider.select((s) => s.categoryFilter));
+    final statusFilter = ref.watch(
+      homePageProvider.select((s) => s.statusFilter),
+    );
+    final statusCounts = ref.watch(
+      homePageProvider.select((s) => s.statusCounts),
+    );
+    final categoryFilter = ref.watch(
+      homePageProvider.select((s) => s.categoryFilter),
+    );
     final tags = ref.watch(homePageProvider.select((s) => s.tags));
     final tagCounts = ref.watch(homePageProvider.select((s) => s.tagCounts));
     final tagFilter = ref.watch(homePageProvider.select((s) => s.tagFilter));
@@ -58,8 +68,10 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
     final sortAscending = ref.watch(
       homePageProvider.select((s) => s.sortAscending),
     );
-    final filtering = statusFilter != TorrentStatusFilter.all
-        || !categoryFilter.isAll || !tagFilter.isAll;
+    final filtering =
+        statusFilter != TorrentStatusFilter.all ||
+        !categoryFilter.isAll ||
+        !tagFilter.isAll;
     final hasTags = ref.watch(qbApiCapabilitiesProvider).hasTags;
 
     final textTheme = Theme.of(context).textTheme;
@@ -78,8 +90,7 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
               ),
               TextButton(
                 onPressed: filtering
-                    ? () =>
-                        ref.read(homePageProvider.notifier).clearFilters()
+                    ? () => ref.read(homePageProvider.notifier).clearFilters()
                     : null,
                 child: Text(l10n.homeClearFilters),
               ),
@@ -112,98 +123,94 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
                   label: key.label(l10n),
                   selected: selected,
                   ascending: sortAscending,
-                  onTap: () =>
-                      ref.read(homePageProvider.notifier).setSort(key),
+                  onTap: () => ref.read(homePageProvider.notifier).setSort(key),
                 );
               },
             ),
           ),
         ),
         _FilterSection(
-            title: context.l10n.status,
-            selectedLabel: statusFilter.label(context.l10n),
-            expanded: _statusExpanded,
-            onToggle: () {
-              setState(() => _statusExpanded = !_statusExpanded);
-            },
-            child: _FilterCard(
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(8),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisExtent: 48,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 4,
-                ),
-                itemCount: TorrentStatusFilter.values.length,
-                itemBuilder: (context, index) {
-                  final filter = TorrentStatusFilter.values[index];
-                  return _StatusCell(
-                    filter: filter,
-                    selected: filter == statusFilter,
-                    count: statusCounts[filter] ?? 0,
-                    onTap: () {
-                      ref
-                          .read(homePageProvider.notifier)
-                          .setStatusFilter(filter);
-                      Navigator.pop(context);
-                    },
+          title: context.l10n.status,
+          selectedLabel: statusFilter.label(context.l10n),
+          expanded: _statusExpanded,
+          onToggle: () {
+            setState(() => _statusExpanded = !_statusExpanded);
+          },
+          child: _FilterCard(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisExtent: 48,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 4,
+              ),
+              itemCount: TorrentStatusFilter.values.length,
+              itemBuilder: (context, index) {
+                final filter = TorrentStatusFilter.values[index];
+                return _StatusCell(
+                  filter: filter,
+                  selected: filter == statusFilter,
+                  count: statusCounts[filter] ?? 0,
+                  onTap: () {
+                    ref.read(homePageProvider.notifier).setStatusFilter(filter);
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+        _FilterSection(
+          title: context.l10n.category,
+          selectedLabel: categoryFilter.displayText(context.l10n),
+          expanded: _categoryExpanded,
+          onToggle: () {
+            setState(() => _categoryExpanded = !_categoryExpanded);
+          },
+          actions: [
+            FilterIconButton(
+              tooltip: context.l10n.addCategory,
+              iconSize: 22,
+              icon: Icons.create_new_folder_outlined,
+              onPressed: () => CategoryEditDialog.show(
+                context,
+                mode: CategoryEditMode.create,
+              ),
+            ),
+            const SizedBox(width: 16),
+            FilterIconButton(
+              tooltip: context.l10n.deleteUnusedCategories,
+              iconSize: 22,
+              icon: Icons.folder_delete_outlined,
+              onPressed: () => confirmRemoveUnusedCategories(context, ref),
+            ),
+            const SizedBox(width: 8),
+          ],
+          child: _FilterCard(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
+              child: TorrentCategoryTree(
+                showAllRow: true,
+                allSelected: categoryFilter.isAll,
+                selectedCategory: categoryFilter.isUncategorized
+                    ? ''
+                    : (categoryFilter.path ?? ''),
+                onSelectAll: () => _onSelectCategory(TorrentCategoryFilter.all),
+                onSelectCategory: (path) {
+                  _onSelectCategory(
+                    path.isEmpty
+                        ? TorrentCategoryFilter.uncategorized
+                        : TorrentCategoryFilter.named(path),
                   );
                 },
               ),
             ),
           ),
-          _FilterSection(
-            title: context.l10n.category,
-            selectedLabel: categoryFilter.displayText(context.l10n),
-            expanded: _categoryExpanded,
-            onToggle: () {
-              setState(() => _categoryExpanded = !_categoryExpanded);
-            },
-            actions: [
-              FilterIconButton(
-                tooltip: context.l10n.addCategory,
-                iconSize: 22,
-                icon: Icons.create_new_folder_outlined,
-                onPressed: () => CategoryEditDialog.show(
-                  context,
-                  mode: CategoryEditMode.create,
-                ),
-              ),
-              const SizedBox(width: 16),
-              FilterIconButton(
-                tooltip: context.l10n.deleteUnusedCategories,
-                iconSize: 22,
-                icon: Icons.folder_delete_outlined,
-                onPressed: () => confirmRemoveUnusedCategories(context, ref),
-              ),
-              const SizedBox(width: 8),
-            ],
-            child: _FilterCard(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-                child: TorrentCategoryTree(
-                  showAllRow: true,
-                  allSelected: categoryFilter.isAll,
-                  selectedCategory: categoryFilter.isUncategorized
-                      ? ''
-                      : (categoryFilter.path ?? ''),
-                  onSelectAll: () =>
-                      _onSelectCategory(TorrentCategoryFilter.all),
-                  onSelectCategory: (path) {
-                    _onSelectCategory(
-                      path.isEmpty
-                          ? TorrentCategoryFilter.uncategorized
-                          : TorrentCategoryFilter.named(path),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-          if (hasTags)
+        ),
+        if (hasTags)
           _FilterSection(
             title: context.l10n.tags,
             selectedLabel: tagFilter.displayText(context.l10n),
@@ -258,7 +265,7 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
                             tooltip: context.l10n.deleteTag,
                             icon: Icons.delete_outline,
                             onPressed: () => _onRemoveTag(tag),
-                          )
+                          ),
                         ],
                       ),
                   ],
@@ -266,7 +273,7 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
               ),
             ),
           ),
-        ],
+      ],
     );
   }
 
@@ -295,9 +302,9 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     if (error == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.deleteFailed(error))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.deleteFailed(error))));
   }
 
   Future<void> _onRemoveUnusedTags() async {
@@ -305,9 +312,9 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
     final names = vm.unusedTagNames();
     final l10n = context.l10n;
     if (names.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.noUnusedTags)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.noUnusedTags)));
       return;
     }
 
@@ -324,9 +331,9 @@ class _TorrentFilterSheetState extends ConsumerState<TorrentFilterSheet> {
     if (!mounted) return;
     LoadingDialog.dismiss(context);
     if (error == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.deleteFailed(error))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.deleteFailed(error))));
   }
 }
 
@@ -370,10 +377,7 @@ class _FilterSection extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: scheme.primary,
-                          ),
+                          style: TextStyle(fontSize: 18, color: scheme.primary),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -412,9 +416,7 @@ class _FilterSection extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
           alignment: Alignment.topCenter,
-          child: expanded
-              ? child
-              : const SizedBox(width: double.infinity),
+          child: expanded ? child : const SizedBox(width: double.infinity),
         ),
       ],
     );
@@ -438,13 +440,10 @@ class _FilterCard extends StatelessWidget {
       child: Card(
         margin: EdgeInsets.zero,
         elevation: 0,
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withValues(alpha: 0.45),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
         child: child,
       ),
@@ -469,8 +468,7 @@ class _StatusCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final labelColor =
-        selected ? scheme.onPrimaryContainer : scheme.onSurface;
+    final labelColor = selected ? scheme.onPrimaryContainer : scheme.onSurface;
 
     return Material(
       color: selected ? scheme.secondaryContainer : Colors.transparent,
@@ -522,8 +520,7 @@ class _SortCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final labelColor =
-        selected ? scheme.onPrimaryContainer : scheme.onSurface;
+    final labelColor = selected ? scheme.onPrimaryContainer : scheme.onSurface;
 
     return Material(
       color: selected ? scheme.secondaryContainer : Colors.transparent,

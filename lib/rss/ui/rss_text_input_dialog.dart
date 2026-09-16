@@ -90,7 +90,9 @@ class _RssTextInputDialogBodyState extends State<_RssTextInputDialogBody> {
     FocusScope.of(context).unfocus();
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      setState(() => _error = widget.emptyError ?? context.l10n.rssNameRequired);
+      setState(
+        () => _error = widget.emptyError ?? context.l10n.rssNameRequired,
+      );
       return;
     }
     Navigator.of(context).pop(text);
@@ -101,12 +103,11 @@ class _RssTextInputDialogBodyState extends State<_RssTextInputDialogBody> {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final dialogWidth = MediaQuery.sizeOf(context).width * 0.86;
 
     return BlurDialogScaffold(
       animation: widget.animation,
       onBarrierTap: () => Navigator.of(context).pop(),
-      panelConstraints: BoxConstraints.tightFor(width: dialogWidth),
+      panelConstraints: formDialogConstraints(context),
       panelPadding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
       child: SingleChildScrollView(
         child: Column(

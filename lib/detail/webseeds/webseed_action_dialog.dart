@@ -4,7 +4,7 @@ import 'package:qbpanel/api/entity/response/torrent_webseed_response.dart';
 import 'package:qbpanel/detail/webseeds/edit_webseed_dialog.dart';
 import 'package:qbpanel/detail/webseeds/torrent_webseeds_view_model.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
-import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 import 'package:qbpanel/widget/dialog/confirm_dialog.dart';
 
 abstract final class WebSeedActionDialog {
@@ -15,52 +15,40 @@ abstract final class WebSeedActionDialog {
     required TorrentWebSeedResponse webSeed,
     required TorrentWebSeedsViewModel viewModel,
   }) {
-    return showGeneralDialog<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
-      useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: BlurDialogMotion.duration,
-      pageBuilder: (ctx, animation, secondaryAnimation) {
-        return BlurDialogScaffold(
-          animation: animation,
-          onBarrierTap: () => Navigator.of(ctx).pop(),
-          panelConstraints: const BoxConstraints(minWidth: 240, maxWidth: 320),
-          panelPadding: const EdgeInsets.fromLTRB(8, 14, 8, 8),
-          child: _WebSeedActionContent(
-            url: webSeed.url,
-            onEdit: () {
-              Navigator.of(ctx).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!context.mounted) return;
-                EditWebSeedDialog.show(
-                  context: context,
-                  viewModel: viewModel,
-                  webSeed: webSeed,
-                );
-              });
-            },
-            onRemove: () {
-              Navigator.of(ctx).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) {
-                  _removeWebSeed(context, webSeed, viewModel);
-                }
-              });
-            },
-            onCopy: () async {
-              Navigator.of(ctx).pop();
-              await Clipboard.setData(ClipboardData(text: webSeed.url));
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(context.l10n.copiedHttpSeed)));
-            },
-          ),
-        );
-      },
-      transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
+      useDialog: false,
+      sheetPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      builder: (ctx) => _WebSeedActionContent(
+        url: webSeed.url,
+        onEdit: () {
+          Navigator.of(ctx).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            EditWebSeedDialog.show(
+              context: context,
+              viewModel: viewModel,
+              webSeed: webSeed,
+            );
+          });
+        },
+        onRemove: () {
+          Navigator.of(ctx).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              _removeWebSeed(context, webSeed, viewModel);
+            }
+          });
+        },
+        onCopy: () async {
+          Navigator.of(ctx).pop();
+          await Clipboard.setData(ClipboardData(text: webSeed.url));
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.l10n.copiedHttpSeed)));
+        },
+      ),
     );
   }
 }

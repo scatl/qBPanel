@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:qbpanel/api/entity/response/connection_status.dart';
 import 'package:qbpanel/api/entity/response/server_state_response.dart';
-import 'package:flutter/material.dart';
 import 'package:qbpanel/home/ui/torrent_item.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/util/byte_format.dart';
+import 'package:qbpanel/util/platform_info.dart';
+import 'package:qbpanel/widget/sequential_fit_row.dart';
 
 class HomeBottomBar extends StatelessWidget {
   const HomeBottomBar({
@@ -26,6 +28,7 @@ class HomeBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final status = serverState.connectionStatus;
     final statusColor = _connectionColor(scheme, status);
@@ -54,8 +57,7 @@ class HomeBottomBar extends StatelessWidget {
                 InkWell(
                   onTap: onStatusTap,
                   child: Tooltip(
-                    message: status?.label(context.l10n) ??
-                        context.l10n.homeServerStatus,
+                    message: status?.label(l10n) ?? l10n.homeServerStatus,
                     child: Icon(
                       _connectionIcon(status),
                       size: 20,
@@ -66,8 +68,8 @@ class HomeBottomBar extends StatelessWidget {
                 const SizedBox(width: 16),
                 IconButton(
                   tooltip: serverState.useAltSpeedLimits == true
-                      ? context.l10n.altSpeedOffTooltip
-                      : context.l10n.altSpeedOnTooltip,
+                      ? l10n.altSpeedOffTooltip
+                      : l10n.altSpeedOnTooltip,
                   visualDensity: VisualDensity.compact,
                   style: IconButton.styleFrom(
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -86,7 +88,58 @@ class HomeBottomBar extends StatelessWidget {
                     size: serverState.useAltSpeedLimits == true ? 18 : 20,
                   ),
                 ),
-                const Spacer(),
+                if (isDesktopOrTablet(context))
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        heightFactor: 1,
+                        child: SequentialFitRow(
+                          spacing: 16,
+                          children: [
+                            _StatChip(
+                              icon: Icons.storage_outlined,
+                              text: l10n.homeBarFreeSpace(
+                                formatBytes(serverState.freeSpaceOnDisk),
+                              ),
+                              onTap: onStatusTap,
+                            ),
+                            _StatChip(
+                              icon: Icons.hub_outlined,
+                              text: l10n.homeBarDhtNodes(
+                                serverState.dhtNodes?.toString() ?? '—',
+                              ),
+                              onTap: onStatusTap,
+                            ),
+                            _StatChip(
+                              icon: Icons.download_outlined,
+                              text: l10n.homeBarAllTimeDownload(
+                                formatBytes(serverState.alltimeDl),
+                              ),
+                              onTap: onStatusTap,
+                            ),
+                            _StatChip(
+                              icon: Icons.upload_outlined,
+                              text: l10n.homeBarAllTimeUpload(
+                                formatBytes(serverState.alltimeUl),
+                              ),
+                              onTap: onStatusTap,
+                            ),
+                            _StatChip(
+                              icon: Icons.swap_vert,
+                              text: l10n.homeBarRatio(
+                                _globalRatioLabel(serverState.globalRatio),
+                              ),
+                              onTap: onStatusTap,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  const Spacer(),
                 InkWell(
                   onTap: onSpeedTap,
                   child: Row(
@@ -111,6 +164,32 @@ class HomeBottomBar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+String _globalRatioLabel(String? raw) {
+  if (raw == null || raw.isEmpty || raw == '-') return '—';
+  return raw;
+}
+
+class _StatChip extends StatelessWidget {
+  const _StatChip({
+    required this.icon,
+    required this.text,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String text;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      child: SpeedChip(icon: icon, text: text, color: scheme.onSurfaceVariant),
     );
   }
 }

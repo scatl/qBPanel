@@ -95,8 +95,9 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
   }
 
   Future<void> _loadDefaultSavePath() async {
-    final path =
-        await ref.read(homePageProvider.notifier).fetchDefaultSavePath();
+    final path = await ref
+        .read(homePageProvider.notifier)
+        .fetchDefaultSavePath();
     if (!mounted) return;
     _defaultSavePath = path;
     setState(() => _ready = true);
@@ -180,7 +181,6 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final dialogWidth = MediaQuery.sizeOf(context).width * 0.85;
     final title = switch (widget.mode) {
       CategoryEditMode.create => l10n.addCategory,
       CategoryEditMode.createSubcategory => l10n.addSubcategory,
@@ -191,56 +191,54 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
     return BlurDialogScaffold(
       animation: widget.animation,
       onBarrierTap: _saving ? null : () => Navigator.of(context).pop(false),
-      panelConstraints: BoxConstraints.tightFor(width: dialogWidth),
+      panelConstraints: formDialogConstraints(context),
       panelPadding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
       child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                title,
-                style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
-              ),
-              const SizedBox(height: 16),
-              if (!_ready)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: SizedBox(
-                      width: 32,
-                      height: 32,
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    ),
-                  ),
-                )
-              else ...[
-                if (_isSubcategory) ...[
-                  TextField(
-                    controller: _parentPathController,
-                    enabled: false,
-                    decoration: InputDecoration(
-                      labelText: l10n.parentCategory,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                TextField(
-                  controller: _nameController,
-                  enabled: !_isEdit && !_saving,
-                  autofocus: !_isEdit,
-                  textInputAction: TextInputAction.next,
-                  onChanged: (_) {
-                    setState(() {
-                      if (_nameError != null) _nameError = null;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: l10n.categoryName,
-                    errorText: _nameError,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              title,
+              style: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
+            ),
+            const SizedBox(height: 16),
+            if (!_ready)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(strokeWidth: 3),
                   ),
                 ),
-                if (cap.hasCategorySavePath) ...[
+              )
+            else ...[
+              if (_isSubcategory) ...[
+                TextField(
+                  controller: _parentPathController,
+                  enabled: false,
+                  decoration: InputDecoration(labelText: l10n.parentCategory),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: _nameController,
+                enabled: !_isEdit && !_saving,
+                autofocus: !_isEdit,
+                textInputAction: TextInputAction.next,
+                onChanged: (_) {
+                  setState(() {
+                    if (_nameError != null) _nameError = null;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: l10n.categoryName,
+                  errorText: _nameError,
+                ),
+              ),
+              if (cap.hasCategorySavePath) ...[
                 const SizedBox(height: 12),
                 TextField(
                   controller: _savePathController,
@@ -260,8 +258,8 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                     ),
                   ),
                 ),
-                ],
-                if (cap.hasCategoryDownloadPath) ...[
+              ],
+              if (cap.hasCategoryDownloadPath) ...[
                 const SizedBox(height: 16),
                 Text(
                   l10n.incompleteUseAnotherPath,
@@ -300,51 +298,51 @@ class _CategoryEditDialogState extends ConsumerState<CategoryEditDialog> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: _downloadPathController,
-                  enabled: !_saving &&
+                  enabled:
+                      !_saving &&
                       _incompletePathMode == CategoryIncompletePathMode.yes,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _onConfirm(),
-                  decoration: InputDecoration(
-                    labelText: l10n.path,
-                  ),
+                  decoration: InputDecoration(labelText: l10n.path),
                 ),
-                ],
-                if (_submitError != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    _submitError!,
-                    style: textTheme.bodySmall?.copyWith(color: scheme.error),
-                  ),
-                ],
               ],
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed:
-                        _saving ? null : () => Navigator.of(context).pop(false),
-                    child: Text(l10n.actionCancel),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: (_ready && !_saving) ? _onConfirm : null,
-                    child: _saving
-                        ? SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: scheme.onPrimary,
-                            ),
-                          )
-                        : Text(l10n.actionOk),
-                  ),
-                ],
-              ),
+              if (_submitError != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  _submitError!,
+                  style: textTheme.bodySmall?.copyWith(color: scheme.error),
+                ),
+              ],
             ],
-          ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: _saving
+                      ? null
+                      : () => Navigator.of(context).pop(false),
+                  child: Text(l10n.actionCancel),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: (_ready && !_saving) ? _onConfirm : null,
+                  child: _saving
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: scheme.onPrimary,
+                          ),
+                        )
+                      : Text(l10n.actionOk),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
     );
   }
 }

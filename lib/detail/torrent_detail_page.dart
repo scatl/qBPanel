@@ -35,11 +35,7 @@ class TorrentDetailPage extends ConsumerWidget {
       Tab(text: context.l10n.tabHttpSeeds),
     ];
     final views = <Widget>[
-      TorrentGeneralTab(
-        torrentHash: torrentHash,
-        ui: ui,
-        onRetry: vm.retry,
-      ),
+      TorrentGeneralTab(torrentHash: torrentHash, ui: ui, onRetry: vm.retry),
       if (showPeers) TorrentPeersTab(torrentHash: torrentHash),
       TorrentContentTab(torrentHash: torrentHash),
       TorrentTrackersTab(torrentHash: torrentHash),
@@ -119,6 +115,7 @@ class TorrentDetailPage extends ConsumerWidget {
           selected: ui.sortKey,
           ascending: ui.sortAscending,
           onSelect: vm.setSort,
+          useDialog: false,
         );
       case _DetailSortKind.trackers:
         final ui = ref.read(torrentTrackersProvider(torrentHash));

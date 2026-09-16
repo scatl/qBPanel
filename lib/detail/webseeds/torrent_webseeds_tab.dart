@@ -22,7 +22,8 @@ class TorrentWebSeedsTab extends ConsumerWidget {
     final cap = ref.watch(qbApiCapabilitiesProvider);
     final header = cap.hasWebSeedMutate
         ? _WebSeedsHeader(
-            onAdd: () => AddWebSeedsDialog.show(context: context, viewModel: vm),
+            onAdd: () =>
+                AddWebSeedsDialog.show(context: context, viewModel: vm),
           )
         : const SizedBox.shrink();
 
@@ -47,11 +48,11 @@ class TorrentWebSeedsTab extends ConsumerWidget {
                   key: ValueKey(webSeed.url),
                   webSeed: webSeed,
                   onLongPress: cap.hasWebSeedMutate
-                      ? () => WebSeedActionDialog.show(
-                            context: context,
-                            webSeed: webSeed,
-                            viewModel: vm,
-                          )
+                      ? (_) => WebSeedActionDialog.show(
+                          context: context,
+                          webSeed: webSeed,
+                          viewModel: vm,
+                        )
                       : null,
                 );
               },

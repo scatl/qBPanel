@@ -715,6 +715,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeServerStatus => '服务器状态';
 
   @override
+  String homeBarFreeSpace(String space) {
+    return '剩余磁盘空间：$space';
+  }
+
+  @override
+  String homeBarDhtNodes(String count) {
+    return 'DHT：$count 节点';
+  }
+
+  @override
+  String homeBarAllTimeDownload(String size) {
+    return '累计下载 $size';
+  }
+
+  @override
+  String homeBarAllTimeUpload(String size) {
+    return '累计上传 $size';
+  }
+
+  @override
+  String homeBarRatio(String ratio) {
+    return '分享率 $ratio';
+  }
+
+  @override
   String get renameTitle => '重命名';
 
   @override
@@ -1389,6 +1414,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String downloadingFiles(int count) {
     return '正在下载 $count 个文件';
   }
+
+  @override
+  String get noDownloadingFiles => '没有正在下载的文件';
 
   @override
   String get noHttpSeeds => '暂无 HTTP 源';
@@ -4192,6 +4220,31 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get homeServerStatus => '伺服器狀態';
 
   @override
+  String homeBarFreeSpace(String space) {
+    return '剩餘磁盤空間：$space';
+  }
+
+  @override
+  String homeBarDhtNodes(String count) {
+    return 'DHT：$count 節點';
+  }
+
+  @override
+  String homeBarAllTimeDownload(String size) {
+    return '累計下載 $size';
+  }
+
+  @override
+  String homeBarAllTimeUpload(String size) {
+    return '累計上傳 $size';
+  }
+
+  @override
+  String homeBarRatio(String ratio) {
+    return '分享率 $ratio';
+  }
+
+  @override
   String get renameTitle => '重新命名';
 
   @override
@@ -4866,6 +4919,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String downloadingFiles(int count) {
     return '正在下載 $count 個檔案';
   }
+
+  @override
+  String get noDownloadingFiles => '沒有正在下載的檔案';
 
   @override
   String get noHttpSeeds => '暫無 HTTP 源';

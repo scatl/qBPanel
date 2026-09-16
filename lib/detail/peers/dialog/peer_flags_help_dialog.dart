@@ -1,32 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:qbpanel/detail/peers/model/peer_flags.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
-import 'package:qbpanel/widget/dialog/blur_dialog_scaffold.dart';
+import 'package:qbpanel/widget/adaptive_card_popup.dart';
 
 abstract final class PeerFlagsHelpDialog {
   PeerFlagsHelpDialog._();
 
   static Future<void> show(BuildContext context) {
-    return showGeneralDialog<void>(
+    return showAdaptiveCardPopup<void>(
       context: context,
-      useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: BlurDialogMotion.duration,
-      pageBuilder: (ctx, animation, secondaryAnimation) {
-        return BlurDialogScaffold(
-          animation: animation,
-          onBarrierTap: () => Navigator.of(ctx).pop(),
-          panelConstraints: const BoxConstraints(
-            minWidth: 220,
-            maxWidth: 280,
-          ),
-          panelPadding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-          child: _PeerFlagsHelpContent(),
-        );
-      },
-      transitionBuilder: (ctx, animation, secondaryAnimation, child) => child,
+      dialogConstraints: const BoxConstraints(minWidth: 220, maxWidth: 280),
+      dialogPadding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+      sheetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      builder: (_) => const _PeerFlagsHelpContent(),
     );
   }
 }
