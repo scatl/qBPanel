@@ -8,6 +8,7 @@
   <p>
     <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.9+-02569B?logo=flutter&logoColor=white" />
     <img alt="qBittorrent" src="https://img.shields.io/badge/qBittorrent-WebAPI%202.0+-15897C" />
+    <a href="https://play.google.com/store/apps/details?id=com.scatl.qbpanel"><img alt="Google Play" src="https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white" /></a>
     <img alt="Android" src="https://img.shields.io/badge/Android-supported-3DDC84?logo=android&logoColor=white" />
     <img alt="Windows" src="https://img.shields.io/badge/Windows-supported-0078D6?logo=windows&logoColor=white" />
   </p>
@@ -18,17 +19,20 @@ qBPanel is not a BitTorrent engine. It is a **remote panel** that talks to a qBi
 ## Features
 
 - **Multiple servers**: add, edit, and switch instances; HTTPS and a custom path (for reverse proxies such as `/nas/qb`)
-- **Sign-in**: WebUI username and password, or an API key on qBittorrent 5.2+
-- **Torrent list**: live polling of progress and speeds; search; filter by status, category, and tags; several sort keys; standard or compact rows
+- **Sign-in**: WebUI username and password (qB 4.1+), or an API key on qBittorrent 5.2+
+- **Torrent list**: live polling of progress and speeds; search; filter by status, category, and tags; several sort keys (remembered per server); standard or compact rows; a card grid on wide / tablet layouts
 - **Add torrents**: magnet links, HTTP(S) URLs, and local `.torrent` files; save path, category, rename, and TMM
 - **Open from the system**: on Android, open or share `.torrent` files and `magnet:` links; on Windows, import via launch arguments or drag-and-drop (the app does not register as a default handler or write to the registry)
 - **Torrent actions**: start / stop / force start, delete, set location, rename, category and tags, speed and share limits, sequential download, recheck, reannounce, queue, export `.torrent`
 - **Torrent details**: general (piece bar, availability, speed chart), peers (IPv4 / IPv6 and client info), file priorities, trackers, HTTP seeds
+- **RSS**: feeds and folders, article reader, auto-download rules; remote RSS preferences on the current server
 - **Search**: qBittorrent search plugins—install, enable, and update
-- **Logs**: server logs and banned IPs, filterable by severity
-- **Remote preferences**: Behavior, Downloads, Connection, Speed, BitTorrent, WebUI, and Advanced (these apply to the qBittorrent server, not to this app)
+- **Logs**: server logs, banned IPs, and on-device diagnostic logs, filterable by severity
+- **Remote preferences**: Behavior, Downloads, Connection, Speed, BitTorrent, RSS, WebUI, and Advanced (these apply to the qBittorrent server, not to this app)
+- **Refresh**: configurable poll interval (speed-chart windows scale with it)
 - **Appearance**: system / light / dark, Material You dynamic color, custom seed color
 - **Languages**: follow the system, Simplified Chinese, Traditional Chinese, English
+- **About**: version, open-source licenses, source code, and privacy policy
 
 ## Screenshots
 

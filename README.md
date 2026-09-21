@@ -8,6 +8,7 @@
   <p>
     <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.9+-02569B?logo=flutter&logoColor=white" />
     <img alt="qBittorrent" src="https://img.shields.io/badge/qBittorrent-WebAPI%202.0+-15897C" />
+    <a href="https://play.google.com/store/apps/details?id=com.scatl.qbpanel"><img alt="Google Play" src="https://img.shields.io/badge/Google_Play-414141?logo=google-play&logoColor=white" /></a>
     <img alt="Android" src="https://img.shields.io/badge/Android-supported-3DDC84?logo=android&logoColor=white" />
     <img alt="Windows" src="https://img.shields.io/badge/Windows-supported-0078D6?logo=windows&logoColor=white" />
   </p>
@@ -18,17 +19,20 @@ qBPanel 不是下载器本身，而是跑在手机或电脑上的**远程面板*
 ## 功能
 
 - **多服务器**：添加、编辑、切换多台 qBittorrent；支持 HTTPS 与自定义路径（如反向代理 `/nas/qb`）
-- **登录**：WebUI 用户名 / 密码；qBittorrent 5.2+ 可用 API Key
-- **种子列表**：实时轮询进度与速度；搜索、状态 / 分类 / 标签筛选、多种排序；标准 / 紧凑行高
+- **登录**：WebUI 用户名 / 密码（qB 4.1+）；qBittorrent 5.2+ 可用 API Key
+- **种子列表**：实时轮询进度与速度；搜索、状态 / 分类 / 标签筛选、多种排序（按服务器记住）；标准 / 紧凑行高；宽屏与平板可用网格
 - **添加种子**：磁力链接、HTTP(S) 地址、本地 `.torrent` 文件；可选保存路径、分类、重命名、TMM
 - **从系统打开**：Android 可打开 / 分享 `.torrent` 与 `magnet:`；Windows 可通过启动参数或拖放导入（不注册为系统默认打开方式）
 - **任务操作**：开始 / 停止 / 强制开始、删除、改保存路径、重命名、分类与标签、限速与分享限制、顺序下载、校验、再汇报、队列、导出 `.torrent`
 - **种子详情**：总览（进度条、可用性、速度曲线）、Peer（含 IPv4 / IPv6 与客户端信息）、文件优先级、Tracker、HTTP seeds
+- **RSS**：订阅源与文件夹、阅读文章、自动下载规则；可改当前服务器的 RSS 选项
 - **搜索**：调用 qB 搜索插件，安装 / 启用 / 更新插件
-- **日志**：服务器普通日志与封禁 IP（支持按级别筛选）
-- **远程设置**：行为、下载、连接、速度、BitTorrent、WebUI、高级选项（改的是当前 qB 服务器，不是本应用）
+- **日志**：服务器普通日志、封禁 IP、本机诊断日志（支持按级别筛选）
+- **远程设置**：行为、下载、连接、速度、BitTorrent、RSS、WebUI、高级选项（改的是当前 qB 服务器，不是本应用）
+- **刷新**：可配置轮询间隔（速度曲线时间窗随间隔缩放）
 - **外观**：跟随系统 / 浅色 / 深色、Material You 动态取色、自定义主题色
 - **语言**：跟随系统、简体中文、繁體中文、English
+- **关于**：版本号、开源许可、源码与隐私政策
 
 ## 截图
 
