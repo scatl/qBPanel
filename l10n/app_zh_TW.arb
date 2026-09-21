@@ -11,6 +11,28 @@
   "actionClose": "關閉",
   "actionRename": "重新命名",
   "actionMore": "更多",
+  "actionSelect": "選擇",
+  "actionSelectAll": "全選",
+  "actionDeselectAll": "取消全選",
+  "selectedCount": "已選 {count} 項",
+  "@selectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "applyToSelected": "將套用到 {count} 項",
+  "@applyToSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "confirmDeleteTorrents": "確定刪除選中的 {count} 個種子？",
+  "@confirmDeleteTorrents": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "homeNoTorrentsSelected": "請先選擇種子",
   "loading": "載入中…",
   "processing": "處理中…",
   "emptyNoData": "暫無資料",

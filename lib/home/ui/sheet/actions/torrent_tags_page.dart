@@ -12,12 +12,12 @@ import 'package:qbpanel/widget/dialog/loading_dialog.dart';
 class TorrentTagsPage extends ConsumerStatefulWidget {
   const TorrentTagsPage({
     super.key,
-    required this.hash,
+    required this.hashes,
     required this.pageContext,
     required this.onBack,
   });
 
-  final String hash;
+  final String hashes;
   final BuildContext pageContext;
   final VoidCallback onBack;
 
@@ -34,10 +34,16 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
   Widget build(BuildContext context) {
     ref.watch(homePageProvider);
     final vm = ref.read(homePageProvider.notifier);
-    final torrent = vm.torrentByHash(widget.hash);
+    final torrents = vm.torrentsByHashes(widget.hashes.split('|'));
+    final tagSets = [
+      for (final torrent in torrents) splitTorrentTags(torrent.tags).toSet(),
+    ];
+    final selected = tagSets.isEmpty
+        ? <String>{}
+        : tagSets.reduce((value, element) => value.intersection(element));
+    final union = <String>{for (final tags in tagSets) ...tags};
     final serverTags = ref.read(homePageProvider).tags;
-    final selected = splitTorrentTags(torrent?.tags).toSet();
-    final names = <String>{...serverTags, ...selected}.toList()..sort();
+    final names = <String>{...serverTags, ...union}.toList()..sort();
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
@@ -101,10 +107,7 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
                         label: name,
                         value: selected.contains(name),
                         enabled: !_busy,
-                        onChanged: (value) => _toggle(
-                          name,
-                          enable: value,
-                        ),
+                        onChanged: (value) => _toggle(name, enable: value),
                         trailing: FilterIconButton(
                           tooltip: l10n.deleteTag,
                           icon: Icons.delete_outline,
@@ -125,7 +128,7 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: OutlinedButton(
-            onPressed: _busy || selected.isEmpty ? null : _clearTags,
+            onPressed: _busy || union.isEmpty ? null : _clearTags,
             child: _clearing
                 ? SizedBox(
                     width: 18,
@@ -170,9 +173,9 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
     final names = vm.unusedTagNames();
     final l10n = context.l10n;
     if (names.isEmpty) {
-      ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-        SnackBar(content: Text(l10n.noUnusedTags)),
-      );
+      ScaffoldMessenger.of(
+        widget.pageContext,
+      ).showSnackBar(SnackBar(content: Text(l10n.noUnusedTags)));
       return;
     }
     final confirmed = await ConfirmDialog.show(
@@ -197,8 +200,8 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
     });
     final vm = ref.read(homePageProvider.notifier);
     final error = enable
-        ? await vm.addTorrentTags(widget.hash, [name])
-        : await vm.removeTorrentTags(widget.hash, [name]);
+        ? await vm.addTorrentTags(widget.hashes, [name])
+        : await vm.removeTorrentTags(widget.hashes, [name]);
     if (!mounted) return;
     setState(() {
       _busy = false;
@@ -212,8 +215,9 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
       _clearing = true;
       _error = null;
     });
-    final error =
-        await ref.read(homePageProvider.notifier).clearTorrentTags(widget.hash);
+    final error = await ref
+        .read(homePageProvider.notifier)
+        .clearTorrentTags(widget.hashes);
     if (!mounted) return;
     setState(() {
       _busy = false;
@@ -221,8 +225,8 @@ class _TorrentTagsPageState extends ConsumerState<TorrentTagsPage> {
       _error = error;
     });
     if (error != null || !widget.pageContext.mounted) return;
-    ScaffoldMessenger.of(widget.pageContext).showSnackBar(
-      SnackBar(content: Text(context.l10n.tagsRemoved)),
-    );
+    ScaffoldMessenger.of(
+      widget.pageContext,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.tagsRemoved)));
   }
 }

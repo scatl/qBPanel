@@ -42,6 +42,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionMore => '更多';
 
   @override
+  String get actionSelect => '选择';
+
+  @override
+  String get actionSelectAll => '全选';
+
+  @override
+  String get actionDeselectAll => '取消全选';
+
+  @override
+  String selectedCount(int count) {
+    return '已选 $count 项';
+  }
+
+  @override
+  String applyToSelected(int count) {
+    return '将应用到 $count 项';
+  }
+
+  @override
+  String confirmDeleteTorrents(int count) {
+    return '确定删除选中的 $count 个种子？';
+  }
+
+  @override
+  String get homeNoTorrentsSelected => '请先选择种子';
+
+  @override
   String get loading => '加载中…';
 
   @override
@@ -3545,6 +3572,33 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get actionMore => '更多';
+
+  @override
+  String get actionSelect => '選擇';
+
+  @override
+  String get actionSelectAll => '全選';
+
+  @override
+  String get actionDeselectAll => '取消全選';
+
+  @override
+  String selectedCount(int count) {
+    return '已選 $count 項';
+  }
+
+  @override
+  String applyToSelected(int count) {
+    return '將套用到 $count 項';
+  }
+
+  @override
+  String confirmDeleteTorrents(int count) {
+    return '確定刪除選中的 $count 個種子？';
+  }
+
+  @override
+  String get homeNoTorrentsSelected => '請先選擇種子';
 
   @override
   String get loading => '載入中…';

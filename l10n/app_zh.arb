@@ -12,6 +12,28 @@
   "actionClose": "关闭",
   "actionRename": "重命名",
   "actionMore": "更多",
+  "actionSelect": "选择",
+  "actionSelectAll": "全选",
+  "actionDeselectAll": "取消全选",
+  "selectedCount": "已选 {count} 项",
+  "@selectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "applyToSelected": "将应用到 {count} 项",
+  "@applyToSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "confirmDeleteTorrents": "确定删除选中的 {count} 个种子？",
+  "@confirmDeleteTorrents": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "homeNoTorrentsSelected": "请先选择种子",
   "loading": "加载中…",
   "processing": "处理中…",
   "emptyNoData": "暂无数据",

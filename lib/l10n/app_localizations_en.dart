@@ -42,6 +42,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionMore => 'More';
 
   @override
+  String get actionSelect => 'Select';
+
+  @override
+  String get actionSelectAll => 'Select all';
+
+  @override
+  String get actionDeselectAll => 'Deselect all';
+
+  @override
+  String selectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String applyToSelected(int count) {
+    return 'Will apply to $count items';
+  }
+
+  @override
+  String confirmDeleteTorrents(int count) {
+    return 'Delete $count selected torrents?';
+  }
+
+  @override
+  String get homeNoTorrentsSelected => 'Select torrents first';
+
+  @override
   String get loading => 'Loading…';
 
   @override

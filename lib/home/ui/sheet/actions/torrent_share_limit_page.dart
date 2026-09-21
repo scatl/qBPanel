@@ -10,14 +10,14 @@ import 'package:qbpanel/widget/check_row.dart';
 class TorrentShareLimitPage extends ConsumerStatefulWidget {
   const TorrentShareLimitPage({
     super.key,
-    required this.hash,
-    required this.torrent,
+    required this.hashes,
+    required this.torrents,
     required this.pageContext,
     required this.onBack,
   });
 
-  final String hash;
-  final TorrentInfoResponse torrent;
+  final String hashes;
+  final List<TorrentInfoResponse> torrents;
   final BuildContext pageContext;
   final VoidCallback onBack;
 
@@ -39,17 +39,27 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
   @override
   void initState() {
     super.initState();
-    final torrent = widget.torrent;
-    _mode = TorrentShareLimit.modeOf(torrent);
-    _supportsAction = TorrentShareLimit.supportsAction(torrent);
-    _action = TorrentShareLimitAction.parse(torrent.shareLimitAction);
-    _ratio = _ShareLimitField.ratio(torrent.ratioLimit);
-    _seeding = _ShareLimitField.minutes(
-      TorrentShareLimit.minutesOf(torrent.seedingTimeLimit),
-    );
-    _inactive = _ShareLimitField.minutes(
-      TorrentShareLimit.minutesOf(torrent.inactiveSeedingTimeLimit),
-    );
+    final torrents = widget.torrents;
+    if (torrents.length == 1) {
+      final torrent = torrents.first;
+      _mode = TorrentShareLimit.modeOf(torrent);
+      _supportsAction = TorrentShareLimit.supportsAction(torrent);
+      _action = TorrentShareLimitAction.parse(torrent.shareLimitAction);
+      _ratio = _ShareLimitField.ratio(torrent.ratioLimit);
+      _seeding = _ShareLimitField.minutes(
+        TorrentShareLimit.minutesOf(torrent.seedingTimeLimit),
+      );
+      _inactive = _ShareLimitField.minutes(
+        TorrentShareLimit.minutesOf(torrent.inactiveSeedingTimeLimit),
+      );
+    } else {
+      _mode = TorrentShareLimitMode.global;
+      _supportsAction = torrents.any(TorrentShareLimit.supportsAction);
+      _action = TorrentShareLimitAction.useDefault;
+      _ratio = _ShareLimitField.ratio(null);
+      _seeding = _ShareLimitField.minutes(null);
+      _inactive = _ShareLimitField.minutes(null);
+    }
   }
 
   @override
@@ -238,13 +248,15 @@ class _TorrentShareLimitPageState extends ConsumerState<TorrentShareLimitPage> {
       _saving = true;
       _error = null;
     });
-    final error = await ref.read(homePageProvider.notifier).setTorrentShareLimits(
-      widget.hash,
-      ratioLimit: ratioLimit,
-      seedingTimeLimit: seedingTimeLimit,
-      inactiveSeedingTimeLimit: inactiveSeedingTimeLimit,
-      shareLimitAction: _supportsAction ? _action.apiValue : null,
-    );
+    final error = await ref
+        .read(homePageProvider.notifier)
+        .setTorrentShareLimits(
+          widget.hashes,
+          ratioLimit: ratioLimit,
+          seedingTimeLimit: seedingTimeLimit,
+          inactiveSeedingTimeLimit: inactiveSeedingTimeLimit,
+          shareLimitAction: _supportsAction ? _action.apiValue : null,
+        );
     if (!mounted) return;
     if (error != null) {
       setState(() {
@@ -288,9 +300,7 @@ class _ModeTile extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_off,
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 22,
               color: selected && enabled ? scheme.primary : color,
             ),
@@ -298,9 +308,9 @@ class _ModeTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: color,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: color),
               ),
             ),
           ],
@@ -403,10 +413,7 @@ class _ShareLimitRow extends StatelessWidget {
                 : null,
           ),
           const SizedBox(width: 8),
-          SizedBox(
-            width: 72,
-            child: Text(label, style: textTheme.bodyLarge),
-          ),
+          SizedBox(width: 72, child: Text(label, style: textTheme.bodyLarge)),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(

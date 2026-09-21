@@ -8,6 +8,7 @@ import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/widget/page_insets.dart';
 import 'package:qbpanel/util/byte_format.dart';
 import 'package:qbpanel/util/platform_info.dart';
+import 'package:qbpanel/widget/check_row.dart';
 
 class TorrentItem extends StatelessWidget {
   const TorrentItem({
@@ -16,6 +17,8 @@ class TorrentItem extends StatelessWidget {
     this.queueing = false,
     this.compact = false,
     this.layout = ListLayoutMode.list,
+    this.selected = false,
+    this.selecting = false,
     this.onTap,
     this.onContextMenu,
   });
@@ -24,10 +27,15 @@ class TorrentItem extends StatelessWidget {
   final bool queueing;
   final bool compact;
   final ListLayoutMode layout;
+  final bool selected;
+  final bool selecting;
   final VoidCallback? onTap;
   final void Function(Offset? position)? onContextMenu;
 
   bool get _grid => layout == ListLayoutMode.grid;
+
+  static const _selectAnimDuration = Duration(milliseconds: 240);
+  static const _selectAnimCurve = Curves.easeOutCubic;
 
   @override
   Widget build(BuildContext context) {
@@ -116,10 +124,7 @@ class TorrentItem extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _StateLabel(
-                  state: torrent.state,
-                  detail: compactDetail,
-                ),
+                child: _StateLabel(state: torrent.state, detail: compactDetail),
               ),
               SpeedChip(
                 icon: Icons.south_rounded,
@@ -169,18 +174,46 @@ class TorrentItem extends StatelessWidget {
                 ),
             ],
           ),
-          if (tags.isNotEmpty) ...[
-            SizedBox(height: gap),
-            _TagsRow(tags: tags),
-          ],
+          if (tags.isNotEmpty) ...[SizedBox(height: gap), _TagsRow(tags: tags)],
         ],
       ],
     );
 
     final menu = contextMenuActivators(onContextMenu);
+    final checkbox = Padding(
+      padding: EdgeInsets.only(right: compact ? 8 : 10, top: 1),
+      child: AlignedCheckbox(
+        value: selected,
+        onChanged: selecting && onTap != null ? (_) => onTap!() : null,
+      ),
+    );
+    final bodyWithSelect = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRect(
+          child: AnimatedAlign(
+            duration: _selectAnimDuration,
+            curve: _selectAnimCurve,
+            alignment: Alignment.topLeft,
+            widthFactor: selecting ? 1 : 0,
+            heightFactor: 1,
+            child: AnimatedOpacity(
+              duration: _selectAnimDuration,
+              curve: _selectAnimCurve,
+              opacity: selecting ? 1 : 0,
+              child: checkbox,
+            ),
+          ),
+        ),
+        Expanded(child: body),
+      ],
+    );
 
     final card = Material(
-      color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      color: selected
+          ? scheme.secondaryContainer.withValues(alpha: 0.72)
+          : scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+      animationDuration: _selectAnimDuration,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(compact ? 12 : 16),
       ),
@@ -192,9 +225,9 @@ class TorrentItem extends StatelessWidget {
         child: _grid
             ? Align(
                 alignment: Alignment.topCenter,
-                child: Padding(padding: _contentPadding, child: body),
+                child: Padding(padding: _contentPadding, child: bodyWithSelect),
               )
-            : Padding(padding: _contentPadding, child: body),
+            : Padding(padding: _contentPadding, child: bodyWithSelect),
       ),
     );
 
@@ -286,11 +319,7 @@ class _TagsRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          Icons.label_outlined,
-          size: 16,
-          color: scheme.onSurfaceVariant,
-        ),
+        Icon(Icons.label_outlined, size: 16, color: scheme.onSurfaceVariant),
         Text(
           ' : ',
           style: textTheme.labelMedium?.copyWith(
