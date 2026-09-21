@@ -8,17 +8,18 @@ import 'package:qbpanel/l10n/context_l10n.dart';
 class TorrentCategoryPage extends ConsumerStatefulWidget {
   const TorrentCategoryPage({
     super.key,
-    required this.hash,
+    required this.hashes,
     required this.pageContext,
     required this.onBack,
   });
 
-  final String hash;
+  final String hashes;
   final BuildContext pageContext;
   final VoidCallback onBack;
 
   @override
-  ConsumerState<TorrentCategoryPage> createState() => _TorrentCategoryPageState();
+  ConsumerState<TorrentCategoryPage> createState() =>
+      _TorrentCategoryPageState();
 }
 
 class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
@@ -28,14 +29,20 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
   @override
   Widget build(BuildContext context) {
     ref.watch(homePageProvider);
-    final torrent =
-        ref.read(homePageProvider.notifier).torrentByHash(widget.hash);
-    final selected = torrent?.category?.trim() ?? '';
+    final vm = ref.read(homePageProvider.notifier);
+    final torrents = vm.torrentsByHashes(widget.hashes.split('|'));
+    final categories = {
+      for (final torrent in torrents) torrent.category?.trim() ?? '',
+    };
+    final selected = categories.length == 1 ? categories.first : null;
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
-    final selectedLabel =
-        selected.isEmpty ? l10n.filterUncategorized : selected;
+    final selectedLabel = torrents.length > 1
+        ? l10n.applyToSelected(torrents.length)
+        : (selected == null || selected.isEmpty
+              ? l10n.filterUncategorized
+              : selected);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -105,7 +112,7 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
             padding: const EdgeInsets.only(bottom: 8, right: 8),
             children: [
               TorrentCategoryTree(
-                selectedCategory: selected,
+                selectedCategory: selected ?? '\u0001',
                 enabled: !_busy,
                 snackContext: widget.pageContext,
                 onSelectCategory: _setCategory,
@@ -126,20 +133,21 @@ class _TorrentCategoryPageState extends ConsumerState<TorrentCategoryPage> {
   }
 
   Future<void> _setCategory(String category) async {
-    final current = ref
-            .read(homePageProvider.notifier)
-            .torrentByHash(widget.hash)
-            ?.category
-            ?.trim() ??
-        '';
-    if (category == current) return;
+    final torrents = ref
+        .read(homePageProvider.notifier)
+        .torrentsByHashes(widget.hashes.split('|'));
+    if (torrents.isEmpty) return;
+    final current = {
+      for (final torrent in torrents) torrent.category?.trim() ?? '',
+    };
+    if (current.length == 1 && current.first == category) return;
     setState(() {
       _busy = true;
       _error = null;
     });
     final error = await ref
         .read(homePageProvider.notifier)
-        .setTorrentCategory(widget.hash, category);
+        .setTorrentCategory(widget.hashes, category);
     if (!mounted) return;
     setState(() {
       _busy = false;

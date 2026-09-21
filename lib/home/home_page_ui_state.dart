@@ -19,16 +19,20 @@ class HomePageUiState {
     this.sortAscending = true,
     this.searchQuery = '',
     this.hasTorrents = false,
+    this.selecting = false,
+    Set<String>? selectedHashes,
     Map<TorrentStatusFilter, int>? statusCounts,
     List<TorrentCategoryNode>? categoryTree,
     this.categoryCounts = const TorrentCategoryCounts(),
     List<String>? tags,
     this.tagCounts = const TorrentTagCounts(),
     PagedRefreshState<TorrentInfoResponse>? pageListState,
-  })  : statusCounts = statusCounts ?? const {},
-        categoryTree = categoryTree ?? const [],
-        tags = tags ?? const [],
-        pageListState = pageListState ?? PagedRefreshState<TorrentInfoResponse>();
+  }) : statusCounts = statusCounts ?? const {},
+       categoryTree = categoryTree ?? const [],
+       tags = tags ?? const [],
+       selectedHashes = selectedHashes ?? const {},
+       pageListState =
+           pageListState ?? PagedRefreshState<TorrentInfoResponse>();
 
   final ServerStateResponse? serverState;
 
@@ -59,6 +63,12 @@ class HomePageUiState {
   /// 当前服务器缓存里是否有种子（未过滤）。
   final bool hasTorrents;
 
+  /// 首页多选模式；退出时清空 [selectedHashes]。
+  final bool selecting;
+
+  /// 多选中的种子 hash；轮询时会丢掉已不存在的项。
+  final Set<String> selectedHashes;
+
   /// 各状态在全量缓存中的数量；与当前选中筛选无关。
   final Map<TorrentStatusFilter, int> statusCounts;
 
@@ -85,6 +95,8 @@ class HomePageUiState {
     bool? sortAscending,
     String? searchQuery,
     bool? hasTorrents,
+    bool? selecting,
+    Set<String>? selectedHashes,
     Map<TorrentStatusFilter, int>? statusCounts,
     List<TorrentCategoryNode>? categoryTree,
     TorrentCategoryCounts? categoryCounts,
@@ -102,6 +114,8 @@ class HomePageUiState {
       sortAscending: sortAscending ?? this.sortAscending,
       searchQuery: searchQuery ?? this.searchQuery,
       hasTorrents: hasTorrents ?? this.hasTorrents,
+      selecting: selecting ?? this.selecting,
+      selectedHashes: selectedHashes ?? this.selectedHashes,
       statusCounts: statusCounts ?? this.statusCounts,
       categoryTree: categoryTree ?? this.categoryTree,
       categoryCounts: categoryCounts ?? this.categoryCounts,

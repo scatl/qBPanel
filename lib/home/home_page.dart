@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qbpanel/api/entity/response/torrent_info_response.dart';
 import 'package:qbpanel/api/qb_api_capabilities.dart';
+import 'package:qbpanel/home/home_page_ui_state.dart';
 import 'package:qbpanel/home/home_page_view_model.dart';
 import 'package:qbpanel/home/entity/torrent_sort.dart';
 import 'package:qbpanel/home/entity/torrent_status_filter.dart';
@@ -14,6 +15,7 @@ import 'package:qbpanel/home/ui/sheet/server_switch_sheet.dart';
 import 'package:qbpanel/home/ui/sheet/actions/torrent_action_sheet.dart';
 import 'package:qbpanel/home/ui/sheet/torrent_filter_sheet.dart';
 import 'package:qbpanel/home/ui/torrent_item.dart';
+import 'package:qbpanel/l10n/app_localizations.dart';
 import 'package:qbpanel/l10n/context_l10n.dart';
 import 'package:qbpanel/router/router_path.dart';
 import 'package:qbpanel/widget/adaptive_card_grid.dart';
@@ -261,257 +263,356 @@ class _HomePageState extends ConsumerState<HomePage>
     final filterOrSortActive = filtering || sortActive;
     final scheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
+    final selecting = ui.selecting;
 
-    return AnimatedBuilder(
-      animation: _searchProgress,
-      builder: (context, body) {
-        final t = _searchProgress.value;
-        // 首页无 leading，左右边距都保持 PageInsets，避免搜索框贴左。
-        final titleSpacing = PageInsets.horizontal;
-        final actionsOpacity = (1 - t).clamp(0.0, 1.0);
+    ref.listen(homePageProvider.select((s) => s.selecting), (previous, next) {
+      if (next && _searchActive) {
+        _closeSearch();
+      }
+    });
 
-        return Scaffold(
-          appBar: AppBar(
-            titleSpacing: titleSpacing,
-            title: _HomeAppBarTitle(
-              progress: _searchProgress,
-              showSearchField: _searchActive,
-              serverName: ui.activeServer?.name,
-              controller: _searchController,
-              focusNode: _searchFocusNode,
-              onClose: _closeSearch,
-              onChanged: _onSearchChanged,
-              scrolledUnder: _appBarScrolledUnder,
-              scrolledUnderElevation: _appBarScrolledUnderElevation,
-            ),
-            actions: [
-              ClipRect(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  widthFactor: actionsOpacity,
-                  child: Opacity(
-                    opacity: actionsOpacity,
-                    child: IgnorePointer(
-                      ignoring: t > 0.01,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (ui.activeServer != null) ...[
-                            IconButton(
-                              tooltip: l10n.actionSearch,
-                              icon: const Icon(Icons.search),
-                              onPressed: _openSearch,
-                            ),
-                            IconButton(
-                              tooltip: filterOrSortActive
-                                  ? l10n.homeFiltering
-                                  : l10n.homeFilter,
-                              icon: Icon(
-                                Icons.filter_alt_outlined,
-                                color: filterOrSortActive
-                                    ? scheme.primary
-                                    : null,
-                              ),
-                              onPressed: () => TorrentFilterSheet.show(context),
-                            ),
-                          ],
-                          PopupMenuButton<_HomeMoreAction>(
-                            tooltip: l10n.actionMore,
-                            icon: const Icon(Icons.more_vert),
-                            onSelected: (action) {
-                              switch (action) {
-                                case _HomeMoreAction.startAll:
-                                  _confirmStartDisplayed();
-                                case _HomeMoreAction.stopAll:
-                                  _confirmStopDisplayed();
-                                case _HomeMoreAction.logs:
-                                  context.push(RouterPath.log);
-                                case _HomeMoreAction.search:
-                                  context.push(RouterPath.search);
-                                case _HomeMoreAction.rss:
-                                  context.push(RouterPath.rss);
-                                case _HomeMoreAction.settings:
-                                  context.push(RouterPath.settings);
-                              }
-                            },
-                            itemBuilder: (context) {
-                              final menuL10n = context.l10n;
-                              return [
-                                if (ui.activeServer != null) ...[
-                                  PopupMenuItem(
-                                    value: _HomeMoreAction.startAll,
-                                    child: ListTile(
-                                      leading: const Icon(
-                                        Icons.play_arrow_rounded,
+    return PopScope(
+      canPop: !selecting,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && selecting) {
+          vm.exitSelection();
+        }
+      },
+      child: AnimatedBuilder(
+        animation: _searchProgress,
+        builder: (context, body) {
+          final t = _searchProgress.value;
+          // 首页无 leading，左右边距都保持 PageInsets，避免搜索框贴左。
+          final titleSpacing = PageInsets.horizontal;
+          final actionsOpacity = (1 - t).clamp(0.0, 1.0);
+
+          return Scaffold(
+            appBar: selecting
+                ? _selectionAppBar(
+                    ui: ui,
+                    scheme: scheme,
+                    l10n: l10n,
+                    filterOrSortActive: filterOrSortActive,
+                  )
+                : AppBar(
+                    titleSpacing: titleSpacing,
+                    title: _HomeAppBarTitle(
+                      progress: _searchProgress,
+                      showSearchField: _searchActive,
+                      serverName: ui.activeServer?.name,
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      onClose: _closeSearch,
+                      onChanged: _onSearchChanged,
+                      scrolledUnder: _appBarScrolledUnder,
+                      scrolledUnderElevation: _appBarScrolledUnderElevation,
+                    ),
+                    actions: [
+                      ClipRect(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          widthFactor: actionsOpacity,
+                          child: Opacity(
+                            opacity: actionsOpacity,
+                            child: IgnorePointer(
+                              ignoring: t > 0.01,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (ui.activeServer != null) ...[
+                                    IconButton(
+                                      tooltip: l10n.actionSearch,
+                                      icon: const Icon(Icons.search),
+                                      onPressed: _openSearch,
+                                    ),
+                                    IconButton(
+                                      tooltip: filterOrSortActive
+                                          ? l10n.homeFiltering
+                                          : l10n.homeFilter,
+                                      icon: Icon(
+                                        Icons.filter_alt_outlined,
+                                        color: filterOrSortActive
+                                            ? scheme.primary
+                                            : null,
                                       ),
-                                      title: Text(menuL10n.homeStartAll),
-                                      contentPadding: EdgeInsets.zero,
-                                      visualDensity: VisualDensity.compact,
+                                      onPressed: () =>
+                                          TorrentFilterSheet.show(context),
                                     ),
-                                  ),
-                                  PopupMenuItem(
-                                    value: _HomeMoreAction.stopAll,
-                                    child: ListTile(
-                                      leading: const Icon(Icons.stop_rounded),
-                                      title: Text(menuL10n.homeStopAll),
-                                      contentPadding: EdgeInsets.zero,
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                  ),
-                                  const PopupMenuDivider(),
-                                  if (cap.hasSearch)
-                                    PopupMenuItem(
-                                      value: _HomeMoreAction.search,
-                                      child: ListTile(
-                                        leading: const Icon(
-                                          Icons.travel_explore_outlined,
+                                  ],
+                                  PopupMenuButton<_HomeMoreAction>(
+                                    tooltip: l10n.actionMore,
+                                    icon: const Icon(Icons.more_vert),
+                                    onSelected: (action) {
+                                      switch (action) {
+                                        case _HomeMoreAction.startAll:
+                                          _confirmStartDisplayed();
+                                        case _HomeMoreAction.stopAll:
+                                          _confirmStopDisplayed();
+                                        case _HomeMoreAction.logs:
+                                          context.push(RouterPath.log);
+                                        case _HomeMoreAction.search:
+                                          context.push(RouterPath.search);
+                                        case _HomeMoreAction.rss:
+                                          context.push(RouterPath.rss);
+                                        case _HomeMoreAction.settings:
+                                          context.push(RouterPath.settings);
+                                      }
+                                    },
+                                    itemBuilder: (context) {
+                                      final menuL10n = context.l10n;
+                                      return [
+                                        if (ui.activeServer != null) ...[
+                                          PopupMenuItem(
+                                            value: _HomeMoreAction.startAll,
+                                            child: ListTile(
+                                              leading: const Icon(
+                                                Icons.play_arrow_rounded,
+                                              ),
+                                              title: Text(
+                                                menuL10n.homeStartAll,
+                                              ),
+                                              contentPadding: EdgeInsets.zero,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                            ),
+                                          ),
+                                          PopupMenuItem(
+                                            value: _HomeMoreAction.stopAll,
+                                            child: ListTile(
+                                              leading: const Icon(
+                                                Icons.stop_rounded,
+                                              ),
+                                              title: Text(menuL10n.homeStopAll),
+                                              contentPadding: EdgeInsets.zero,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                            ),
+                                          ),
+                                          const PopupMenuDivider(),
+                                          if (cap.hasSearch)
+                                            PopupMenuItem(
+                                              value: _HomeMoreAction.search,
+                                              child: ListTile(
+                                                leading: const Icon(
+                                                  Icons.travel_explore_outlined,
+                                                ),
+                                                title: Text(
+                                                  menuL10n.homeSearchTorrents,
+                                                ),
+                                                contentPadding: EdgeInsets.zero,
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                              ),
+                                            ),
+                                          PopupMenuItem(
+                                            value: _HomeMoreAction.rss,
+                                            child: ListTile(
+                                              leading: const Icon(
+                                                Icons.rss_feed,
+                                              ),
+                                              title: Text(menuL10n.homeRss),
+                                              contentPadding: EdgeInsets.zero,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                            ),
+                                          ),
+                                          PopupMenuItem(
+                                            value: _HomeMoreAction.logs,
+                                            child: ListTile(
+                                              leading: const Icon(
+                                                Icons.receipt_long_outlined,
+                                              ),
+                                              title: Text(menuL10n.homeLogs),
+                                              contentPadding: EdgeInsets.zero,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                            ),
+                                          ),
+                                        ],
+                                        PopupMenuItem(
+                                          value: _HomeMoreAction.settings,
+                                          child: ListTile(
+                                            leading: const Icon(
+                                              Icons.settings_outlined,
+                                            ),
+                                            title: Text(menuL10n.homeSettings),
+                                            contentPadding: EdgeInsets.zero,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                          ),
                                         ),
-                                        title: Text(
-                                          menuL10n.homeSearchTorrents,
-                                        ),
-                                        contentPadding: EdgeInsets.zero,
-                                        visualDensity: VisualDensity.compact,
-                                      ),
-                                    ),
-                                  PopupMenuItem(
-                                    value: _HomeMoreAction.rss,
-                                    child: ListTile(
-                                      leading: const Icon(Icons.rss_feed),
-                                      title: Text(menuL10n.homeRss),
-                                      contentPadding: EdgeInsets.zero,
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    value: _HomeMoreAction.logs,
-                                    child: ListTile(
-                                      leading: const Icon(
-                                        Icons.receipt_long_outlined,
-                                      ),
-                                      title: Text(menuL10n.homeLogs),
-                                      contentPadding: EdgeInsets.zero,
-                                      visualDensity: VisualDensity.compact,
-                                    ),
+                                      ];
+                                    },
                                   ),
                                 ],
-                                PopupMenuItem(
-                                  value: _HomeMoreAction.settings,
-                                  child: ListTile(
-                                    leading: const Icon(
-                                      Icons.settings_outlined,
-                                    ),
-                                    title: Text(menuL10n.homeSettings),
-                                    contentPadding: EdgeInsets.zero,
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ),
-                              ];
-                            },
+                              ),
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      // 不要再加右侧 SizedBox：titleSpacing 已是 middle 左右各一份，
+                      // 再加会变成右边双倍边距。
+                    ],
                   ),
-                ),
-              ),
-              // 不要再加右侧 SizedBox：titleSpacing 已是 middle 左右各一份，
-              // 再加会变成右边双倍边距。
-            ],
-          ),
-          floatingActionButton: ui.activeServer == null
-              ? null
-              : FloatingActionButton(
-                  heroTag: 'addTorrent',
-                  tooltip: l10n.homeAddTorrent,
-                  onPressed: () => context.push(RouterPath.addTorrent),
-                  child: const Icon(Icons.add),
-                ),
-          bottomNavigationBar: ui.activeServer == null || ui.serverState == null
-              ? null
-              : HomeBottomBar(
-                  serverState: ui.serverState!,
-                  onStatusTap: _showServerStateSheet,
-                  onSpeedTap: _showGlobalSpeedLimitDialog,
-                  onAltSpeedPressed: _toggleAltSpeed,
-                ),
-          body: NotificationListener<ScrollNotification>(
-            onNotification: _onScrollNotification,
-            child: body!,
-          ),
-        );
-      },
-      child: PagedRefreshList<TorrentInfoResponse>(
-        state: ui.pageListState,
-        enableLoadMore: false,
-        enableRefresh: ui.activeServer != null,
-        padding: isGrid
-            ? EdgeInsets.fromLTRB(
-                PageInsets.horizontal,
-                8,
-                PageInsets.horizontal,
-                ui.activeServer == null ? 8 : 88,
-              )
-            : EdgeInsets.fromLTRB(0, 8, 0, ui.activeServer == null ? 8 : 88),
-        gridCrossAxisCount: isGrid ? adaptiveGridColumnCount(width) : null,
-        gridSpacing: 8,
-        onRefresh: vm.refresh,
-        emptyTitle: ui.activeServer == null
-            ? l10n.homeNoActiveServer
-            : (filteredEmpty
-                  ? l10n.homeNoMatchingTorrents
-                  : l10n.homeNoTorrents),
-        emptySubtitle: ui.activeServer == null
-            ? l10n.homeNoActiveServerHint
-            : null,
-        emptyIcon: ui.activeServer == null
-            ? Icons.dns_outlined
-            : (filteredEmpty
-                  ? (searching && !filtering
-                        ? Icons.search_off_outlined
-                        : Icons.filter_alt_outlined)
-                  : null),
-        emptyActionText: ui.activeServer == null
-            ? l10n.homeChooseServer
-            : (filteredEmpty
-                  ? (searching && !filtering
-                        ? l10n.homeClearSearch
-                        : l10n.homeClearFilters)
-                  : null),
-        onEmptyAction: ui.activeServer == null
-            ? () async {
-                await context.push(RouterPath.serverList);
-              }
-            : (filteredEmpty
-                  ? () {
-                      if (searching && !filtering) {
-                        _closeSearch();
-                      } else {
-                        _clearListConstraints();
-                      }
-                    }
-                  : null),
-        itemBuilder: (context, index, torrent) {
-          return TorrentItem(
-            key: ValueKey(torrent.hash ?? index),
-            torrent: torrent,
-            queueing: ui.serverState?.queueing == true,
-            compact: compact,
-            layout: layout,
-            onTap: () {
-              final hash = torrent.hash;
-              if (hash == null || hash.isEmpty) return;
-              context.push(RouterPath.torrentDetailWithParams(hash));
-            },
-            onContextMenu: (position) {
-              TorrentActionSheet.show(
-                context,
-                torrent: torrent,
-                position: position,
-              );
-            },
+            floatingActionButton: ui.activeServer == null || selecting
+                ? null
+                : FloatingActionButton(
+                    heroTag: 'addTorrent',
+                    tooltip: l10n.homeAddTorrent,
+                    onPressed: () => context.push(RouterPath.addTorrent),
+                    child: const Icon(Icons.add),
+                  ),
+            bottomNavigationBar:
+                ui.activeServer == null || ui.serverState == null
+                ? null
+                : HomeBottomBar(
+                    serverState: ui.serverState!,
+                    onStatusTap: _showServerStateSheet,
+                    onSpeedTap: _showGlobalSpeedLimitDialog,
+                    onAltSpeedPressed: _toggleAltSpeed,
+                  ),
+            body: NotificationListener<ScrollNotification>(
+              onNotification: _onScrollNotification,
+              child: body!,
+            ),
           );
         },
+        child: PagedRefreshList<TorrentInfoResponse>(
+          state: ui.pageListState,
+          enableLoadMore: false,
+          enableRefresh: ui.activeServer != null,
+          padding: isGrid
+              ? EdgeInsets.fromLTRB(
+                  PageInsets.horizontal,
+                  8,
+                  PageInsets.horizontal,
+                  ui.activeServer == null ? 8 : 88,
+                )
+              : EdgeInsets.fromLTRB(0, 8, 0, ui.activeServer == null ? 8 : 88),
+          gridCrossAxisCount: isGrid ? adaptiveGridColumnCount(width) : null,
+          gridSpacing: 8,
+          onRefresh: vm.refresh,
+          emptyTitle: ui.activeServer == null
+              ? l10n.homeNoActiveServer
+              : (filteredEmpty
+                    ? l10n.homeNoMatchingTorrents
+                    : l10n.homeNoTorrents),
+          emptySubtitle: ui.activeServer == null
+              ? l10n.homeNoActiveServerHint
+              : null,
+          emptyIcon: ui.activeServer == null
+              ? Icons.dns_outlined
+              : (filteredEmpty
+                    ? (searching && !filtering
+                          ? Icons.search_off_outlined
+                          : Icons.filter_alt_outlined)
+                    : null),
+          emptyActionText: ui.activeServer == null
+              ? l10n.homeChooseServer
+              : (filteredEmpty
+                    ? (searching && !filtering
+                          ? l10n.homeClearSearch
+                          : l10n.homeClearFilters)
+                    : null),
+          onEmptyAction: ui.activeServer == null
+              ? () async {
+                  await context.push(RouterPath.serverList);
+                }
+              : (filteredEmpty
+                    ? () {
+                        if (searching && !filtering) {
+                          _closeSearch();
+                        } else {
+                          _clearListConstraints();
+                        }
+                      }
+                    : null),
+          itemBuilder: (context, index, torrent) {
+            final hash = torrent.hash ?? '';
+            return TorrentItem(
+              key: ValueKey(torrent.hash ?? index),
+              torrent: torrent,
+              queueing: ui.serverState?.queueing == true,
+              compact: compact,
+              layout: layout,
+              selecting: selecting,
+              selected: hash.isNotEmpty && ui.selectedHashes.contains(hash),
+              onTap: () {
+                if (hash.isEmpty) return;
+                if (selecting) {
+                  vm.toggleSelected(hash);
+                  return;
+                }
+                context.push(RouterPath.torrentDetailWithParams(hash));
+              },
+              onContextMenu: selecting
+                  ? null
+                  : (position) {
+                      TorrentActionSheet.show(
+                        context,
+                        torrent: torrent,
+                        position: position,
+                      );
+                    },
+            );
+          },
+        ),
       ),
+    );
+  }
+
+  PreferredSizeWidget _selectionAppBar({
+    required HomePageUiState ui,
+    required ColorScheme scheme,
+    required AppLocalizations l10n,
+    required bool filterOrSortActive,
+  }) {
+    final displayedHashes = [
+      for (final torrent in ui.pageListState.items)
+        if (torrent.hash != null && torrent.hash!.isNotEmpty) torrent.hash!,
+    ];
+    final allDisplayedSelected =
+        displayedHashes.isNotEmpty &&
+        displayedHashes.every(ui.selectedHashes.contains);
+    final vm = ref.read(homePageProvider.notifier);
+    return AppBar(
+      leading: IconButton(
+        tooltip: l10n.actionClose,
+        icon: const Icon(Icons.close),
+        onPressed: vm.exitSelection,
+      ),
+      title: Text(l10n.selectedCount(ui.selectedHashes.length)),
+      actions: [
+        IconButton(
+          tooltip: filterOrSortActive ? l10n.homeFiltering : l10n.homeFilter,
+          icon: Icon(
+            Icons.filter_alt_outlined,
+            color: filterOrSortActive ? scheme.primary : null,
+          ),
+          onPressed: () => TorrentFilterSheet.show(context),
+        ),
+        IconButton(
+          tooltip: allDisplayedSelected
+              ? l10n.actionDeselectAll
+              : l10n.actionSelectAll,
+          icon: Icon(allDisplayedSelected ? Icons.deselect : Icons.select_all),
+          onPressed: displayedHashes.isEmpty ? null : vm.toggleSelectDisplayed,
+        ),
+        IconButton(
+          tooltip: l10n.actionMore,
+          icon: const Icon(Icons.more_vert),
+          onPressed: ui.selectedHashes.isEmpty
+              ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.homeNoTorrentsSelected)),
+                  );
+                }
+              : () => TorrentActionSheet.showHashes(
+                  context,
+                  hashes: ui.selectedHashes.toList(),
+                ),
+        ),
+      ],
     );
   }
 }

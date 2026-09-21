@@ -165,6 +165,48 @@ abstract class AppLocalizations {
   /// **'更多'**
   String get actionMore;
 
+  /// No description provided for @actionSelect.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择'**
+  String get actionSelect;
+
+  /// No description provided for @actionSelectAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全选'**
+  String get actionSelectAll;
+
+  /// No description provided for @actionDeselectAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消全选'**
+  String get actionDeselectAll;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'已选 {count} 项'**
+  String selectedCount(int count);
+
+  /// No description provided for @applyToSelected.
+  ///
+  /// In zh, this message translates to:
+  /// **'将应用到 {count} 项'**
+  String applyToSelected(int count);
+
+  /// No description provided for @confirmDeleteTorrents.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定删除选中的 {count} 个种子？'**
+  String confirmDeleteTorrents(int count);
+
+  /// No description provided for @homeNoTorrentsSelected.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先选择种子'**
+  String get homeNoTorrentsSelected;
+
   /// No description provided for @loading.
   ///
   /// In zh, this message translates to:

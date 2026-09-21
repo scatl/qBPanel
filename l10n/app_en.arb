@@ -12,6 +12,28 @@
   "actionClose": "Close",
   "actionRename": "Rename",
   "actionMore": "More",
+  "actionSelect": "Select",
+  "actionSelectAll": "Select all",
+  "actionDeselectAll": "Deselect all",
+  "selectedCount": "{count} selected",
+  "@selectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "applyToSelected": "Will apply to {count} items",
+  "@applyToSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "confirmDeleteTorrents": "Delete {count} selected torrents?",
+  "@confirmDeleteTorrents": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "homeNoTorrentsSelected": "Select torrents first",
   "loading": "Loading…",
   "processing": "Working…",
   "emptyNoData": "No data",

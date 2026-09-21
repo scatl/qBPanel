@@ -189,6 +189,60 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
 
   TorrentInfoResponse? torrentByHash(String hash) => _torrentsByHash[hash];
 
+  List<TorrentInfoResponse> torrentsByHashes(Iterable<String> hashes) {
+    return [for (final hash in hashes) ?_torrentsByHash[hash]];
+  }
+
+  void startSelecting(String hash) {
+    final trimmed = hash.trim();
+    if (trimmed.isEmpty) return;
+    state = state.copyWith(selecting: true, selectedHashes: {trimmed});
+  }
+
+  void exitSelection() {
+    if (!state.selecting && state.selectedHashes.isEmpty) return;
+    state = state.copyWith(selecting: false, selectedHashes: {});
+  }
+
+  void toggleSelected(String hash) {
+    if (!state.selecting) return;
+    final trimmed = hash.trim();
+    if (trimmed.isEmpty) return;
+    final next = {...state.selectedHashes};
+    if (!next.remove(trimmed)) next.add(trimmed);
+    state = state.copyWith(selectedHashes: next);
+  }
+
+  void toggleSelectDisplayed() {
+    if (!state.selecting) return;
+    final displayed = {
+      for (final torrent in state.pageListState.items)
+        if (torrent.hash != null && torrent.hash!.isNotEmpty) torrent.hash!,
+    };
+    if (displayed.isEmpty) return;
+    final allSelected = displayed.every(state.selectedHashes.contains);
+    if (allSelected) {
+      state = state.copyWith(
+        selectedHashes: {
+          for (final hash in state.selectedHashes)
+            if (!displayed.contains(hash)) hash,
+        },
+      );
+      return;
+    }
+    state = state.copyWith(
+      selectedHashes: {...state.selectedHashes, ...displayed},
+    );
+  }
+
+  Set<String> _prunedSelectedHashes() {
+    if (!state.selecting) return const {};
+    return {
+      for (final hash in state.selectedHashes)
+        if (_torrentsByHash.containsKey(hash)) hash,
+    };
+  }
+
   /// 切换全局备用速度限制。失败返回错误文案。
   Future<String?> toggleAltSpeedLimits() async {
     if (_altSpeedBusy) return null;
@@ -630,25 +684,59 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     );
   }
 
-  Future<String?> toggleTorrentSequentialDownload(String hash) async {
-    final enabled = _torrentsByHash[hash]?.seqDl == true;
+  Future<String?> toggleTorrentSequentialDownload(String hash) {
+    final targets = _hashList(hash);
+    if (targets.isEmpty) return Future.value(_l10n.invalidTorrent);
+    final enable = !_hashList(
+      hash,
+    ).every((h) => _torrentsByHash[h]?.seqDl == true);
+    return setTorrentSequentialDownload(hash, enable: enable);
+  }
+
+  Future<String?> setTorrentSequentialDownload(
+    String hash, {
+    required bool enable,
+  }) async {
+    final targets = [
+      for (final h in _hashList(hash))
+        if ((_torrentsByHash[h]?.seqDl == true) != enable) h,
+    ];
+    if (targets.isEmpty) return null;
+    final joined = targets.join('|');
     final error = await _postTorrentHashes(
       ApiPath.torrentManagement.toggleSequentialDownload,
-      hash,
+      joined,
     );
     if (error != null) return error;
-    _patchTorrent(hash, TorrentInfoResponse(seqDl: !enabled));
+    _patchTorrent(joined, TorrentInfoResponse(seqDl: enable));
     return null;
   }
 
-  Future<String?> toggleTorrentFirstLastPiecePrio(String hash) async {
-    final enabled = _torrentsByHash[hash]?.fLPiecePrio == true;
+  Future<String?> toggleTorrentFirstLastPiecePrio(String hash) {
+    final targets = _hashList(hash);
+    if (targets.isEmpty) return Future.value(_l10n.invalidTorrent);
+    final enable = !targets.every(
+      (h) => _torrentsByHash[h]?.fLPiecePrio == true,
+    );
+    return setTorrentFirstLastPiecePrio(hash, enable: enable);
+  }
+
+  Future<String?> setTorrentFirstLastPiecePrio(
+    String hash, {
+    required bool enable,
+  }) async {
+    final targets = [
+      for (final h in _hashList(hash))
+        if ((_torrentsByHash[h]?.fLPiecePrio == true) != enable) h,
+    ];
+    if (targets.isEmpty) return null;
+    final joined = targets.join('|');
     final error = await _postTorrentHashes(
       ApiPath.torrentManagement.toggleFirstLastPiecePrio,
-      hash,
+      joined,
     );
     if (error != null) return error;
-    _patchTorrent(hash, TorrentInfoResponse(fLPiecePrio: !enabled));
+    _patchTorrent(joined, TorrentInfoResponse(fLPiecePrio: enable));
     return null;
   }
 
@@ -776,10 +864,22 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     return minutes * 60;
   }
 
+  List<String> _hashList(String hash) {
+    return [
+      for (final part in hash.split('|'))
+        if (part.trim().isNotEmpty) part.trim(),
+    ];
+  }
+
   void _patchTorrent(String hash, TorrentInfoResponse patch) {
-    final existing = _torrentsByHash[hash];
-    if (existing == null) return;
-    _torrentsByHash[hash] = existing.merge(patch);
+    var changed = false;
+    for (final h in _hashList(hash)) {
+      final existing = _torrentsByHash[h];
+      if (existing == null) continue;
+      _torrentsByHash[h] = existing.merge(patch);
+      changed = true;
+    }
+    if (!changed) return;
     state = state.copyWith(pageListState: state.pageListState);
   }
 
@@ -789,22 +889,33 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
     Iterable<String>? remove,
     bool clear = false,
   }) {
-    final existing = _torrentsByHash[hash];
-    if (existing == null) return;
-    if (clear) {
-      _patchTorrent(hash, const TorrentInfoResponse(tags: ''));
-      return;
-    }
-    final current = [...splitTorrentTags(existing.tags)];
-    if (add != null) {
-      for (final name in add) {
-        if (!current.contains(name)) current.add(name);
+    var changed = false;
+    for (final h in _hashList(hash)) {
+      final existing = _torrentsByHash[h];
+      if (existing == null) continue;
+      if (clear) {
+        _torrentsByHash[h] = existing.merge(
+          const TorrentInfoResponse(tags: ''),
+        );
+        changed = true;
+        continue;
       }
+      final current = [...splitTorrentTags(existing.tags)];
+      if (add != null) {
+        for (final name in add) {
+          if (!current.contains(name)) current.add(name);
+        }
+      }
+      if (remove != null) {
+        current.removeWhere(remove.contains);
+      }
+      _torrentsByHash[h] = existing.merge(
+        TorrentInfoResponse(tags: current.join(',')),
+      );
+      changed = true;
     }
-    if (remove != null) {
-      current.removeWhere(remove.contains);
-    }
-    _patchTorrent(hash, TorrentInfoResponse(tags: current.join(',')));
+    if (!changed) return;
+    state = state.copyWith(pageListState: state.pageListState);
   }
 
   Future<String?> _postTorrentHashes(
@@ -977,6 +1088,7 @@ class HomePageViewModel extends Notifier<HomePageUiState> {
             pageListState: pageListState,
             activeServer: activeServer,
             hasTorrents: _torrentsByHash.isNotEmpty,
+            selectedHashes: _prunedSelectedHashes(),
             statusCounts: _countByStatus(),
             categoryTree: buildCategoryTree(_categoriesByName.keys),
             categoryCounts: _countByCategory(),

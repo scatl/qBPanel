@@ -9,14 +9,14 @@ import 'package:qbpanel/widget/check_row.dart';
 class TorrentSpeedLimitPage extends ConsumerStatefulWidget {
   const TorrentSpeedLimitPage({
     super.key,
-    required this.hash,
-    required this.torrent,
+    required this.hashes,
+    required this.torrents,
     required this.pageContext,
     required this.onBack,
   });
 
-  final String hash;
-  final TorrentInfoResponse torrent;
+  final String hashes;
+  final List<TorrentInfoResponse> torrents;
   final BuildContext pageContext;
   final VoidCallback onBack;
 
@@ -35,11 +35,19 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
   @override
   void initState() {
     super.initState();
-    _completed = (widget.torrent.progress ?? 0) >= 1;
-    _dlLimit = _completed
-        ? null
-        : _SpeedLimitDraft.fromBytes(widget.torrent.dlLimit);
-    _upLimit = _SpeedLimitDraft.fromBytes(widget.torrent.upLimit);
+    final torrents = widget.torrents;
+    _completed =
+        torrents.isNotEmpty &&
+        torrents.every((item) => (item.progress ?? 0) >= 1);
+    if (torrents.length == 1) {
+      _dlLimit = _completed
+          ? null
+          : _SpeedLimitDraft.fromBytes(torrents.first.dlLimit);
+      _upLimit = _SpeedLimitDraft.fromBytes(torrents.first.upLimit);
+    } else {
+      _dlLimit = _completed ? null : _SpeedLimitDraft.fromBytes(null);
+      _upLimit = _SpeedLimitDraft.fromBytes(null);
+    }
   }
 
   @override
@@ -144,7 +152,7 @@ class _TorrentSpeedLimitPageState extends ConsumerState<TorrentSpeedLimitPage> {
     });
     final vm = ref.read(homePageProvider.notifier);
     final error = await vm.setTorrentSpeedLimits(
-      widget.hash,
+      widget.hashes,
       downloadBytesPerSec: dl,
       uploadBytesPerSec: up,
     );
@@ -331,14 +339,8 @@ class _SpeedLimitRow extends StatelessWidget {
                   }
                 : null,
             items: const [
-              DropdownMenuItem(
-                value: _SpeedUnit.kb,
-                child: Text('KB/s'),
-              ),
-              DropdownMenuItem(
-                value: _SpeedUnit.mb,
-                child: Text('MB/s'),
-              ),
+              DropdownMenuItem(value: _SpeedUnit.kb, child: Text('KB/s')),
+              DropdownMenuItem(value: _SpeedUnit.mb, child: Text('MB/s')),
             ],
           ),
         ],

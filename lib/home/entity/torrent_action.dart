@@ -14,6 +14,7 @@ class TorrentActionAvailability {
     required this.canReannounce,
     required this.showSuperSeeding,
     required this.isCompleted,
+    required this.showSequential,
   });
 
   final bool showStart;
@@ -21,8 +22,12 @@ class TorrentActionAvailability {
   final bool showForceStart;
   final bool canReannounce;
   final bool showSuperSeeding;
+
   /// `progress >= 1`，与 Web 右击「已下载完」一致。
   final bool isCompleted;
+
+  /// 未完成，可显示顺序下载 / 优先首尾块。
+  final bool showSequential;
 
   factory TorrentActionAvailability.of(TorrentInfoResponse torrent) {
     final state = torrent.state;
@@ -67,6 +72,51 @@ class TorrentActionAvailability {
       canReannounce: !isStopped && !isChecking && !isQueued && !isError,
       showSuperSeeding: isCompleted && torrent.hasMetadata != false,
       isCompleted: isCompleted,
+      showSequential: !isCompleted,
+    );
+  }
+
+  factory TorrentActionAvailability.merge(
+    Iterable<TorrentInfoResponse> torrents,
+  ) {
+    final list = torrents.toList();
+    if (list.isEmpty) {
+      return const TorrentActionAvailability(
+        showStart: false,
+        showStop: false,
+        showForceStart: false,
+        canReannounce: false,
+        showSuperSeeding: false,
+        isCompleted: false,
+        showSequential: false,
+      );
+    }
+    if (list.length == 1) return TorrentActionAvailability.of(list.first);
+    var showStart = false;
+    var showStop = false;
+    var showForceStart = false;
+    var canReannounce = false;
+    var showSuperSeeding = false;
+    var isCompleted = true;
+    var showSequential = false;
+    for (final torrent in list) {
+      final item = TorrentActionAvailability.of(torrent);
+      showStart = showStart || item.showStart;
+      showStop = showStop || item.showStop;
+      showForceStart = showForceStart || item.showForceStart;
+      canReannounce = canReannounce || item.canReannounce;
+      showSuperSeeding = showSuperSeeding || item.showSuperSeeding;
+      isCompleted = isCompleted && item.isCompleted;
+      showSequential = showSequential || item.showSequential;
+    }
+    return TorrentActionAvailability(
+      showStart: showStart,
+      showStop: showStop,
+      showForceStart: showForceStart,
+      canReannounce: canReannounce,
+      showSuperSeeding: showSuperSeeding,
+      isCompleted: isCompleted,
+      showSequential: showSequential,
     );
   }
 }

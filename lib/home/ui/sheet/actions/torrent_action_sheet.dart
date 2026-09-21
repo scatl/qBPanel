@@ -24,12 +24,16 @@ import 'package:qbpanel/widget/check_row.dart';
 class TorrentActionSheet extends ConsumerStatefulWidget {
   const TorrentActionSheet({
     super.key,
-    required this.hash,
+    required this.hashes,
     required this.pageContext,
   });
 
-  final String hash;
+  final List<String> hashes;
   final BuildContext pageContext;
+
+  bool get isSingle => hashes.length == 1;
+
+  String get hashesParam => hashes.join('|');
 
   static Future<void> show(
     BuildContext context, {
@@ -38,6 +42,19 @@ class TorrentActionSheet extends ConsumerStatefulWidget {
   }) {
     final hash = torrent.hash?.trim() ?? '';
     if (hash.isEmpty) return Future.value();
+    return showHashes(context, hashes: [hash], position: position);
+  }
+
+  static Future<void> showHashes(
+    BuildContext context, {
+    required List<String> hashes,
+    Offset? position,
+  }) {
+    final cleaned = [
+      for (final hash in hashes)
+        if (hash.trim().isNotEmpty) hash.trim(),
+    ];
+    if (cleaned.isEmpty) return Future.value();
     if (!useWideCardPopup(context)) {
       HapticFeedback.mediumImpact();
     }
@@ -47,7 +64,8 @@ class TorrentActionSheet extends ConsumerStatefulWidget {
       dialogConstraints: const BoxConstraints(minWidth: 280, maxWidth: 360),
       dialogPadding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
       sheetPadding: const EdgeInsets.fromLTRB(0, 0, 0, 4),
-      builder: (ctx) => TorrentActionSheet(hash: hash, pageContext: context),
+      builder: (ctx) =>
+          TorrentActionSheet(hashes: cleaned, pageContext: context),
     );
   }
 
@@ -112,22 +130,23 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
   @override
   Widget build(BuildContext context) {
     ref.watch(homePageProvider);
-    final torrent = ref
-        .read(homePageProvider.notifier)
-        .torrentByHash(widget.hash);
-    if (torrent == null) {
+    final vm = ref.read(homePageProvider.notifier);
+    final torrents = vm.torrentsByHashes(widget.hashes);
+    if (torrents.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) Navigator.pop(context);
       });
       return const SizedBox.shrink();
     }
 
+    final torrent = torrents.first;
     final l10n = context.l10n;
-    final availability = TorrentActionAvailability.of(torrent);
-    final copyItems = torrentCopyItems(torrent, l10n);
+    final availability = TorrentActionAvailability.merge(torrents);
+    final copyItems = widget.isSingle
+        ? torrentCopyItems(torrent, l10n)
+        : const <TorrentCopyItem>[];
     final queueing = ref.read(homePageProvider).serverState?.queueing == true;
     final maxHeight = MediaQuery.sizeOf(context).height * 0.7;
-    final vm = ref.read(homePageProvider.notifier);
 
     return PopScope(
       canPop: !_subOpen,
@@ -147,6 +166,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                     ignoring: _subOpen,
                     child: _buildMainPage(
                       context,
+                      torrents: torrents,
                       torrent: torrent,
                       availability: availability,
                       showCopy: copyItems.isNotEmpty,
@@ -166,44 +186,48 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                         onBack: _closeSub,
                       ),
                       _SubPage.speedLimit => TorrentSpeedLimitPage(
-                        hash: widget.hash,
-                        torrent: torrent,
+                        hashes: widget.hashesParam,
+                        torrents: torrents,
                         pageContext: widget.pageContext,
                         onBack: _closeSub,
                       ),
                       _SubPage.shareLimit => TorrentShareLimitPage(
-                        hash: widget.hash,
-                        torrent: torrent,
+                        hashes: widget.hashesParam,
+                        torrents: torrents,
                         pageContext: widget.pageContext,
                         onBack: _closeSub,
                       ),
                       _SubPage.tags => TorrentTagsPage(
-                        hash: widget.hash,
+                        hashes: widget.hashesParam,
                         pageContext: widget.pageContext,
                         onBack: _closeSub,
                       ),
                       _SubPage.category => TorrentCategoryPage(
-                        hash: widget.hash,
+                        hashes: widget.hashesParam,
                         pageContext: widget.pageContext,
                         onBack: _closeSub,
                       ),
                       _SubPage.queue => TorrentQueuePage(
-                        position: torrent.priority,
+                        position: widget.isSingle ? torrent.priority : null,
                         onBack: _closeSub,
                         onTop: () => _run(
-                          action: () => vm.moveTorrentQueueTop(widget.hash),
+                          action: () =>
+                              vm.moveTorrentQueueTop(widget.hashesParam),
                           failLabel: l10n.queueTopFailed,
                         ),
                         onUp: () => _run(
-                          action: () => vm.moveTorrentQueueUp(widget.hash),
+                          action: () =>
+                              vm.moveTorrentQueueUp(widget.hashesParam),
                           failLabel: l10n.queueUpFailed,
                         ),
                         onDown: () => _run(
-                          action: () => vm.moveTorrentQueueDown(widget.hash),
+                          action: () =>
+                              vm.moveTorrentQueueDown(widget.hashesParam),
                           failLabel: l10n.queueDownFailed,
                         ),
                         onBottom: () => _run(
-                          action: () => vm.moveTorrentQueueBottom(widget.hash),
+                          action: () =>
+                              vm.moveTorrentQueueBottom(widget.hashesParam),
                           failLabel: l10n.queueBottomFailed,
                         ),
                       ),
@@ -221,6 +245,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
 
   Widget _buildMainPage(
     BuildContext context, {
+    required List<TorrentInfoResponse> torrents,
     required TorrentInfoResponse torrent,
     required TorrentActionAvailability availability,
     required bool showCopy,
@@ -231,6 +256,22 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
     final cap = ref.watch(qbApiCapabilitiesProvider);
     final textTheme = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
+    final selecting = ref.read(homePageProvider).selecting;
+    final hashes = widget.hashesParam;
+    final check = Icon(Icons.check, size: 22, color: scheme.primary);
+    final autoTmmOn = torrents.every((item) => item.autoTmm == true);
+    final superSeedingOn = torrents
+        .where((item) => TorrentActionAvailability.of(item).showSuperSeeding)
+        .every((item) => item.superSeeding == true);
+    final incomplete = [
+      for (final item in torrents)
+        if ((item.progress ?? 0) < 1) item,
+    ];
+    final sequentialOn =
+        incomplete.isNotEmpty && incomplete.every((item) => item.seqDl == true);
+    final firstLastOn =
+        incomplete.isNotEmpty &&
+        incomplete.every((item) => item.fLPiecePrio == true);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -238,7 +279,9 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Text(
-            torrent.name ?? '',
+            widget.isSingle
+                ? (torrent.name ?? '')
+                : l10n.selectedCount(widget.hashes.length),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: textTheme.titleMedium,
@@ -251,12 +294,22 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               controller: _scrollController,
               shrinkWrap: true,
               children: [
+                if (widget.isSingle && !selecting)
+                  TorrentActionTile(
+                    icon: Icons.checklist_outlined,
+                    label: l10n.actionSelect,
+                    onTap: () {
+                      Navigator.pop(context);
+                      vm.startSelecting(widget.hashes.first);
+                    },
+                  ),
+                if (widget.isSingle && !selecting) const Divider(height: 8),
                 if (availability.showStart)
                   TorrentActionTile(
                     icon: Icons.play_arrow_rounded,
                     label: l10n.homeStart,
                     onTap: () => _run(
-                      action: () => vm.startTorrent(widget.hash),
+                      action: () => vm.startTorrent(hashes),
                       failLabel: l10n.actionStartFailed,
                     ),
                   ),
@@ -265,7 +318,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                     icon: Icons.stop_rounded,
                     label: l10n.homeStop,
                     onTap: () => _run(
-                      action: () => vm.stopTorrent(widget.hash),
+                      action: () => vm.stopTorrent(hashes),
                       failLabel: l10n.actionStopFailed,
                     ),
                   ),
@@ -274,7 +327,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                     icon: Icons.fast_forward_rounded,
                     label: l10n.actionForceStart,
                     onTap: () => _run(
-                      action: () => vm.forceStartTorrent(widget.hash),
+                      action: () => vm.forceStartTorrent(hashes),
                       failLabel: l10n.actionForceStartFailed,
                     ),
                   ),
@@ -289,13 +342,14 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                 TorrentActionTile(
                   icon: Icons.folder_outlined,
                   label: l10n.setSaveLocation,
-                  onTap: () => _setLocation(torrent, vm),
+                  onTap: () => _setLocation(torrents, vm),
                 ),
-                TorrentActionTile(
-                  icon: Icons.drive_file_rename_outline,
-                  label: l10n.renameTitle,
-                  onTap: () => _rename(torrent, vm),
-                ),
+                if (widget.isSingle)
+                  TorrentActionTile(
+                    icon: Icons.drive_file_rename_outline,
+                    label: l10n.renameTitle,
+                    onTap: () => _rename(torrent, vm),
+                  ),
                 TorrentActionTile(
                   icon: Icons.category_outlined,
                   label: l10n.category,
@@ -320,11 +374,8 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                 TorrentActionTile(
                   icon: Icons.auto_mode_outlined,
                   label: l10n.autoTmm,
-                  trailing: torrent.autoTmm == true
-                      ? Icon(Icons.check, size: 22, color: scheme.primary)
-                      : null,
-                  onTap: () =>
-                      _toggleAutoTmm(enabled: torrent.autoTmm == true, vm: vm),
+                  trailing: autoTmmOn ? check : null,
+                  onTap: () => _toggleAutoTmm(enabled: autoTmmOn, vm: vm),
                 ),
                 const Divider(height: 8),
                 TorrentActionTile(
@@ -353,36 +404,32 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                   TorrentActionTile(
                     icon: Icons.hub_outlined,
                     label: l10n.superSeeding,
-                    trailing: torrent.superSeeding == true
-                        ? Icon(Icons.check, size: 22, color: scheme.primary)
-                        : null,
-                    onTap: () => _toggleSuperSeeding(
-                      enabled: torrent.superSeeding == true,
-                      vm: vm,
-                    ),
+                    trailing: superSeedingOn ? check : null,
+                    onTap: () =>
+                        _toggleSuperSeeding(enabled: superSeedingOn, vm: vm),
                   ),
-                if (!availability.isCompleted) ...[
+                if (availability.showSequential) ...[
                   TorrentActionTile(
                     icon: Icons.format_list_numbered,
                     label: l10n.sequentialDownload,
-                    trailing: torrent.seqDl == true
-                        ? Icon(Icons.check, size: 22, color: scheme.primary)
-                        : null,
+                    trailing: sequentialOn ? check : null,
                     onTap: () => _run(
-                      action: () =>
-                          vm.toggleTorrentSequentialDownload(widget.hash),
+                      action: () => vm.setTorrentSequentialDownload(
+                        hashes,
+                        enable: !sequentialOn,
+                      ),
                       failLabel: l10n.sequentialFailed,
                     ),
                   ),
                   TorrentActionTile(
                     icon: Icons.vertical_align_center,
                     label: l10n.firstLastPiece,
-                    trailing: torrent.fLPiecePrio == true
-                        ? Icon(Icons.check, size: 22, color: scheme.primary)
-                        : null,
+                    trailing: firstLastOn ? check : null,
                     onTap: () => _run(
-                      action: () =>
-                          vm.toggleTorrentFirstLastPiecePrio(widget.hash),
+                      action: () => vm.setTorrentFirstLastPiecePrio(
+                        hashes,
+                        enable: !firstLastOn,
+                      ),
                       failLabel: l10n.firstLastFailed,
                     ),
                   ),
@@ -392,7 +439,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                   icon: Icons.verified_outlined,
                   label: l10n.forceRecheck,
                   onTap: () => _run(
-                    action: () => vm.recheckTorrent(widget.hash),
+                    action: () => vm.recheckTorrent(hashes),
                     failLabel: l10n.recheckFailed,
                   ),
                 ),
@@ -402,7 +449,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                   enabled: availability.canReannounce,
                   onTap: availability.canReannounce
                       ? () => _run(
-                          action: () => vm.reannounceTorrent(widget.hash),
+                          action: () => vm.reannounceTorrent(hashes),
                           failLabel: l10n.reannounceFailed,
                         )
                       : null,
@@ -415,7 +462,9 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (torrent.priority != null && torrent.priority! > 0)
+                        if (widget.isSingle &&
+                            torrent.priority != null &&
+                            torrent.priority! > 0)
                           Padding(
                             padding: const EdgeInsets.only(right: 4),
                             child: Text(
@@ -445,7 +494,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
                     ),
                     onTap: () => _openSub(_SubPage.copy),
                   ),
-                if (cap.hasExportTorrent)
+                if (widget.isSingle && cap.hasExportTorrent)
                   TorrentActionTile(
                     icon: Icons.share_outlined,
                     label: l10n.shareTorrent,
@@ -496,7 +545,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       if (!widget.pageContext.mounted) return;
       LoadingDialog.show(widget.pageContext, message: l10n.preparingShare);
       final result = await vm.exportTorrentFile(
-        widget.hash,
+        widget.hashesParam,
         name: torrent.name,
       );
       if (!widget.pageContext.mounted) return;
@@ -543,14 +592,18 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
         initialName: currentName,
         labelText: l10n.sortName,
         description: l10n.renameTorrentHint,
-        onSubmit: (name) => vm.renameTorrent(widget.hash, name),
+        onSubmit: (name) => vm.renameTorrent(widget.hashesParam, name),
       );
     });
   }
 
-  void _setLocation(TorrentInfoResponse torrent, HomePageViewModel vm) {
-    final autoTmm = torrent.autoTmm == true;
-    final currentPath = torrent.savePath ?? '';
+  void _setLocation(List<TorrentInfoResponse> torrents, HomePageViewModel vm) {
+    final autoTmm = torrents.every((item) => item.autoTmm == true);
+    final paths = {
+      for (final item in torrents)
+        if ((item.savePath ?? '').trim().isNotEmpty) item.savePath!.trim(),
+    };
+    final currentPath = paths.length == 1 ? paths.first : '';
     Navigator.pop(context);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!widget.pageContext.mounted) return;
@@ -560,10 +613,12 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
         autoTmm: autoTmm,
       );
       if (location == null || !widget.pageContext.mounted) return;
-      if (location == currentPath.trim() && !autoTmm) return;
+      if (widget.isSingle && location == currentPath.trim() && !autoTmm) {
+        return;
+      }
       final l10n = widget.pageContext.l10n;
       LoadingDialog.show(widget.pageContext, message: l10n.settingInProgress);
-      final error = await vm.setTorrentLocation(widget.hash, location);
+      final error = await vm.setTorrentLocation(widget.hashesParam, location);
       if (!widget.pageContext.mounted) return;
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
@@ -592,7 +647,10 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
         widget.pageContext,
         message: enable ? l10n.enabling : l10n.disabling,
       );
-      final error = await vm.setTorrentAutoTmm(widget.hash, enable: enable);
+      final error = await vm.setTorrentAutoTmm(
+        widget.hashesParam,
+        enable: enable,
+      );
       if (!widget.pageContext.mounted) return;
       LoadingDialog.dismiss(widget.pageContext);
       if (error == null) return;
@@ -623,7 +681,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
         message: enable ? l10n.enabling : l10n.disabling,
       );
       final error = await vm.setTorrentSuperSeeding(
-        widget.hash,
+        widget.hashesParam,
         enable: enable,
       );
       if (!widget.pageContext.mounted) return;
@@ -663,9 +721,11 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  name.isEmpty
-                      ? l10n.confirmDeleteTorrent
-                      : l10n.confirmDeleteTorrentNamed(name),
+                  widget.isSingle
+                      ? (name.isEmpty
+                            ? l10n.confirmDeleteTorrent
+                            : l10n.confirmDeleteTorrentNamed(name))
+                      : l10n.confirmDeleteTorrents(widget.hashes.length),
                   style: textTheme.bodyMedium?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
@@ -686,7 +746,7 @@ class _TorrentActionSheetState extends ConsumerState<TorrentActionSheet>
       if (confirmed != true || !widget.pageContext.mounted) return;
       LoadingDialog.show(widget.pageContext, message: l10n.deleting);
       final error = await vm.deleteTorrent(
-        widget.hash,
+        widget.hashesParam,
         deleteFiles: deleteFiles,
       );
       if (!widget.pageContext.mounted) return;
